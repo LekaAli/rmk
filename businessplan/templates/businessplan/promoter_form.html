@@ -1,0 +1,25 @@
+{% extends "businessplan/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{% for field in form %}
+
+<div class="panel-dody">
+
+  <form class= "form-row" action="", method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{ form|crispy }}
+
+    
+
+     <input type ='submit' value = 'Create'>
+        </div>
+      </div>
+          
+  </form>
+</div>
+{% endfor %}
+{% endblock content %}

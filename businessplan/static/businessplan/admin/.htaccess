@@ -1,0 +1,22 @@
+ErrorDocument 404 http://www.limeheritage.co.za/404.php
+ErrorDocument index.php http://www.limeheritage.co.za
+
+#Force www:
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^limeheritage.co.za [NC]
+RewriteRule ^(.*)$ http://www.limeheritage.co.za/$1 [L,R=301,NC]
+
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteRule ^(.*)$ /404.php [L]
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteRule ^(.*)$ /inbox.php [L]
+
+RewriteEngine On
+# Check for mime types commonly accepted by mobile devices
+RewriteCond %{HTTP_ACCEPT} "text\/vnd\.wap\.wml|application\/vnd\.wap\.xhtml\+xml" [NC]
+RewriteCond %{REQUEST_URI} ^/$
+RewriteRule ^ http://m.frantpage.com%{REQUEST_URI} [R,L]
