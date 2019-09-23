@@ -12,9 +12,10 @@ from django.urls import reverse
 
 
 class Inflation(models.Model):
-    description = models.CharField(max_length=50)
-    value = models.FloatField(default=1.06)
-    year = models.CharField(max_length=4, default='')
+    description = models.CharField(max_length=50, help_text='Inflation description text')
+    value = models.PositiveSmallIntegerField(help_text='Inflation value')
+    percentage = models.DecimalField(max_digits=2, decimal_places=2, help_text='Inflation value iun percentages')
+    year = models.PositiveSmallIntegerField(default=2, help_text='Inflation year value')
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -23,6 +24,13 @@ class Inflation(models.Model):
         verbose_name_plural = 'Inflations'
 
     def save(self, *args, **kwargs):
+        if self.pk not in [None, '']:
+            pass
+        else:
+            inf = Inflation.objects.values_list('year', flat=True)
+            max_year_val = max(inf) if len(inf) > 0 else 1
+            self.year = max_year_val + 1
+        self.percentage = float(self.value) / 100 if self.value is not None else 0
         super(Inflation, self).save(*args, *kwargs)
 
     def get_absolute_url(self):

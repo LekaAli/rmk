@@ -1,9 +1,10 @@
 from django import forms
-from .import models
+from rampup.models import ProductRampUp
+
 
 class CapacityRampUpForm(forms.ModelForm):
     class Meta:
-        model = models.CapacityRampUp
+        model = ProductRampUp
         fields = '__all__'
     
 

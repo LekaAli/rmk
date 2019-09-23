@@ -1,7 +1,7 @@
 from django import forms
-from .import models
+from revenues.models import ProductRevenue
 
 class RevenueForm(forms.ModelForm):
     class Meta:
-        model = models.Revenue
+        model = ProductRevenue
         fields = '__all__'

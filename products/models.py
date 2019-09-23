@@ -9,9 +9,8 @@ from django.db import models
 # from django.dispatch import receiver
 # import math
 from django.urls import reverse
-from datetime import datetime
-from seasonality.models import ProductSeasonality
-from inflation.models import Inflation
+from datetime import datetime, timezone
+# from revenues.models import ProductRevenue
 
 
 class Product(models.Model):
@@ -44,26 +43,24 @@ class Product(models.Model):
 
 class Sale(models.Model):
     product = models.ForeignKey(Product, related_name='sale_price', on_delete=models.CASCADE, blank=True, null=True)
-    ramp_up_capacity = models.FloatField(default=0.0)
-    seasonality = models.ForeignKey(ProductSeasonality, related_name='sale_seasonality', on_delete=models.CASCADE, blank=True, null=True)
-    inflation = models.ForeignKey(Inflation, related_name='sale_inflation', on_delete=models.CASCADE, blank=True, null=True)
-    value = models.FloatField(default=0.0)
+    total_sale_revenue = models.FloatField(default=0.00)
+    period = models.PositiveSmallIntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    modified = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Sale'
-        verbose_name_plural = 'Sales'
+        verbose_name = 'Product Sale'
+        verbose_name_plural = 'Product Sales'
 
     def save(self, *args, **kwargs):
-        current_date = datetime.now()
-        product_longevity = current_date - self.product.auto_created
-        product_longevity_days = product_longevity.days
-        if product_longevity_days <= 365:
-            self.value = self.product.average_unit_price * self.seasonality.capacity * self.ramp_up_capacity
-        elif 365 < product_longevity_days <= 356 * 2:
-            self.value = self.product.average_unit_price * self.seasonality.capacity * self.inflation.value
-        elif 365 * 2 < product_longevity_days <= 365 * 3:
-            self.value = self.product.average_unit_price * self.inflation.value * 0.1 * 12
+        from revenues.models import ProductRevenue
+        product_revenue = ProductRevenue.objects.filter(product_id=self.product.id)
+        self.total_sale_revenue = sum([p_revenue for p_revenue in product_revenue.values_list('product_revenue', flat=True) if p_revenue is not None])
+        current_date = datetime.now(timezone.utc)
+        product_longevity = current_date - self.product.created
+        product_period = int(float(product_longevity.days) / 365)
+        self.period = 0 if product_period < 1 else product_period
         super(Sale, self).save(*args, *kwargs)
 
     def __str__(self):
-        return self.product
+        return '%s: %.2f' % (self.product.name, self.total_sale_revenue)
