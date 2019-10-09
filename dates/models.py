@@ -13,6 +13,25 @@ from django.urls import reverse
 # Create your models here.
 
 
+class FinancialYear(models.Model):
+    description = models.CharField(max_length=100, blank=False, null=False)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    # start_projection = models.DateField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Financial Year'
+        verbose_name_plural = 'Financial Years'
+
+    def save(self, *args, **kwargs):
+        super(FinancialYear, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return '%s to %s' % (self.start_date, self.end_date)
+
+
 class Dates(models.Model) :
         dates_video = models.ImageField(default='date.png',blank=True)
         number_of_years_projected = models.FloatField(default=10)
@@ -72,187 +91,187 @@ class Dates(models.Model) :
         @property
         def _get_month_1 (self, *args, **kwarg):
                 return self.year_end + monthdelta(1)
-                
-        @property 
+
+        @property
         def _get_month_2 (self, *args, **kwarg):
                 return self.year_end + monthdelta(2)
 
-        @property 
+        @property
         def _get_month_3 (self, *args, **kwarg):
                 return self.year_end + monthdelta(3)
-                
-        @property 
+
+        @property
         def _get_month_4 (self, *args, **kwarg):
                 return self.year_end + monthdelta(4)
-                
-        @property 
+
+        @property
         def _get_month_5 (self, *args, **kwarg):
                 return self.year_end + monthdelta(5)
 
-        @property 
+        @property
         def _get_month_6 (self, *args, **kwarg):
                 return self.year_end + monthdelta(6)
-                
-        @property 
+
+        @property
         def _get_month_7 (self, *args, **kwarg):
                 return self.year_end + monthdelta(7)
 
-        @property 
+        @property
         def _get_month_8 (self, *args, **kwarg):
                 return self.year_end + monthdelta(8)
-                
-        @property 
+
+        @property
         def _get_month_9 (self, *args, **kwarg):
                 return self.year_end + monthdelta(9)
-                
-        @property 
+
+        @property
         def _get_month_10 (self, *args, **kwarg):
                 return self.year_end + monthdelta(10)
-                
-        @property 
+
+        @property
         def _get_month_11 (self, *args, **kwarg):
                 return self.year_end + monthdelta(11)
-                
-        @property 
+
+        @property
         def _get_month_12 (self, *args, **kwarg):
                 return self.year_end + monthdelta(12)
 
-        @property  
+        @property
         def _get_year_1 (self, *args, **kwarg):
                 return self.year_end + monthdelta(12)
 
-        @property 
+        @property
         def _get_month_13 (self, *args, **kwarg):
                 return self.year_end + monthdelta(13)
-                
-        @property 
+
+        @property
         def _get_month_14 (self, *args, **kwarg):
                 return self.year_end + monthdelta(14)
 
-        @property 
+        @property
         def _get_month_15 (self, *args, **kwarg):
                 return self.year_end + monthdelta(15)
-                
-        @property 
+
+        @property
         def _get_month_16 (self, *args, **kwarg):
                 return self.year_end + monthdelta(16)
-                
-        @property 
+
+        @property
         def _get_month_17 (self, *args, **kwarg):
                 return self.year_end + monthdelta(17)
 
-        @property 
+        @property
         def _get_month_18 (self, *args, **kwarg):
                 return self.year_end + monthdelta(18)
-                
-        @property 
+
+        @property
         def _get_month_19 (self, *args, **kwarg):
                 return self.year_end + monthdelta(19)
 
-        @property 
+        @property
         def _get_month_20 (self, *args, **kwarg):
                 return self.year_end + monthdelta(20)
-                
-        @property 
+
+        @property
         def _get_month_21 (self, *args, **kwarg):
                 return self.year_end + monthdelta(21)
-                
-        @property 
+
+        @property
         def _get_month_22 (self, *args, **kwarg):
                 return self.year_end + monthdelta(22)
-                
-        @property 
+
+        @property
         def _get_month_23 (self, *args, **kwarg):
                 return self.year_end + monthdelta(23)
 
-                
-        @property 
+
+        @property
         def _get_month_24 (self, *args, **kwarg):
                 return self.year_end + monthdelta(24)
 
-        @property 
+        @property
         def _get_year_2 (self, *args, **kwarg):
                 return self.year_end + monthdelta(24)
 
-        @property 
+        @property
         def _get_month_25 (self, *args, **kwarg):
                 return self.year_end + monthdelta(25)
-                
-        @property 
+
+        @property
         def _get_month_26 (self, *args, **kwarg):
                 return self.year_end + monthdelta(26)
 
-        @property 
+        @property
         def _get_month_27 (self, *args, **kwarg):
                 return self.year_end + monthdelta(27)
-                
-        @property 
+
+        @property
         def _get_month_28 (self, *args, **kwarg):
                 return self.year_end + monthdelta(28)
-                
-        @property 
+
+        @property
         def _get_month_29 (self, *args, **kwarg):
                 return self.year_end + monthdelta(29)
 
-        @property 
+        @property
         def _get_month_30 (self, *args, **kwarg):
                 return self.year_end + monthdelta(30)
-                
-        @property 
+
+        @property
         def _get_month_31 (self, *args, **kwarg):
                 return self.year_end + monthdelta(31)
 
-        @property 
+        @property
         def _get_month_32 (self, *args, **kwarg):
                 return self.year_end + monthdelta(32)
-                
-        @property 
+
+        @property
         def _get_month_33 (self, *args, **kwarg):
                 return self.year_end + monthdelta(33)
-                
-        @property 
+
+        @property
         def _get_month_34 (self, *args, **kwarg):
                 return self.year_end + monthdelta(34)
-                
-        @property 
+
+        @property
         def _get_month_35 (self, *args, **kwarg):
                 return self.year_end + monthdelta(35)
-                
-        @property 
+
+        @property
         def _get_month_36 (self, *args, **kwarg):
                 return self.year_end + monthdelta(36)
 
-        @property 
+        @property
         def _get_year_3 (self, *args, **kwarg):
                 return self.year_end + monthdelta(36)
 
-        @property    
+        @property
         def _get_year_4 (self, *args, **kwarg):
                 return self.year_end + monthdelta(48)
 
-        @property    
+        @property
         def _get_year_5 (self, *args, **kwarg):
                 return self.year_end + monthdelta(60)
-                
-        @property    
+
+        @property
         def _get_year_6 (self, *args, **kwarg):
                 return self.year_end + monthdelta(72)
 
-        @property    
+        @property
         def _get_year_7 (self, *args, **kwarg):
                 return self.year_end + monthdelta(84)
 
-        @property    
+        @property
         def _get_year_8 (self, *args, **kwarg):
-                return self.year_end + monthdelta(96)  
+                return self.year_end + monthdelta(96)
 
-        @property    
+        @property
         def _get_year_9 (self, *args, **kwarg):
                 return self.year_end + monthdelta(108)
 
-        @property    
+        @property
         def _get_year_10 (self, *args, **kwarg):
-                return self.year_end + monthdelta(120) 
+                return self.year_end + monthdelta(120)
 
         def save(self, *args, **kwargs):
                 self.month_1 = self._get_month_1
@@ -301,8 +320,8 @@ class Dates(models.Model) :
                 self.year_8 = self._get_year_8
                 self.year_9 = self._get_year_9
                 self.year_10 = self._get_year_10
-                
+
                 super(Dates, self).save(*args, **kwargs)
 
         def get_absolute_url(self):
-                return reverse('dates:CreateDates')  
+                return reverse('dates:CreateDates')
