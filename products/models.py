@@ -137,7 +137,9 @@ class ProfitBeforeTax(models.Model):
 
 class Tax(models.Model):
     profit_before_tax = models.ForeignKey(ProfitBeforeTax, related_name='profit_before_tax', on_delete=models.CASCADE, blank=True, null=True)
-    value = models.FloatField()
+    total_tax_value = models.FloatField(default=0.00)
+    tax_percentage = models.FloatField(default=1.00)
+    profit_loss_value = models.FloatField()
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -147,15 +149,24 @@ class Tax(models.Model):
 
     def save(self, *args, **kwargs):
         super(Tax, self).save(*args, **kwargs)
-        if self.profit_before_tax.total_value < 0:
-            pass
-            # cover loss for previous years
+        if self.profit_before_tax.total_value <= 0:
+            self.total_tax_value = 0
         else:
-            pass
             # calculate tax
+            if self.profit_loss_value == 0:
+                self.total_tax_value = self.profit_before_tax.total_value(self.tax_percentage / float(100))
+            else:
+                # cover loss for previous years
+                profit_after_loss_deduction = self.profit_before_tax.total_value - self.profit_loss_value
+                if profit_after_loss_deduction > 0:
+                    self.profit_loss_value = 0
+                    self.total_tax_value = profit_after_loss_deduction(self.tax_percentage / float(100))
+                else:
+                    self.profit_loss_value = abs(profit_after_loss_deduction)
+                    self.total_tax_value = 0
 
     def __str__(self):
-        return ''
+        return 'Total tax payable: %s' % self.total_tax_value
 
 
 class NetProfit(models.Model):
@@ -170,7 +181,7 @@ class NetProfit(models.Model):
 
     def save(self, *args, **kwargs):
         super(NetProfit, self).save(*args, **kwargs)
-        self.net_profit = self.tax.profit_before_tax.total_value - self.tax.value
+        self.net_profit = self.tax.profit_before_tax.total_value - self.tax.total_tax_value
 
     def __str__(self):
-        return ''
+        return 'Net Profit: %s' % self.net_profit
