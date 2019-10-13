@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 # from django.contrib.auth.models import User
 # from monthdelta import monthdelta
@@ -15,10 +16,25 @@ from dates.models import FinancialYear
 
 
 class Product(models.Model):
+    MONTHS = (
+        (1, 'January'),
+        (2, 'February'),
+        (3, 'March'),
+        (4, 'April'),
+        (5, 'May'),
+        (6, 'June'),
+        (7, 'July'),
+        (8, 'August'),
+        (9, 'September'),
+        (10, 'October'),
+        (11, 'November'),
+        (12, 'December'),
+    )
+    is_within_f_year = True
     name = models.CharField(max_length=50, blank=False, null=False)
-    projection_start = models.DateField(blank=False, null=True)
-    financial_year = models.ForeignKey(FinancialYear, related_name='product_fin_year', on_delete=models.CASCADE, blank=True, null=True)
-    description = models.CharField(max_length=50)
+    financial_year = models.ForeignKey(FinancialYear, related_name='product_fin_year', on_delete=models.CASCADE, blank=False, null=True)
+    projection_start = models.PositiveSmallIntegerField(blank=False, null=True, choices=MONTHS)
+    # description = models.CharField(max_length=50)
     average_unit_price = models.FloatField(default=10)
     average_quantity_per_month = models.FloatField(default=1.00)
     average_revenue_per_month = models.FloatField(blank=True)
@@ -29,17 +45,32 @@ class Product(models.Model):
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
 
-    @classmethod
-    def projection_within_f_year(cls, value):
-        pass
+    def projection_within_f_year(self):
+        start_month = self.financial_year.start_date.month
+        end_month = self.financial_year.end_date.month
+        f_year_months = [month for month in range(start_month, 13, 1)]
+        end = [month for month in range(1, end_month + 1, 1)]
+        f_year_months.extend(end)
+        return f_year_months
 
     @property
     def _get_total(self):
         return self.average_quantity_per_month * self.average_unit_price
-   
+
+    # def clean(self):
+    #     if self.is_within_f_year is False:
+    #         raise ValidationError('Projection start month is out of financial year bound')
+
     def save(self, *args, **kwargs):
-        self.average_revenue_per_month = self._get_total
-        super(Product, self).save(*args, **kwargs)
+        # check if the project month falls within financial year
+        f_year_months = self.projection_within_f_year()
+        self.is_within_f_year = self.projection_start in f_year_months
+        if self.projection_start in f_year_months:
+            self.average_revenue_per_month = self._get_total
+            super(Product, self).save(*args, **kwargs)
+        else:
+            # self.full_clean()
+            pass
 
     def __str__(self):
         return self.name
@@ -119,7 +150,7 @@ class Expense(models.Model):
 class ProfitBeforeTax(models.Model):
     gross = models.ForeignKey(GrossProfit, related_name='gross_profit', on_delete=models.CASCADE, blank=True, null=True)
     expense = models.ForeignKey(Expense, related_name='expense', on_delete=models.CASCADE, blank=True, null=True)
-    total_value = models.FloatField()
+    total_gross_value = models.FloatField()
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -129,10 +160,10 @@ class ProfitBeforeTax(models.Model):
 
     def save(self, *args, **kwargs):
         super(ProfitBeforeTax, self).save(*args, **kwargs)
-        self.total_value = self.gross.gross_profit_value - self.expense
+        self.total_gross_value = self.gross.gross_profit_value - self.expense
 
     def __str__(self):
-        return ''
+        return 'Total Gross Value: %s' % self.total_gross_value
 
 
 class Tax(models.Model):
@@ -149,15 +180,15 @@ class Tax(models.Model):
 
     def save(self, *args, **kwargs):
         super(Tax, self).save(*args, **kwargs)
-        if self.profit_before_tax.total_value <= 0:
+        if self.profit_before_tax.total_gross_value <= 0:
             self.total_tax_value = 0
         else:
             # calculate tax
             if self.profit_loss_value == 0:
-                self.total_tax_value = self.profit_before_tax.total_value(self.tax_percentage / float(100))
+                self.total_tax_value = self.profit_before_tax.total_gross_value(self.tax_percentage / float(100))
             else:
                 # cover loss for previous years
-                profit_after_loss_deduction = self.profit_before_tax.total_value - self.profit_loss_value
+                profit_after_loss_deduction = self.profit_before_tax.total_gross_value - self.profit_loss_value
                 if profit_after_loss_deduction > 0:
                     self.profit_loss_value = 0
                     self.total_tax_value = profit_after_loss_deduction(self.tax_percentage / float(100))

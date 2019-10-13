@@ -17,7 +17,6 @@ class FinancialYear(models.Model):
     description = models.CharField(max_length=100, blank=False, null=False)
     start_date = models.DateField()
     end_date = models.DateField()
-    # start_projection = models.DateField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
