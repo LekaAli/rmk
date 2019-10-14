@@ -30,11 +30,9 @@ class Product(models.Model):
         (11, 'November'),
         (12, 'December'),
     )
-    is_within_f_year = True
     name = models.CharField(max_length=50, blank=False, null=False)
-    financial_year = models.ForeignKey(FinancialYear, related_name='product_fin_year', on_delete=models.CASCADE, blank=False, null=True)
+    # financial_year = models.ForeignKey(FinancialYear, related_name='product_fin_year', on_delete=models.CASCADE, blank=False, null=True)
     projection_start = models.PositiveSmallIntegerField(blank=False, null=True, choices=MONTHS)
-    # description = models.CharField(max_length=50)
     average_unit_price = models.FloatField(default=10)
     average_quantity_per_month = models.FloatField(default=1.00)
     average_revenue_per_month = models.FloatField(blank=True)
@@ -45,32 +43,25 @@ class Product(models.Model):
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
 
-    def projection_within_f_year(self):
-        start_month = self.financial_year.start_date.month
-        end_month = self.financial_year.end_date.month
-        f_year_months = [month for month in range(start_month, 13, 1)]
-        end = [month for month in range(1, end_month + 1, 1)]
-        f_year_months.extend(end)
-        return f_year_months
+    # def projection_within_f_year(self):
+    #     start_month = self.financial_year.start_date.month
+    #     end_month = self.financial_year.end_date.month
+    #     f_year_months = [month for month in range(start_month, 13, 1)]
+    #     end = [month for month in range(1, end_month + 1, 1)]
+    #     f_year_months.extend(end)
+    #     return f_year_months
 
     @property
     def _get_total(self):
         return self.average_quantity_per_month * self.average_unit_price
 
     # def clean(self):
-    #     if self.is_within_f_year is False:
-    #         raise ValidationError('Projection start month is out of financial year bound')
+    #     if self.projection_start not in self.projection_within_f_year():
+    #         raise ValidationError({'financial_year': 'Projection start month is out of financial year bound'})
 
     def save(self, *args, **kwargs):
-        # check if the project month falls within financial year
-        f_year_months = self.projection_within_f_year()
-        self.is_within_f_year = self.projection_start in f_year_months
-        if self.projection_start in f_year_months:
-            self.average_revenue_per_month = self._get_total
-            super(Product, self).save(*args, **kwargs)
-        else:
-            # self.full_clean()
-            pass
+        self.average_revenue_per_month = self._get_total
+        super(Product, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -82,7 +73,7 @@ class Product(models.Model):
 class Sale(models.Model):
     product = models.ForeignKey(Product, related_name='sale_price', on_delete=models.CASCADE, blank=True, null=True)
     total_sale_revenue = models.FloatField(default=0.00)
-    period = models.PositiveSmallIntegerField(default=0)
+    period = models.PositiveSmallIntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True, blank=True, null=True)
 

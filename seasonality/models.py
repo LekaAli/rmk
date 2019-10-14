@@ -9,6 +9,7 @@ from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 import math
 from django.urls import reverse
+from dates.models import FinancialYear
 from products.models import Product
 
 
@@ -28,6 +29,7 @@ class ProductSeasonality(models.Model):
         (12, 'December'),
     )
     product = models.ForeignKey(Product, related_name='product_seasonality', on_delete=models.CASCADE, blank=True, null=True)
+    financial_year = models.ForeignKey(FinancialYear, related_name='seasonality_f_year', on_delete=models.CASCADE, blank=False, null=True)
     month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
     demand_value = models.PositiveSmallIntegerField(default=0)
     demand_percentage = models.FloatField(default=0.00)
@@ -39,8 +41,8 @@ class ProductSeasonality(models.Model):
         verbose_name_plural = 'Product Seasonalities'
 
     def projection_within_f_year(self):
-        start_month = self.product.financial_year.start_date.month
-        end_month = self.product.financial_year.end_date.month
+        start_month = self.financial_year.start_date.month
+        end_month = self.financial_year.end_date.month
         f_year_months = [month for month in range(start_month, 13, 1)]
         end = [month for month in range(1, end_month + 1, 1)]
         f_year_months.extend(end)

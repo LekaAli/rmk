@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from dates.models import FinancialYear
 
 
 class ProductRampUp(models.Model):
@@ -19,6 +20,7 @@ class ProductRampUp(models.Model):
         (12, 'December'),
     )
     product = models.ForeignKey('products.Product', related_name='product_rampup', on_delete=models.CASCADE, blank=True, null=True)
+    financial_year = models.ForeignKey(FinancialYear, related_name='rampup_f_year', on_delete=models.CASCADE, blank=False, null=True)
     month = models.PositiveSmallIntegerField(blank=True, null=True, choices=MONTHS)
     percentage = models.FloatField(default=0.0)
     created = models.DateTimeField(auto_now_add=True)
@@ -29,8 +31,8 @@ class ProductRampUp(models.Model):
         verbose_name_plural = 'Product RampUp'
 
     def projection_within_f_year(self):
-        start_month = self.product.financial_year.start_date.month
-        end_month = self.product.financial_year.end_date.month
+        start_month = self.financial_year.start_date.month
+        end_month = self.financial_year.end_date.month
         f_year_months = [month for month in range(start_month, 13, 1)]
         end = [month for month in range(1, end_month + 1, 1)]
         f_year_months.extend(end)
