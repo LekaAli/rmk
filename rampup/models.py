@@ -58,5 +58,9 @@ class ProductRampUp(models.Model):
     def get_absolute_url(self):
         return reverse('businessplan:RevenueInput')
 
+    def _model_instance_name(self, f_year, month, demand):
+        name = ''.join([m[1] for m in self.MONTHS if m[0] == month])
+        return '%s: %s: %s' % (f_year.description if f_year is not None else '', name, demand)
+
     def __str__(self):
-        return '%s: %s' % (self.month, self.percentage)
+        return self._model_instance_name(self.financial_year, self.month, self.percentage)

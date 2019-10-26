@@ -68,6 +68,10 @@ class ProductSeasonality(models.Model):
         self.demand_percentage = float(self.demand_value) / 100 if self.demand_value is not None else 0.0
         super(ProductSeasonality, self).save(*args, **kwargs)
 
+    def _model_instance_name(self, f_year, month, demand):
+        name = ''.join([m[1] for m in self.MONTHS if m[0] == month])
+        return '%s: %s: %s' % (f_year, name, demand)
+
     def __str__(self):
-        return '%s: %s' % (self.month, self.demand_percentage)
+        return self._model_instance_name(self.financial_year.description, self.month, self.demand_percentage)
 

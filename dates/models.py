@@ -28,7 +28,7 @@ class FinancialYear(models.Model):
         super(FinancialYear, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '%s to %s' % (self.start_date, self.end_date)
+        return '%s' % self.description
 
 
 class Dates(models.Model) :
