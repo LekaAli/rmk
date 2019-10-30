@@ -17,6 +17,7 @@ class FinancialYear(models.Model):
     description = models.CharField(max_length=100, blank=False, null=False)
     start_date = models.DateField()
     end_date = models.DateField()
+    inflation = models.FloatField(default=0.00, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
