@@ -1,18 +1,6 @@
-from django.core.exceptions import ValidationError
 from django.db import models
-# from django.contrib.auth.models import User
-# from monthdelta import monthdelta
-# import calendar
-# from django.db.models import Sum, Avg, F, Func
-# from django.core.validators import MaxValueValidator, MinValueValidator
-# from django.db.models.signals import pre_save, post_save
-#
-# from django.dispatch import receiver
-# import math
 from django.urls import reverse
 from datetime import datetime, timezone
-# from revenues.models import ProductRevenue
-from dates.models import FinancialYear
 
 
 class Product(models.Model):
@@ -31,7 +19,6 @@ class Product(models.Model):
         (12, 'December'),
     )
     name = models.CharField(max_length=50, blank=False, null=False)
-    # financial_year = models.ForeignKey(FinancialYear, related_name='product_fin_year', on_delete=models.CASCADE, blank=False, null=True)
     projection_start = models.PositiveSmallIntegerField(blank=False, null=True, choices=MONTHS)
     average_unit_price = models.FloatField(default=10)
     average_quantity_per_month = models.FloatField(default=1.00)
@@ -43,21 +30,9 @@ class Product(models.Model):
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
 
-    # def projection_within_f_year(self):
-    #     start_month = self.financial_year.start_date.month
-    #     end_month = self.financial_year.end_date.month
-    #     f_year_months = [month for month in range(start_month, 13, 1)]
-    #     end = [month for month in range(1, end_month + 1, 1)]
-    #     f_year_months.extend(end)
-    #     return f_year_months
-
     @property
     def _get_total(self):
         return self.average_quantity_per_month * self.average_unit_price
-
-    # def clean(self):
-    #     if self.projection_start not in self.projection_within_f_year():
-    #         raise ValidationError({'financial_year': 'Projection start month is out of financial year bound'})
 
     def save(self, *args, **kwargs):
         self.average_revenue_per_month = self._get_total

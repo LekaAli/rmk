@@ -1,13 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import User
-import datetime
-import calendar
-from django.db.models import Sum, Avg, F, Func
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models.signals import pre_save, post_save
-from django.dispatch import receiver
-import math
 from django.urls import reverse
 from dates.models import FinancialYear
 from products.models import Product
