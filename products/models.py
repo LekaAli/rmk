@@ -57,13 +57,6 @@ class Sale(models.Model):
         verbose_name_plural = 'Product Sales'
 
     def save(self, *args, **kwargs):
-        from revenues.models import ProductRevenue
-        product_revenue = ProductRevenue.objects.filter(product_id=self.product.id)
-        self.total_sale_revenue = sum([p_revenue for p_revenue in product_revenue.values_list('product_revenue', flat=True) if p_revenue is not None])
-        current_date = datetime.now(timezone.utc)
-        product_longevity = current_date - self.product.created
-        product_period = int(float(product_longevity.days) / 365)
-        self.period = 0 if product_period < 1 else product_period
         super(Sale, self).save(*args, *kwargs)
 
     def __str__(self):
