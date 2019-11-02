@@ -1,5 +1,5 @@
 from django.contrib import admin
-from products.models import Product, Sale
+from products.models import Product, Sale, GrossProfit
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -17,5 +17,10 @@ class SaleAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'product')
 
 
+class GrossProfitAdmin(admin.ModelAdmin):
+    save_on_top = True
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Sale, SaleAdmin)
+admin.site.register(GrossProfit, GrossProfitAdmin)

@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from datetime import datetime, timezone
+from dates.models import FinancialYear
 
 
 class Product(models.Model):
@@ -46,7 +46,7 @@ class Product(models.Model):
 
 
 class Sale(models.Model):
-    product = models.ForeignKey(Product, related_name='sale_price', on_delete=models.CASCADE, blank=True, null=True)
+    product = models.ForeignKey(Product, related_name='product_sale', on_delete=models.CASCADE, blank=True, null=True)
     total_sale_revenue = models.FloatField(default=0.00)
     period = models.PositiveSmallIntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -64,8 +64,10 @@ class Sale(models.Model):
 
 
 class GrossProfit(models.Model):
-    product = models.ForeignKey(Product, related_name='product', on_delete=models.CASCADE, blank=True, null=True)
-    sale = models.ForeignKey(Sale, related_name='sale', on_delete=models.CASCADE, blank=True, null=True)
+    product = models.ForeignKey(Product, related_name='product_gross_profit', on_delete=models.CASCADE, blank=True, null=True)
+    financial_year = models.ForeignKey(
+        FinancialYear, related_name='gross_profit_f_year', on_delete=models.CASCADE, blank=False, null=True)
+    month = models.PositiveSmallIntegerField(default=1)
     cost_of_sale = models.FloatField(default=0.00)
     gross_profit_value = models.FloatField(default=0.00)
     created = models.DateTimeField(auto_now_add=True)
@@ -76,7 +78,13 @@ class GrossProfit(models.Model):
         verbose_name_plural = 'Gross Profits'
 
     def save(self, *args, **kwargs):
-        self.gross_profit_value = self.product.sale - self.sale.cost_of_sale
+        from revenues.models import ProductRevenue
+        product_revenue = ProductRevenue.objects.filter(product_id=self.product.id, financial_year_id=self.financial_year.id, month=self.month)
+        if product_revenue.count() > 0:
+            revenue = product_revenue.first()
+            self.gross_profit_value = revenue.product_revenue - self.cost_of_sale
+        else:
+            self.gross_profit_value = 0
         super(GrossProfit, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -84,7 +92,7 @@ class GrossProfit(models.Model):
 
 
 class Expense(models.Model):
-    sale = models.ForeignKey(Sale, related_name='expenses', on_delete=models.CASCADE, blank=True, null=True)
+    sale = models.ForeignKey(Sale, related_name='sale_expenses', on_delete=models.CASCADE, blank=True, null=True)
     is_fixed = models.BooleanField()
     value = models.FloatField()
     total = models.FloatField(default=0.00)
