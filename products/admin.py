@@ -1,5 +1,5 @@
 from django.contrib import admin
-from products.models import Product, Sale, GrossProfit, Expense, ProfitBeforeTax
+from products.models import Product, Sale, GrossProfit, Expense, ProfitBeforeTax, Tax, NetProfit
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -30,8 +30,18 @@ class ProfitBeforeTaxAdmin(admin.ModelAdmin):
     readonly_fields = ['gross', 'expense', 'total_gross_value']
 
 
+class TaxAdmin(admin.ModelAdmin):
+    save_on_top = True
+
+
+class NetProfitAdmin(admin.ModelAdmin):
+    save_on_top = True
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Sale, SaleAdmin)
 admin.site.register(GrossProfit, GrossProfitAdmin)
 admin.site.register(Expense, ExpenseAdmin)
 admin.site.register(ProfitBeforeTax, ProfitBeforeTaxAdmin)
+admin.site.register(Tax, TaxAdmin)
+admin.site.register(NetProfit, NetProfitAdmin)
