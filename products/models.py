@@ -124,8 +124,9 @@ class Expense(models.Model):
 
 
 class ProfitBeforeTax(models.Model):
-    gross = models.ForeignKey(GrossProfit, related_name='gross_profit', on_delete=models.CASCADE, blank=True, null=True)
-    expense = models.ForeignKey(Expense, related_name='expense', on_delete=models.CASCADE, blank=True, null=True)
+    financial_year = models.ForeignKey(FinancialYear, related_name='profit_before_tax_f_year', on_delete=models.CASCADE, blank=False, null=True)
+    gross = models.FloatField(default=0.00)
+    expense = models.FloatField(default=0.00)
     total_gross_value = models.FloatField()
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -135,8 +136,18 @@ class ProfitBeforeTax(models.Model):
         verbose_name_plural = 'Profit Before Taxes'
 
     def save(self, *args, **kwargs):
+        gross_values = GrossProfit.objects.filter(financial_year=self.financial_year.id)
+        expenses = Expense.objects.filter(financial_year=self.financial_year.id)
+        if expenses.count() > 0:
+            self.expense = sum([expense.total for expense in expenses])
+        else:
+            self.expense = 0
+        if gross_values.count() > 0:
+            self.gross_value = sum([gross.gross_profit_value for gross in gross_values])
+        else:
+            self.gross_value = 0
+        self.total_gross_value = self.gross_value - self.expense
         super(ProfitBeforeTax, self).save(*args, **kwargs)
-        self.total_gross_value = self.gross.gross_profit_value - self.expense
 
     def __str__(self):
         return 'Total Gross Value: %s' % self.total_gross_value
