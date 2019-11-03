@@ -92,7 +92,10 @@ class GrossProfit(models.Model):
 
 
 class Expense(models.Model):
-    sale = models.ForeignKey(Sale, related_name='sale_expenses', on_delete=models.CASCADE, blank=True, null=True)
+    # sale = models.ForeignKey(Sale, related_name='sale_expenses', on_delete=models.CASCADE, blank=True, null=True)
+    financial_year = models.ForeignKey(
+        FinancialYear, related_name='expense_f_year', on_delete=models.CASCADE, blank=False, null=True)
+    month = models.PositiveSmallIntegerField(default=1)
     is_fixed = models.BooleanField()
     value = models.FloatField()
     total = models.FloatField(default=0.00)
@@ -104,11 +107,17 @@ class Expense(models.Model):
         verbose_name_plural = 'Expenses'
 
     def save(self, *args, **kwargs):
-        super(Expense, self).save(*args, **kwargs)
-        if self.is_fixed is True:
-            self.total = self.sale - self.value
+        from revenues.models import ProductRevenue
+        product_revenues = ProductRevenue.objects.filter(financial_year_id=self.financial_year.id, month=self.month)
+        if product_revenues.count() > 0:
+            self.total = sum([revenue.product_revenue for revenue in product_revenues])
         else:
-            self.total = self.sale - self.value * 0.1 * self.sale
+            self.total = 0
+        if self.is_fixed is True:
+            self.total = self.total - self.value
+        else:
+            self.total = self.total - (self.value / float(100) * self.total)
+        super(Expense, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s percent of expenses' % self.value if self.is_fixed is True else '%s for expenses' % self.value
