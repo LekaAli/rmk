@@ -64,10 +64,24 @@ class Sale(models.Model):
 
 
 class GrossProfit(models.Model):
+    MONTHS = (
+        (1, 'January'),
+        (2, 'February'),
+        (3, 'March'),
+        (4, 'April'),
+        (5, 'May'),
+        (6, 'June'),
+        (7, 'July'),
+        (8, 'August'),
+        (9, 'September'),
+        (10, 'October'),
+        (11, 'November'),
+        (12, 'December'),
+    )
     product = models.ForeignKey(Product, related_name='product_gross_profit', on_delete=models.CASCADE, blank=True, null=True)
     financial_year = models.ForeignKey(
         FinancialYear, related_name='gross_profit_f_year', on_delete=models.CASCADE, blank=False, null=True)
-    month = models.PositiveSmallIntegerField(default=1)
+    month = models.PositiveSmallIntegerField(choices=MONTHS, blank=True, null=True)
     cost_of_sale = models.FloatField(default=0.00)
     gross_profit_value = models.FloatField(default=0.00)
     created = models.DateTimeField(auto_now_add=True)
@@ -88,7 +102,12 @@ class GrossProfit(models.Model):
         super(GrossProfit, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '%s - %s = %s' % (self.product.sale, self.cost_of_sale, self.gross_profit)
+        return 'Product: %s; Year: %s; Month: %s; Gross Profit: %s' % (
+            self.product.name,
+            self.financial_year,
+            self.month,
+            self.gross_profit_value
+        )
 
 
 class Expense(models.Model):

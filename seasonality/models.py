@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from dates.models import FinancialYear
-# from products.models import Product
+from products.models import Product
 
 
 class ProductSeasonality(models.Model):
@@ -20,7 +20,7 @@ class ProductSeasonality(models.Model):
         (11, 'November'),
         (12, 'December'),
     )
-    product = models.ForeignKey('products.Product', related_name='product_seasonality', on_delete=models.CASCADE, blank=True, null=True)
+    product = models.ForeignKey(Product, related_name='product_seasonality', on_delete=models.CASCADE, blank=True, null=True)
     financial_year = models.ForeignKey(FinancialYear, related_name='seasonality_f_year', on_delete=models.CASCADE, blank=False, null=True)
     month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
     demand_value = models.PositiveSmallIntegerField(default=0)

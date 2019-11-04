@@ -1,10 +1,11 @@
 from django.db import models
 from monthdelta import monthdelta
 from django.urls import reverse
+import datetime
 
 
 class FinancialYear(models.Model):
-    description = models.CharField(max_length=100, blank=False, null=False)
+    description = models.CharField(max_length=100, default='Year 1')
     start_date = models.DateField()
     end_date = models.DateField()
     inflation = models.FloatField(default=0.00, blank=True, null=True)
@@ -16,13 +17,17 @@ class FinancialYear(models.Model):
         verbose_name_plural = 'Financial Years'
 
     def save(self, *args, **kwargs):
+        self.end_date = self.start_date + datetime.timedelta(days=365)
+        is_evenly_divisible = self.end_date.year % 4
+        if isinstance(is_evenly_divisible, int) is False:
+            self.end_date = self.start_date + datetime.timedelta(days=365)
         super(FinancialYear, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s' % self.description
 
 
-class Dates(models.Model) :
+class Dates(models.Model):
         dates_video = models.ImageField(default='date.png',blank=True)
         number_of_years_projected = models.FloatField(default=10)
         year_end = models.DateField(blank=True, null=True)
