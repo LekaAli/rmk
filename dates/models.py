@@ -19,7 +19,7 @@ class FinancialYear(models.Model):
     def save(self, *args, **kwargs):
         self.end_date = self.start_date + datetime.timedelta(days=365)
         if self.end_date.year % 4 != 0 and self.end_date.year % 100 == 0 and self.end_date.year % 400 != 0:
-            self.end_date = self.start_date + datetime.timedelta(days=363)
+            self.end_date = self.start_date + datetime.timedelta(days=364)
         super(FinancialYear, self).save(*args, **kwargs)
 
     def __str__(self):
