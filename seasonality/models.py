@@ -24,7 +24,7 @@ class ProductSeasonality(models.Model):
     financial_year = models.ForeignKey(FinancialYear, related_name='seasonality_f_year', on_delete=models.CASCADE, blank=False, null=True)
     month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
     demand_value = models.PositiveSmallIntegerField(default=0)
-    demand_percentage = models.FloatField(default=0.00)
+    demand_percentage = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -41,23 +41,24 @@ class ProductSeasonality(models.Model):
         return f_year_months
 
     def clean(self):
-        allocated_months = ProductSeasonality.objects.filter(product_id=self.product.id).values_list('month', flat=True)
+        allocated_months = ProductSeasonality.objects.filter(product_id=self.product.id, financial_year=self.financial_year.id).values_list('month', flat=True)
         if len(allocated_months) == 0:
             if self.month != self.product.projection_start:
                 raise ValidationError({
-                    'month': 'Product starting seasonality should be %s' % self.product.projection_start
+                    'month': 'Product starting seasonality should start on month %s' % self.product.projection_start
                 })
         f_year_months = self.projection_within_f_year()
-        if self.month not in f_year_months:
+        diff = allocated_months[0] - f_year_months[0] if allocated_months[0] > f_year_months[0] else 0
+        if len(allocated_months) == len(f_year_months[diff:]) and self.pk is None:
             raise ValidationError({
-                'month': 'Month not within the financial year bounds'
+                'month': 'Seasonality projection fall outside financial year bounds'
             })
 
     def get_absolute_url(self):
         return reverse('businessplan:RevenueInput')
 
     def save(self, *args, **kwargs):
-        self.demand_percentage = float(self.demand_value) / 100 if self.demand_value is not None else 0.0
+        self.demand_percentage = self.demand_value / 100 if self.demand_value is not None else 0.0
         super(ProductSeasonality, self).save(*args, **kwargs)
 
     def _model_instance_name(self, f_year, month, demand):

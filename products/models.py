@@ -20,9 +20,9 @@ class Product(models.Model):
     )
     name = models.CharField(max_length=50, blank=False, null=False)
     projection_start = models.PositiveSmallIntegerField(blank=False, null=True, choices=MONTHS)
-    average_unit_price = models.FloatField(default=10)
-    average_quantity_per_month = models.FloatField(default=1.00)
-    average_revenue_per_month = models.FloatField(blank=True)
+    average_unit_price = models.DecimalField(decimal_places=2, max_digits=15, default=0.00)
+    average_quantity_per_month = models.DecimalField(decimal_places=2, max_digits=5, default=1.00)
+    average_revenue_per_month = models.DecimalField(decimal_places=2, max_digits=15, default=0.00)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -47,7 +47,9 @@ class Product(models.Model):
 
 class Sale(models.Model):
     product = models.ForeignKey(Product, related_name='product_sale', on_delete=models.CASCADE, blank=True, null=True)
-    total_sale_revenue = models.FloatField(default=0.00)
+    month = models.PositiveSmallIntegerField(blank=True, null=True)
+    month_sale = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
+    total_sale_revenue = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     period = models.PositiveSmallIntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -57,10 +59,29 @@ class Sale(models.Model):
         verbose_name_plural = 'Product Sales'
 
     def save(self, *args, **kwargs):
+        self.total_sale_revenue = sum(
+            Sale.objects.filter(
+                product_id=self.product.id,
+                period=self.period
+            ).values_list('month_sale', flat=True)) + self.month_sale
         super(Sale, self).save(*args, *kwargs)
 
     def __str__(self):
         return '%s: %.2f' % (self.product.name, self.total_sale_revenue)
+
+
+class CostOfSale(models.Model):
+    description = models.CharField(max_length=75, blank=True, null=True)
+    percentage = models.PositiveSmallIntegerField(default=0, help_text="Cost of sale value should be a percentage")
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Cost Of Sale'
+        verbose_name_plural = 'Cost Of Sales'
+
+    def __str__(self):
+        return '%s - %s' % (self.description, self.percentage)
 
 
 class GrossProfit(models.Model):
@@ -81,9 +102,10 @@ class GrossProfit(models.Model):
     product = models.ForeignKey(Product, related_name='product_gross_profit', on_delete=models.CASCADE, blank=True, null=True)
     financial_year = models.ForeignKey(
         FinancialYear, related_name='gross_profit_f_year', on_delete=models.CASCADE, blank=False, null=True)
-    month = models.PositiveSmallIntegerField(choices=MONTHS, blank=True, null=True)
-    cost_of_sale = models.FloatField(default=0.00)
-    gross_profit_value = models.FloatField(default=0.00)
+    month = models.PositiveSmallIntegerField(choices=MONTHS, blank=True, null=True, help_text="Month value from when a product projection begun until the end of the financial year")
+    cost_of_sale = models.ForeignKey(CostOfSale, related_name='cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
+    cost_of_sale_value = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
+    gross_profit_value = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -96,7 +118,8 @@ class GrossProfit(models.Model):
         product_revenue = ProductRevenue.objects.filter(financial_year_id=self.financial_year.id, month=self.month)
         if product_revenue.count() > 0:
             revenue = product_revenue.first()
-            self.gross_profit_value = revenue.product_revenue - (self.cost_of_sale / float(100) * revenue.product_revenue)
+            self.cost_of_sale_value = (self.cost_of_sale.percentage / float(100)) * float(revenue.product_revenue)
+            self.gross_profit_value = float(revenue.product_revenue) - (self.cost_of_sale.percentage / float(100) * float(revenue.product_revenue))
         else:
             self.gross_profit_value = 0
         super(GrossProfit, self).save(*args, **kwargs)
@@ -111,24 +134,9 @@ class GrossProfit(models.Model):
 
 
 class Expense(models.Model):
-    MONTHS = (
-        (1, 'January'),
-        (2, 'February'),
-        (3, 'March'),
-        (4, 'April'),
-        (5, 'May'),
-        (6, 'June'),
-        (7, 'July'),
-        (8, 'August'),
-        (9, 'September'),
-        (10, 'October'),
-        (11, 'November'),
-        (12, 'December'),
-    )
-    financial_year = models.ForeignKey(FinancialYear, related_name='expense_f_year', on_delete=models.CASCADE, blank=False, null=True)
-    month = models.PositiveSmallIntegerField(choices=MONTHS)
+    description = models.CharField(max_length=120, blank=True, null=True)
     is_fixed = models.BooleanField()
-    value = models.FloatField()
+    value = models.DecimalField(decimal_places=2, max_digits=15)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -163,7 +171,7 @@ class ProfitBeforeTax(models.Model):
     gross = models.FloatField(default=0.00)
     expense = models.FloatField(default=0.00)
     monthly_gross_value = models.FloatField(default=0.00)
-    total_gross_value = models.FloatField()
+    total_gross_value = models.FloatField(default=0.00)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -175,12 +183,11 @@ class ProfitBeforeTax(models.Model):
         gross_values = GrossProfit.objects.filter(financial_year=self.financial_year.id, month=self.month)
         if gross_values.count() > 0:
             gross_value = sum([gross.gross_profit_value for gross in gross_values])
-            expenses = Expense.objects.filter(month=self.month)
-
-            fixed_expenses = sum([expense.value if expenses.financial_year == self.financial_year else expense.value + (self.financial_year.inflation / float(100) * expense.value) for expense in expenses if expense.is_fixed is True])
-            not_fixed_expenses = sum([(expense.value / float(100) * gross_value) for expense in expenses if expense.is_fixed is False])
-
-            self.monthly_gross_value = gross_value - (fixed_expenses + not_fixed_expenses)
+            expenses = Expense.objects.all()
+            fixed_expenses = sum([float(expense.value) + (self.financial_year.inflation / float(100) * float(expense.value)) for expense in expenses if expense.is_fixed is True])
+            not_fixed_expenses = sum([(float(expense.value) / float(100) * float(gross_value)) for expense in expenses if expense.is_fixed is False])
+            self.expense = fixed_expenses + not_fixed_expenses
+            self.monthly_gross_value = float(gross_value) - float(self.expense)
             self.total_gross_value = self.total_gross_value + self.monthly_gross_value
         else:
             self.monthly_gross_value = 0
@@ -193,8 +200,8 @@ class ProfitBeforeTax(models.Model):
 class Tax(models.Model):
     financial_year = models.ForeignKey(FinancialYear, related_name='tax_f_year', on_delete=models.CASCADE, blank=False, null=True)
     tax_percentage = models.FloatField(default=1.00)
-    profit_loss_value = models.FloatField(default=0.00)
-    total_tax_value = models.FloatField(default=0.00)
+    profit_loss_value = models.DecimalField(default=0.00, decimal_places=2, max_digits=15)
+    total_tax_value = models.DecimalField(default=0.00, decimal_places=2, max_digits=15)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -216,7 +223,7 @@ class Tax(models.Model):
             # calculate tax
             previous_taxes = Tax.objects.all()
             if previous_taxes.count() > 0:
-                previous_tax = previous_taxes.lastest()
+                previous_tax = previous_taxes.first()
                 if previous_tax.profit_loss_value == 0:
                     self.total_tax_value = total_gross_value * self.tax_percentage / float(100)
                 else:
