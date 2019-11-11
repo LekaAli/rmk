@@ -9,4 +9,4 @@ class InflationAdmin(admin.ModelAdmin):
     readonly_fields = ['financial_year', 'percentage']
 
 
-admin.site.register(Inflation, InflationAdmin)
+# admin.site.register(Inflation, InflationAdmin)

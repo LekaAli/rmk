@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from dates.models import FinancialYear
+from rampup.models import ProductRampUp
 
 
 class Product(models.Model):
@@ -21,7 +22,7 @@ class Product(models.Model):
     name = models.CharField(max_length=50, blank=False, null=False)
     projection_start = models.PositiveSmallIntegerField(blank=False, null=True, choices=MONTHS)
     average_unit_price = models.DecimalField(decimal_places=2, max_digits=15, default=0.00)
-    average_quantity_per_month = models.DecimalField(decimal_places=2, max_digits=5, default=1.00)
+    average_quantity_per_month = models.PositiveIntegerField(default=1)
     average_revenue_per_month = models.DecimalField(decimal_places=2, max_digits=15, default=0.00)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -43,6 +44,21 @@ class Product(models.Model):
             
     def get_absolute_url(self):
         return reverse('businessplan:RevenueInput')
+
+
+class ProductSeasonalityRampUp(models.Model):
+    product = models.ForeignKey(Product, related_name='product_link', on_delete=models.CASCADE, blank=True, null=True)
+    seasonality = models.ForeignKey('seasonality.ProductSeasonality', related_name='seasonality_link', on_delete=models.CASCADE, blank=True, null=True)
+    rampup = models.ForeignKey(ProductRampUp, related_name='rampup_link', on_delete=models.CASCADE, blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    modified = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Product Seasonality Ramp Up Link'
+        verbose_name_plural = 'Product Seasonality Ramp Up Links'
+
+    def __str__(self):
+        return '%s' % self.product
 
 
 class Sale(models.Model):
