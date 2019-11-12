@@ -1,13 +1,19 @@
 from django.contrib import admin
-from seasonality.models import ProductSeasonality
+from seasonality.models import Seasonality, SeasonalityValue
 
 
-class ProductSeasonalityAdmin(admin.ModelAdmin):
+class SeasonalityAdmin(admin.ModelAdmin):
 
     save_on_top = True
-    readonly_fields = ['demand_percentage']
-    list_display = ['id', 'demand_value', 'demand_percentage', 'product', 'month']
-    list_display_links = ['id', 'demand_value', 'demand_percentage', 'product', 'month']
+    list_display = ['id', 'name', 'seasonality_type', 'year']
+    list_display_links = ['id', 'name', 'seasonality_type', 'year']
 
 
-admin.site.register(ProductSeasonality, ProductSeasonalityAdmin)
+class SeasonalityValueAdmin(admin.ModelAdmin):
+    save_on_top = True
+    list_display = ['id', 'seasonality', 'month', 'percentage']
+    list_display_links = ['id', 'seasonality', 'month', 'percentage']
+
+
+admin.site.register(Seasonality, SeasonalityAdmin)
+admin.site.register(SeasonalityValue, SeasonalityValueAdmin)

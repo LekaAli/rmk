@@ -1,5 +1,5 @@
 from django.contrib import admin
-from revenues.models import ProductRevenue
+from revenues.models import Revenue
 
 
 class RevenueAdmin(admin.ModelAdmin):
@@ -9,4 +9,4 @@ class RevenueAdmin(admin.ModelAdmin):
     readonly_fields = ['product_revenue', 'inflation']
 
 
-admin.site.register(ProductRevenue, RevenueAdmin)
+admin.site.register(Revenue, RevenueAdmin)

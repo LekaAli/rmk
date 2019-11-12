@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from dates.models import FinancialYear
-from rampup.models import ProductRampUp
+from rampup.models import RampUpValue
 
 
 class Product(models.Model):
@@ -48,8 +48,8 @@ class Product(models.Model):
 
 class ProductSeasonalityRampUp(models.Model):
     product = models.ForeignKey(Product, related_name='product_link', on_delete=models.CASCADE, blank=True, null=True)
-    seasonality = models.ForeignKey('seasonality.ProductSeasonality', related_name='seasonality_link', on_delete=models.CASCADE, blank=True, null=True)
-    rampup = models.ForeignKey(ProductRampUp, related_name='rampup_link', on_delete=models.CASCADE, blank=True, null=True)
+    seasonality = models.ForeignKey('seasonality.SeasonalityValue', related_name='seasonality_value', on_delete=models.CASCADE, blank=True, null=True)
+    rampup = models.ForeignKey(RampUpValue, related_name='rampup_value', on_delete=models.CASCADE, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True, blank=True, null=True)
 

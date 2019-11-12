@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from rampup.models import ProductRampUp
+from rampup.models import RampUp
 from django.urls import reverse
 from django.views import generic
 from django.http import FileResponse
@@ -14,7 +14,7 @@ from .import forms
 
 
 class RampUpInput(CreateView):
-    model = ProductRampUp
+    model = RampUp
     template_name = 'rampup/capacity_ramp_up.html'
     
     fields = '__all__'

@@ -1,12 +1,18 @@
 from django.contrib import admin
-from rampup.models import ProductRampUp
+from rampup.models import RampUp, RampUpValue
 
 
-class ProductRampUpAdmin(admin.ModelAdmin):
+class RampUpAdmin(admin.ModelAdmin):
     save_on_top = True
-    list_display = ['id', 'product', 'financial_year', 'month', 'demand_value', 'demand_percentage']
-    list_display_links = ['id', 'product', 'financial_year', 'month', 'demand_value', 'demand_percentage']
-    readonly_fields = ['demand_percentage']
+    list_display = ['id', 'name', 'rampup_type', 'year']
+    list_display_links = ['id', 'name', 'rampup_type', 'year']
 
 
-admin.site.register(ProductRampUp, ProductRampUpAdmin)
+class RampUpValueAdmin(admin.ModelAdmin):
+    save_on_top = True
+    list_display = ['id', 'rampup', 'month', 'percentage']
+    list_display_links = ['id', 'rampup', 'month', 'percentage']
+
+
+admin.site.register(RampUp, RampUpAdmin)
+admin.site.register(RampUpValue, RampUpValueAdmin)
