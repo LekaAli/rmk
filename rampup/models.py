@@ -13,6 +13,7 @@ class RampUp(models.Model):
     rampup_type = models.PositiveSmallIntegerField(
         choices=TYPE, blank=True, null=True, help_text="Ramp Up type to be used.")
     year = models.ForeignKey(FinancialYear, related_name='rampup_type', on_delete=models.CASCADE, blank=True, null=True)
+    will_roll_over = models.BooleanField(default=0)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
 
