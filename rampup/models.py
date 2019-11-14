@@ -4,6 +4,40 @@ from django.urls import reverse
 from dates.models import FinancialYear
 
 
+class RampUpValue(models.Model):
+    MONTHS = (
+        (1, 'January'),
+        (2, 'February'),
+        (3, 'March'),
+        (4, 'April'),
+        (5, 'May'),
+        (6, 'June'),
+        (7, 'July'),
+        (8, 'August'),
+        (9, 'September'),
+        (10, 'October'),
+        (11, 'November'),
+        (12, 'December'),
+    )
+    # rampup = models.ForeignKey(
+    #     RampUp, related_name='rampup_value', on_delete=models.CASCADE, blank=True, null=True)
+    month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
+    percentage = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
+    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Product RampUp Value'
+        verbose_name_plural = 'Product RampUp Values'
+
+    @property
+    def month_percentage(self):
+        return float(self.percentage) / 100
+
+    def __str__(self):
+        return '%s - %s' % (self.month, self.percentage)
+
+
 class RampUp(models.Model):
     TYPE = (
         (0, 'For Many Products'),
@@ -12,6 +46,7 @@ class RampUp(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True, help_text="Name to distinguish ramp ups.")
     rampup_type = models.PositiveSmallIntegerField(
         choices=TYPE, blank=True, null=True, help_text="Ramp Up type to be used.")
+    rampup_values = models.ManyToManyField(RampUpValue, related_name='rampup_values', blank=True)
     year = models.ForeignKey(FinancialYear, related_name='rampup_type', on_delete=models.CASCADE, blank=True, null=True)
     will_roll_over = models.BooleanField(default=0)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -89,35 +124,3 @@ class RampUp(models.Model):
 #         return self._model_instance_name(self.financial_year, self.month, self.demand_percentage)
 
 
-class RampUpValue(models.Model):
-    MONTHS = (
-        (1, 'January'),
-        (2, 'February'),
-        (3, 'March'),
-        (4, 'April'),
-        (5, 'May'),
-        (6, 'June'),
-        (7, 'July'),
-        (8, 'August'),
-        (9, 'September'),
-        (10, 'October'),
-        (11, 'November'),
-        (12, 'December'),
-    )
-    rampup = models.ForeignKey(
-        RampUp, related_name='rampup_value', on_delete=models.CASCADE, blank=True, null=True)
-    month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
-    percentage = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Product RampUp Value'
-        verbose_name_plural = 'Product RampUp Values'
-
-    @property
-    def month_percentage(self):
-        return float(self.percentage) / 100
-
-    def __str__(self):
-        return '%s - %s - %s' % (self.rampup.name, self.month, self.percentage)

@@ -36,10 +36,23 @@ class Revenue(models.Model):
 
     def save(self, *args, **kwargs):
         product_allocations = self.product.product_link.all()
+        rampup_percentage = 1.0
+        seasonality_percentage = 1.0
         if product_allocations.count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe go feta gatee.
-            pass
+            product_projection_instance = self.product.product_link.first()
+            for monthly_value in product_projection_instance.seasonality.seasonality_values.all():
+                if monthly_value.month != self.month:
+                    continue
+                seasonality_percentage = monthly_value.month_percentage
+                break
+            for monthly_value in product_projection_instance.rampup.rampup_values.all():
+                if monthly_value.month != self.month:
+                    continue
+                rampup_percentage = monthly_value.month_percentage
+                break
+            self.product_revenue = float(self.product.average_revenue_per_month) * seasonality_percentage * rampup_percentage
         elif product_allocations.count() == 2:  # mengwaga e mebedi
-            pass
+            product_projection_instances = self.product.product_link.all()
         else:  # tša go feta mengwaga ye mebedi
             pass
         #

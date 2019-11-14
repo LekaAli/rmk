@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from dates.models import FinancialYear
-from rampup.models import RampUpValue
+from rampup.models import RampUp
 
 
 class Product(models.Model):
@@ -48,8 +48,8 @@ class Product(models.Model):
 
 class ProductSeasonalityRampUp(models.Model):
     product = models.ForeignKey(Product, related_name='product_link', on_delete=models.CASCADE, blank=True, null=True)
-    seasonality = models.ForeignKey('seasonality.SeasonalityValue', related_name='seasonality_value', on_delete=models.CASCADE, blank=True, null=True)
-    rampup = models.ForeignKey(RampUpValue, related_name='rampup_value', on_delete=models.CASCADE, blank=True, null=True)
+    seasonality = models.ForeignKey('seasonality.Seasonality', related_name='seasonality', on_delete=models.CASCADE, blank=True, null=True)
+    rampup = models.ForeignKey(RampUp, related_name='rampup', on_delete=models.CASCADE, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True, blank=True, null=True)
 
@@ -80,7 +80,7 @@ class Sale(models.Model):
                 product_id=self.product.id,
                 period=self.period
             ).values_list('month_sale', flat=True)) + self.month_sale
-        super(Sale, self).save(*args, *kwargs)
+        super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s: %.2f' % (self.product.name, self.total_sale_revenue)
