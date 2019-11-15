@@ -34,8 +34,12 @@ class RampUpValue(models.Model):
     def month_percentage(self):
         return float(self.percentage) / 100
 
+    @property
+    def month_name(self):
+        return ''.join([v for k, v in self.MONTHS if k == self.month])
+    
     def __str__(self):
-        return '%s - %s' % (self.month, self.percentage)
+        return '%s - %s' % (self.month_name, self.percentage)
 
 
 class RampUp(models.Model):
