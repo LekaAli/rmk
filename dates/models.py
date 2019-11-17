@@ -40,6 +40,10 @@ class FinancialYear(models.Model):
 					day=month_number_of_days[derived_month])
 		super(FinancialYear, self).save(*args, **kwargs)
 	
+	@property
+	def inflation_value(self):
+		return self.inflation / float(100)
+	
 	def __str__(self):
 		return '%s' % self.description
 
