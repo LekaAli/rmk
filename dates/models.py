@@ -1,7 +1,6 @@
 from django.db import models
 from monthdelta import monthdelta
 from django.urls import reverse
-import datetime
 
 
 class FinancialYear(models.Model):
