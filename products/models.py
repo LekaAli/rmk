@@ -131,8 +131,8 @@ class GrossProfit(models.Model):
         verbose_name_plural = 'Gross Profits'
 
     def save(self, *args, **kwargs):
-        from revenues.models import ProductRevenue
-        product_revenue = ProductRevenue.objects.filter(financial_year_id=self.financial_year.id, month=self.month)
+        from revenues.models import Revenue
+        product_revenue = Revenue.objects.filter(financial_year_id=self.financial_year.id, month=self.month)
         if product_revenue.count() > 0:
             revenue = product_revenue.first()
             self.cost_of_sale_value = (self.cost_of_sale.percentage / float(100)) * float(revenue.product_revenue)
