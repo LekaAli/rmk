@@ -100,17 +100,17 @@ class Revenue(models.Model):
         product_estimations = self.product.product_link.all()
         self.inflation = self.financial_year.inflation
         revenue_years_count = self.monthly_revenue_count()
+        past_years_count = Sale.objects.all().values_list('period', flat=True).distinct().count()
         if product_estimations.count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe go feta gatee.
             product_projection_instance = self.product.product_link.first()
             if revenue_years_count in [1, 2]:
                 self.product_revenue = self.calculate_product_revenue(product_projection_instance)
             elif revenue_years_count == 3:
                 monthly_product_revenue = sum(Sale.objects.filter(period=2).values_list('month_sale', flat=True))
-                self.product_revenue = (self.financial_year.inflation_value + 1) * monthly_product_revenue
+                self.product_revenue = (self.financial_year.inflation_value + 1) * float(monthly_product_revenue)
             else:
-                past_years_count = Sale.objects.all().values_list('period', flat=True).distinct().count()
-                past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count - 1)
-                self.product_revenue = past_year_revenue.first().total_sale_revenue * (1 + self.financial_year.inflation_value)
+                past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count)
+                self.product_revenue = float(past_year_revenue.first().total_sale_revenue) * (1 + self.financial_year.inflation_value)
             
         elif product_estimations.count() == 2:  # mengwaga e mebedi
             product_projection_instances = self.product.product_link.all()
@@ -123,8 +123,8 @@ class Revenue(models.Model):
                 self.product_revenue = (self.financial_year.inflation_value + 1) * monthly_product_revenue
             else:
                 past_years_count = Sale.objects.all().values_list('period', flat=True).distinct().count()
-                past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count - 1)
-                self.product_revenue = past_year_revenue.first().total_sale_revenue * (1 + self.financial_year.inflation_value)
+                past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count)
+                self.product_revenue = float(past_year_revenue.first().total_sale_revenue) * (1 + self.financial_year.inflation_value)
                
         else:  # tša go feta mengwaga ye mebedi
             self.product_revenue = 0
@@ -141,16 +141,10 @@ class Revenue(models.Model):
                     product_sale.month_sale = float(product_sale.month_sale) + self.product_revenue
                     product_sale.save()
         else:
-            product_sale = Sale.objects.filter(product_id=self.product.id, period=revenue_years_count)
-            if len(product_sale) == 0:
-                product_sale = Sale(product_id=self.product.id, period=revenue_years_count)
+            if not self.pk:
+                product_sale = Sale(product_id=self.product.id, period=past_years_count + 1, month=self.month)
                 product_sale.total_sale_revenue = self.product_revenue
                 product_sale.save()
-            else:
-                product_sale = product_sale.first()
-                if not self.pk:
-                    product_sale.total_sale_revenue = product_sale.total_sale_revenue + self.product_revenue
-                    product_sale.save()
         super(Revenue, self).save(*args, **kwargs)
 
     def __str__(self):

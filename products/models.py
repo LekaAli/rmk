@@ -75,11 +75,12 @@ class Sale(models.Model):
         verbose_name_plural = 'Product Sales'
 
     def save(self, *args, **kwargs):
+        add_factor = self.month_sale if self.period < 3 else self.total_sale_revenue
         self.total_sale_revenue = float(sum(
             Sale.objects.filter(
                 product_id=self.product.id,
                 period=self.period
-            ).values_list('month_sale', flat=True))) + self.month_sale
+            ).values_list('month_sale', flat=True))) + add_factor
         super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
