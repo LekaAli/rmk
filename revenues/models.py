@@ -1,6 +1,8 @@
 from django.db import models
 from products.models import Sale
 from dates.models import FinancialYear
+from rampup.models import RampUp
+from seasonality.models import Seasonality
 
 
 class Revenue(models.Model):
@@ -45,17 +47,35 @@ class Revenue(models.Model):
                 continue
             rampup_percentage = monthly_value.month_percentage
             break
-        product_revenue = 0.0
         if product_projection.seasonality.year == self.financial_year:
             product_revenue = float(self.product.average_revenue_per_month) * seasonality_percentage * \
                               rampup_percentage
         else:
-            if product_projection.seasonality.will_roll_over is True:
-                product_revenue = float(self.product.average_revenue_per_month) * seasonality_percentage * \
-                                  rampup_percentage * \
-                                  (1 + self.financial_year.inflation_value)
+            if product_projection.rampup.will_roll_over is True:
+                if product_projection.seasonality.will_roll_over is True:
+                    product_revenue = float(self.product.average_revenue_per_month) * seasonality_percentage * \
+                                      rampup_percentage * \
+                                      (1 + self.financial_year.inflation_value)
+                else:
+                    seasonality_month = Seasonality.objects.filter(year=self.financial_year, seasonality_values__month=self.month).first()
+                    seasonality_percentage = seasonality_month.month_percentage
+                    product_revenue = float(self.product.average_revenue_per_month) * seasonality_percentage * \
+                                      rampup_percentage * \
+                                      (1 + self.financial_year.inflation_value)
             else:
-                pass
+                rampup_month = RampUp.objects.filter(year=self.financial_year,
+                                                     rampup_values__month=self.month)
+                if rampup_month.count() > 0:
+                    rampup_percentage = rampup_month.month_percentage
+                    if product_projection.seasonality.will_roll_over is False:
+                        seasonality_month = Seasonality.objects.filter(year=self.financial_year,
+                                                                       seasonality_values__month=self.month).first()
+                        seasonality_percentage = seasonality_month.month_percentage
+                else:
+                    rampup_percentage = 1.0
+                product_revenue = float(self.product.average_revenue_per_month) * seasonality_percentage * \
+                                      rampup_percentage * (1 + self.financial_year.inflation_value)
+
         return product_revenue
     
     def monthly_revenue_count(self):
@@ -115,7 +135,7 @@ class Revenue(models.Model):
             else:
                 product_sale = product_sale.first()
                 if not self.pk:
-                    product_sale.month_sale = product_sale.month_sale + self.product_revenue
+                    product_sale.month_sale = float(product_sale.month_sale) + self.product_revenue
                     product_sale.save()
         else:
             product_sale = Sale.objects.filter(product_id=self.product.id, period=revenue_years_count)
