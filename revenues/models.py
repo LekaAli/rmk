@@ -122,7 +122,6 @@ class Revenue(models.Model):
                 monthly_product_revenue = sum(Sale.objects.filter(period=2).values_list('month_sale', flat=True))
                 self.product_revenue = (self.financial_year.inflation_value + 1) * monthly_product_revenue
             else:
-                past_years_count = Sale.objects.all().values_list('period', flat=True).distinct().count()
                 past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count)
                 self.product_revenue = float(past_year_revenue.first().total_sale_revenue) * (1 + self.financial_year.inflation_value)
                
