@@ -10,8 +10,8 @@ from django.dispatch import receiver
 import math
 from django.urls import reverse
 from products.models import Products
-from rampup.models import CapacityRampUp
-from seasonality.models import ProductSeasonality
+from rampup.models import RampUp
+from seasonality.models import Seasonality
 from django.db.models import F
 
 
@@ -37,26 +37,26 @@ class signals (models.Model):
     
     #ProductSeosenanality
 
-    @receiver(post_save, sender=ProductSeasonality)
+    @receiver(post_save, sender=Seasonality)
 
     def create_month_1_seasonality (sender, instance, **kwargs):
         if created:
-            ProductSeasonality.objects.create(ProductSeasonality=instance)
+            Seasonality.objects.create(ProductSeasonality=instance)
       
 
     def save_month_1_seasonality (sender, instance, **kwargs):
         instance.month_1_seasonality.save()
 
-        post_save.connect(save_month_1_seasonality, sender = ProductSeasonality)
+        post_save.connect(save_month_1_seasonality, sender = Seasonality)
 
     
     # CapacityRampU
     
-    @receiver(post_save, sender=CapacityRampUp)
+    @receiver(post_save, sender=RampUp)
     
     def save_month_1_ramp_up (sender, instance, **kwargs):
         if created:
-            ProductSeasonality.objects.create(CapacityRampUp=instance)
+            Seasonality.objects.create(CapacityRampUp=instance)
     
     
     

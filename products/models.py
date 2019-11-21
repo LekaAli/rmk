@@ -89,6 +89,7 @@ class Sale(models.Model):
 
 class CostOfSale(models.Model):
     description = models.CharField(max_length=75, blank=True, null=True)
+    product = models.ForeignKey(Product, related_name='product_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
     percentage = models.PositiveSmallIntegerField(default=0, help_text="Cost of sale value should be a percentage")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -98,7 +99,7 @@ class CostOfSale(models.Model):
         verbose_name_plural = 'Cost Of Sales'
 
     def __str__(self):
-        return '%s - %s' % (self.description, self.percentage)
+        return '%s - %s - %s' % (self.description, self.product.name, self.percentage) if self.product else '%s - %s' % (self.description, self.percentage)
 
 
 class GrossProfit(models.Model):
@@ -120,7 +121,7 @@ class GrossProfit(models.Model):
     financial_year = models.ForeignKey(
         FinancialYear, related_name='gross_profit_f_year', on_delete=models.CASCADE, blank=False, null=True)
     month = models.PositiveSmallIntegerField(choices=MONTHS, blank=True, null=True, help_text="Month value from when a product projection begun until the end of the financial year")
-    cost_of_sale = models.ForeignKey(CostOfSale, related_name='cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
+    cost_of_sale = models.ForeignKey(CostOfSale, related_name='gross_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
     cost_of_sale_value = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     gross_profit_value = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True)
@@ -136,7 +137,7 @@ class GrossProfit(models.Model):
         if product_revenue.count() > 0:
             revenue = product_revenue.first()
             self.cost_of_sale_value = (self.cost_of_sale.percentage / float(100)) * float(revenue.product_revenue)
-            self.gross_profit_value = float(revenue.product_revenue) - (self.cost_of_sale.percentage / float(100) * float(revenue.product_revenue))
+            self.gross_profit_value = float(revenue.product_revenue) - self.cost_of_sale_value
         else:
             self.gross_profit_value = 0
         super(GrossProfit, self).save(*args, **kwargs)
