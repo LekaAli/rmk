@@ -117,11 +117,16 @@ class GrossProfit(models.Model):
         (11, 'November'),
         (12, 'December'),
     )
-    product = models.ForeignKey(Product, related_name='product_gross_profit', on_delete=models.CASCADE, blank=True, null=True)
+    product = models.ForeignKey(
+        Product, related_name='product_gross_profit', on_delete=models.CASCADE, blank=True, null=True)
     financial_year = models.ForeignKey(
         FinancialYear, related_name='gross_profit_f_year', on_delete=models.CASCADE, blank=False, null=True)
-    month = models.PositiveSmallIntegerField(choices=MONTHS, blank=True, null=True, help_text="Month value from when a product projection begun until the end of the financial year")
-    cost_of_sale = models.ForeignKey(CostOfSale, related_name='gross_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
+    month = models.PositiveSmallIntegerField(
+        choices=MONTHS,
+        blank=True,
+        null=True, help_text="Month value from when a product projection begun until the end of the financial year")
+    cost_of_sale = models.ForeignKey(
+        CostOfSale, related_name='gross_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
     cost_of_sale_value = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     gross_profit_value = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True)
@@ -133,11 +138,17 @@ class GrossProfit(models.Model):
 
     def save(self, *args, **kwargs):
         from revenues.models import Revenue
-        product_revenue = Revenue.objects.filter(financial_year_id=self.financial_year.id, month=self.month)
-        if product_revenue.count() > 0:
-            revenue = product_revenue.first()
-            self.cost_of_sale_value = (self.cost_of_sale.percentage / float(100)) * float(revenue.product_revenue)
-            self.gross_profit_value = float(revenue.product_revenue) - self.cost_of_sale_value
+        product_revenue_listing = Revenue.objects.filter(financial_year_id=self.financial_year.id)
+        if product_revenue_listing.count() > 1:
+            product_revenue_instance = product_revenue_listing.filter(month=self.month).first()
+        if product_revenue_listing.count() == 1:
+            product_revenue_instance = product_revenue_listing.first()
+            
+        if product_revenue_listing.count() >= 1:
+            self.cost_of_sale = self.product.product_cost_of_sale.first()
+            self.cost_of_sale_value = (self.cost_of_sale.percentage / float(100)
+                                       ) * float(product_revenue_instance.product_revenue)
+            self.gross_profit_value = float(product_revenue_instance.product_revenue) - self.cost_of_sale_value
         else:
             self.gross_profit_value = 0
         super(GrossProfit, self).save(*args, **kwargs)
