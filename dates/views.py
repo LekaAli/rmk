@@ -1,25 +1,21 @@
+from django.views.generic.edit import CreateView
+from .models import FinancialYear
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
-from .models import Dates
-from .import forms
-from django.urls import reverse
-from django.views import generic
-from django.http import FileResponse
-from io import BytesIO
-from reportlab.pdfgen import canvas
-
-
-
-# Create your views here.
+from .forms import DatesForm
 
 
 class CreateDates(CreateView):
-    model = Dates
+    model = FinancialYear
     template_name = 'dates/dates_form.html'
-    
     fields = '__all__'
 
 
-# Create your views here.
+def create_financial_year(request):
+
+    if request.method == 'POST':
+        form = DatesForm(request.POST)
+        if form.is_valid():
+            return redirect('/')
+    else:
+        form = DatesForm()
+    return render(request, 'dates_form.html', {'form': form})
