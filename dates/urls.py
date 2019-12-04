@@ -3,5 +3,5 @@ from . import views
 
 app_name = 'dates'
 urlpatterns = [
-    path('CreateDates/' , views.CreateDates.as_view(), name= 'CreateDates'), 
+    path('CreateDates/' , views.create_dates, name= 'CreateDates'),
     ]
