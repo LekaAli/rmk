@@ -1,23 +1,26 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
-from products.models import Product
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views import generic
-from django.http import FileResponse
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from .import forms
-
-# Create your views here.
+from .forms import ProductForm, CostOfSaleForm
 
 
-class ProductInput(CreateView):
-    model = Product
-    template_name = 'products/product.html'
-    
-    fields = '__all__'
+def create_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('/'))
+    else:
+        form = ProductForm()
+    return render(request, 'products/product.html', {'form': form})
+
+def create_cost_of_sale(request):
+    if request.method == 'POST':
+        form = CostOfSaleForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('/'))
+    else:
+        form = CostOfSaleForm()
+    return render(request, 'products/product.html', {'form': form})
 
 
 

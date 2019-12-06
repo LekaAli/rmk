@@ -10,7 +10,7 @@
     {% csrf_token %}
     <table>
         <thead>
-            <h3>Add Financial Year</h3>
+            <h3 id='id_header'>Add Financial Year</h3>
         </thead>
         <tbody>
             <tr>
@@ -23,7 +23,7 @@
                 <td>{{ form.inflation }}</td>
             </tr>
             <tr>
-                <td><input type ='submit' value = 'Add Year'></td>
+                <td><input type ='submit' value = 'Add Year' id='id_submit_button'></td>
             </tr>
         </tbody>
     </table>
