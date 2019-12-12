@@ -1,0 +1,35 @@
+{% extends "businessplan/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
+
+  <form class= "form-horizontal" action="", method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <table>
+        <thead>
+            <h3>Add Expense</h3>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ form.description }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.is_fixed }}{{ form.is_fixed.label }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.value }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <input type ='submit' value = 'Add Expense' id='id_add_expense_button'>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+  </form>
+</div>
+{% endblock %}

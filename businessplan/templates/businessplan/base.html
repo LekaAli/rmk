@@ -17,9 +17,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/fonts/simple-line-icons.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/extras/owl/owl.carousel.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/extras/owl/owl.theme.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/extras/animate.css' %}"> 
-    <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/extras/normalize.css' %}"> 
-    <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/css/form.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/extras/animate.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'businessplan/assets/extras/normalize.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'products/css/product.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'rampup/css/rampup.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'seasonality/css/seasonality.css' %}">
 
 
 </head>
@@ -101,8 +103,14 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'dates:CreateDates' %}">Manage Financial Years</a>
                     <a class="dropdown-item" href="{% url 'products:create_product' %}">Manage Products</a>
-                    <a class="dropdown-item" href="{% url 'rampup:RampUpInput' %}">Manage Product RampUp</a>
-                    <a class="dropdown-item" href="{% url 'seasonality:SeasonalityInput' %}">Manage Product Seasonality</a>
+                    <a class="dropdown-item" href="{% url 'products:add_cost_of_sale' %}">Manage Products Cost Of Sale</a>
+                    <a class="dropdown-item" href="{% url 'products:add_expense' %}">Manage Expenses</a>
+                    <a class="dropdown-item" href="{% url 'rampup:add_rampup' %}">Manage Product RampUp</a>
+                    <a class="dropdown-item" href="{% url 'rampup:add_rampup_value' %}">Manage Product RampUp Values</a>
+                    <a class="dropdown-item" href="{% url 'seasonality:add_seasonality_value' %}">Manage Product Seasonality Values</a>
+                    <a class="dropdown-item" href="{% url 'seasonality:add_seasonality' %}">Manage Product Seasonality</a>
+                    <a class="dropdown-item" href="{% url 'products:product_assignment' %}">Manage Product Assignments</a>
+                    <a class="dropdown-item" href="{% url 'products:tax_management' %}">Tax Management</a>
                     <a class="dropdown-item" href="{% url 'revenues:RevenueInput' %}">Revenue Projections </a>
 		
                 </div>
