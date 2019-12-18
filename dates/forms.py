@@ -11,6 +11,8 @@ class DatesForm(forms.Form):
             }
         ))
     inflation = forms.FloatField()
+    year_counts = forms.IntegerField()
 
     description.widget.attrs['placeholder'] = 'Year Description'
     inflation.widget.attrs['placeholder'] = 'Inflation Value'
+    year_counts.widget.attrs['placeholder'] = 'Financial Year Count'
