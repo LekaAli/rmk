@@ -16,3 +16,16 @@ class CostOfSaleForm(forms.Form):
     description = forms.CharField(widget=forms.TextInput)
     product = forms.CharField(widget=forms.Select)
     percentage = forms.CharField(widget=forms.TextInput)
+    
+    description.widget.attrs['placeholder'] = 'Cost Of Sale Description'
+    product.widget.attrs['placeholder'] = 'Cost Of Sale Product'
+    percentage.widget.attrs['placeholder'] = 'Cost Of Sale Value'
+
+
+class ExpenseForm(forms.Form):
+    description = forms.CharField(widget=forms.TextInput)
+    is_fixed = forms.BooleanField()
+    value = forms.DecimalField()
+
+    description.widget.attrs['placeholder'] = 'Expense Description'
+    value.widget.attrs['placeholder'] = 'Expense Value'

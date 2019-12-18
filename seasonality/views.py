@@ -1,17 +1,24 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
-from seasonality.models import SeasonalityValue
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
-from django.views import generic
-from django.http import FileResponse
-from io import BytesIO
+from .forms import SeasonalityForm, SeasonalityValuesForm
 
 
-# Create your views here.
-class SeasonalityInput(CreateView):
-    model = SeasonalityValue
-    template_name = 'seasonality/product_seasonality.html'
-    
-    fields = '__all__'
+def add_seaasonality(request):
+    if request.method == 'POST':
+        form = SeasonalityForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('/'))
+    else:
+        form = SeasonalityForm()
+    return render(request, 'seasonality/product_seasonality.html', {'form': form})
+
+
+def add_seasonality_value(request):
+    if request.method == 'POST':
+        form = SeasonalityValuesForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('/'))
+    else:
+        form = SeasonalityValuesForm()
+    return render(request, 'seasonality/product_seasonality_values.html', {'form': form})

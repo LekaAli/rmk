@@ -1,20 +1,23 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
-from rampup.models import RampUp
-from django.urls import reverse
-from django.views import generic
-from django.http import FileResponse
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from .import forms
-
-# Create your views here.
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render, reverse
+from .forms import CapacityRampUpForm, CapacityRampUpValuesForm
 
 
-class RampUpInput(CreateView):
-    model = RampUp
-    template_name = 'rampup/capacity_ramp_up.html'
-    
-    fields = '__all__'
+def add_rampup(request):
+    if request.method == 'POST':
+        form = CapacityRampUpForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('/'))
+    else:
+        form = CapacityRampUpForm()
+    return render(request, 'rampup/add_rampup.html', {'form': form})
+
+
+def add_rampup_value(request):
+    if request.method == 'POST':
+        form = CapacityRampUpValuesForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('/'))
+    else:
+        form = CapacityRampUpValuesForm()
+    return render(request, 'rampup/add_rampup_values.html', {'form': form})
