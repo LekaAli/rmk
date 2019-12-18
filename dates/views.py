@@ -16,6 +16,7 @@ def create_dates(request):
     if request.method == 'POST':
         form = forms.DatesForm(request.POST)
         if form.is_valid():
+            # create a new financial  year, then use it to create the other 5
             return HttpResponseRedirect(reverse('/'))
     else:
         form = forms.DatesForm()
