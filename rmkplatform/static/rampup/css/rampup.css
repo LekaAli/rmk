@@ -1,0 +1,21 @@
+#id_add_rampup_button {
+    margin-top: 1%;
+    border-radius: 5px;
+    min-width: 120px;
+    padding: 10px;
+    background-color: hsl(0, 100%, 50%);
+    border: 2px solid red;
+    font-weight: bold;
+    color: hsl(0, 100%, 100%)
+}
+#id_will_roll_over, #id_rampup_values, #id_rampup_type, #id_name  {
+    margin-top: 1%;
+    border-radius: 5px;
+    width: 324px;
+    padding: 5px;
+}
+
+h3 {
+    margin-left: 10px;
+    color: hsl(0, 100%, 50%);
+}

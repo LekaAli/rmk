@@ -18,13 +18,16 @@
                 <td>{{ form.name }}</td>
             </tr>
             <tr>
-                <td>{{ form.seasonality_type }}</td>
+                <td>Type: {{ form.seasonality_type }}</td>
             </tr>
             <tr>
                 <td>{{ form.seasonality_values }}</td>
             </tr>
             <tr>
-                <td>{{ form.will_roll_over }} {{ form.will_roll_over.label }} </td>
+                <td>Year: {{ form.year }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.will_roll_over.label }}: {{ form.will_roll_over }} </td>
             </tr>
             <tr>
                 <td>

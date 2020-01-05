@@ -1,14 +1,14 @@
-#id_submit_button, #id_add_product_button, #id_add_expense_button {
+#id_add_product_button {
     margin-top: 1%;
     border-radius: 5px;
-    width: 120px;
+    min-width: 120px;
     padding: 10px;
     background-color: hsl(0, 100%, 50%);
     border: 2px solid red;
     font-weight: bold;
     color: hsl(0, 100%, 100%)
 }
-#id_name, #id_average_unit_price, #id_average_quantity_per_month, #id_projection_start, #id_description  {
+#id_average_unit_price, #id_average_quantity_per_month, #id_projection_start, #id_name  {
     margin-top: 1%;
     border-radius: 5px;
     width: 324px;
@@ -18,8 +18,4 @@
 h3 {
     margin-left: 10px;
     color: hsl(0, 100%, 50%);
-}
-#id_header {
-    color: hsl(0, 100%, 50%);
-
 }
