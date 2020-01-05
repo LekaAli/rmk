@@ -1,4 +1,5 @@
 from django import forms
+from products.models import Product
 
 
 class ProductForm(forms.Form):
@@ -13,9 +14,11 @@ class ProductForm(forms.Form):
 
 
 class CostOfSaleForm(forms.Form):
-    description = forms.CharField(widget=forms.TextInput)
-    product = forms.CharField(widget=forms.Select)
-    percentage = forms.CharField(widget=forms.TextInput)
+    product_choices = [(-1, '---Select Product---')]
+    product_choices.extend(list(Product.objects.values_list('id', 'name')))
+    description = forms.CharField(widget=forms.TextInput, required=True)
+    product = forms.ChoiceField(widget=forms.Select(), choices=product_choices, initial='Select Product', label='Select Product', required=True)
+    percentage = forms.CharField(widget=forms.TextInput, required=True)
     
     description.widget.attrs['placeholder'] = 'Cost Of Sale Description'
     product.widget.attrs['placeholder'] = 'Cost Of Sale Product'

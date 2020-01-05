@@ -1,9 +1,8 @@
 from django.db import models
 from dates.models import FinancialYear
 
-
-class SeasonalityValue(models.Model):
-    MONTHS = (
+MONTHS = (
+        (0, '---Select Month---'),
         (1, 'January'),
         (2, 'February'),
         (3, 'March'),
@@ -17,6 +16,15 @@ class SeasonalityValue(models.Model):
         (11, 'November'),
         (12, 'December'),
     )
+TYPE = (
+        (-1, '---Select Type---'),
+        (0, 'For Many Products'),
+        (1, 'For One Product')
+    )
+
+
+class SeasonalityValue(models.Model):
+    
     month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
     percentage = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -39,10 +47,7 @@ class SeasonalityValue(models.Model):
 
 
 class Seasonality(models.Model):
-    TYPE = (
-        (0, 'For Many Products'),
-        (1, 'For One Product')
-    )
+    
     name = models.CharField(max_length=50, blank=True, null=True, help_text="Name to distinguish seasonalities.")
     seasonality_type = models.PositiveSmallIntegerField(
         choices=TYPE, blank=True, null=True, help_text="Seasonality type to be used.")
