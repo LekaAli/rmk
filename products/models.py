@@ -88,7 +88,6 @@ class Sale(models.Model):
 
 
 class CostOfSale(models.Model):
-    description = models.CharField(max_length=75, blank=True, null=True)
     product = models.ForeignKey(Product, related_name='product_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
     percentage = models.PositiveSmallIntegerField(default=0, help_text="Cost of sale value should be a percentage")
     created = models.DateTimeField(auto_now_add=True)
@@ -99,7 +98,7 @@ class CostOfSale(models.Model):
         verbose_name_plural = 'Cost Of Sales'
 
     def __str__(self):
-        return '%s - %s - %s' % (self.description, self.product.name, self.percentage) if self.product else '%s - %s' % (self.description, self.percentage)
+        return '%s - %s' % (self.product.name, self.percentage)
 
 
 class GrossProfit(models.Model):

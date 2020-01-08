@@ -1,6 +1,4 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import render
 from .forms import SeasonalityForm, SeasonalityValuesForm
 from .models import Seasonality, SeasonalityValue
 from dates.models import FinancialYear
@@ -27,7 +25,7 @@ def add_seasonality(request):
             except Exception as ex:
                 form = SeasonalityForm()
                 return render(request, 'seasonality/product_seasonality.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'message': 'Seasonality Successfully Added'})
+            return render(request, 'dates/success.html', {'btn_name': 'Add Another Seasonality', 'message': 'Seasonality Successfully Added'})
     else:
         form = SeasonalityForm()
     return render(request, 'seasonality/product_seasonality.html', {'form': form})
@@ -44,7 +42,7 @@ def add_seasonality_value(request):
             except Exception as ex:
                 form = SeasonalityValuesForm()
                 return render(request, 'seasonality/product_seasonality_values.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'message': 'Seasonality Value Successfully Added'})
+            return render(request, 'dates/success.html', {'btn_name': 'Add Another Seasonality Value', 'message': 'Seasonality Value Successfully Added'})
     else:
         form = SeasonalityValuesForm()
     return render(request, 'seasonality/product_seasonality_values.html', {'form': form})

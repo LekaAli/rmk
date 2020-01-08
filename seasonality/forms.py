@@ -1,14 +1,18 @@
 from django import forms
 from dates.models import FinancialYear
 from .models import SeasonalityValue
-from rmkplatform.constants import TYPE
+from rmkplatform.constants import TYPE, MONTHS
 
 
 class SeasonalityForm(forms.Form):
     YEARS = [(-1, '---Select Financial Year---')]
-    YEARS.extend(list(FinancialYear.objects.values_list('id', 'description')))
-    VALUES = SeasonalityValue.objects.all()
-    V = [(val.id, '%s - %s' % (val.month_name, val.percentage)) for val in VALUES]
+    try:
+        YEARS.extend(list(FinancialYear.objects.values_list('id', 'description')))
+        VALUES = SeasonalityValue.objects.all()
+        V = [(val.id, '%s - %s' % (val.month_name, val.percentage)) for val in VALUES]
+    except Exception as ex:
+        YEARS = []
+        V = []
     name = forms.CharField()
     seasonality_type = forms.CharField(widget=forms.Select(choices=TYPE))
     seasonality_values = forms.MultipleChoiceField(choices=V, widget=forms.SelectMultiple(), required=False)
@@ -20,9 +24,6 @@ class SeasonalityForm(forms.Form):
 
 
 class SeasonalityValuesForm(forms.Form):
-    VALUES = SeasonalityValue.objects.all()
-    MONTHS = [(-1, '---Select Month---')]
-    MONTHS.extend([(val.id, '%s' % val.month_name) for val in VALUES])
     month = forms.CharField(widget=forms.Select(choices=MONTHS), required=True, initial='-1')
     percentage = forms.CharField(widget=forms.TextInput)
     

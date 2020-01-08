@@ -35,7 +35,7 @@ def create_dates(request):
             except Exception as ex:
                 form = forms.DatesForm()
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'message': 'Successfully Added Financial Year'})
+            return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Added Financial Year'})
     else:
         form = forms.DatesForm()
     return render(request, 'dates/dates_form.html', {'form': form})

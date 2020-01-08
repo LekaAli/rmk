@@ -27,17 +27,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'businessplan',
     'users',
     'dates',
     'inflation',
     'seasonality',
-    'products',
     'rampup',
+    'products',
     'revenues',
     'crispy_forms',
     'django.contrib.admin',
@@ -47,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+# Application definition
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

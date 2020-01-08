@@ -11,27 +11,18 @@
 
     <table>
         <thead>
-            <h3>Add Ramp Up</h3>
+            <h3>Add Tax</h3>
         </thead>
         <tbody>
             <tr>
-                <td>{{ form.name }}</td>
+                <td>{{ form.financial_year }}</td>
             </tr>
             <tr>
-                <td>{{ form.rampup_type }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.rampup_values }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.year }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.will_roll_over.label }}: {{ form.will_roll_over }}</td>
+                <td>{{ form.tax_percentage }}</td>
             </tr>
             <tr>
                 <td>
-                    <input type ='submit' value = 'Add RampUp' id='id_add_rampup_button'>
+                    <input type ='submit' value = 'Add Tax' id='id_add_product_cost_of_sale_button'>
                 </td>
             </tr>
         </tbody>
