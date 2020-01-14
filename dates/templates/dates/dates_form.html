@@ -10,7 +10,7 @@
     {% csrf_token %}
     <table>
         <thead>
-            <h3 id='id_header'>Add Financial Year</h3>
+            <h3 id='id_header'>{% if action == "edit" %} Edit Financial Year {%else%} Add Financial Year {% endif%}</h3>
         </thead>
         <tbody>
             <tr>
@@ -22,14 +22,16 @@
             <tr>
                 <td>{{ form.inflation }}</td>
             </tr>
+            {% if action != 'edit' %}
             <tr>
                 <td>{{ form.year_counts }}</td>
             </tr>
+            {% endif %}
             <tr>
-                <td><input type ='submit' value = 'Add Year' id='id_submit_button'></td>
+                <td><input type ='submit' value='{% if action == "edit" %} Edit Year {%else%} Add Year {% endif%}' id='id_submit_button'></td>
             </tr>
             <tr>
-                <td><a href="{% url 'dates:EditDates' %}">Edit Financial Year</a></td>
+                <td><a href='{% if action == "edit" %} {% url "dates:CreateDates" %} {%else%} {% url "dates:EditDates" %} {% endif%}'>{% if action == "edit" %} Add Financial Year {%else%} Edit Financial Year {% endif%}</a></td>
             </tr>
         </tbody>
     </table>

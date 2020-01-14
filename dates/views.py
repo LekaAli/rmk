@@ -47,17 +47,17 @@ def edit_dates(request):
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                if 'year_counts' in data:
-                    year_count = data.pop('year_counts')
-                new_f_year = FinancialYear(**data)
-                new_f_year.save()
-                create_linked_financial_years(new_f_year, year_count)
+                financial_year_instance = FinancialYear.objects.get(id=data['description'])
+                form = forms.DatesForm({
+                    'description': financial_year_instance.description,
+                    'start_date': financial_year_instance.start_date,
+                    'inflation': financial_year_instance.inflation
+                    })
+                return render(request, 'dates/dates_form.html', {'form': form, 'action': 'edit', 'data_instance': financial_year_instance})
             except Exception as ex:
-                form = forms.DatesForm()
+                form = forms.EditDates()
+                print('ERR: ', ex)
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year',
-                                                          'message': 'Successfully Added Financial Year'})
-    else:
-        form = forms.DatesForm()
-    return render(request, 'dates/dates_form.html', {'form': form})
+    form = forms.EditDates()
+    return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form})
 
