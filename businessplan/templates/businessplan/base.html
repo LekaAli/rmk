@@ -103,14 +103,14 @@
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Income Statement Projections</a>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{% url 'dates:CreateDates' %}">Manage Financial Years</a>
-                    <a class="dropdown-item" href="{% url 'products:create_product' %}">Manage Products</a>
-                    <a class="dropdown-item" href="{% url 'products:add_cost_of_sale' %}">Manage Products Cost Of Sale</a>
-                    <a class="dropdown-item" href="{% url 'products:add_expense' %}">Manage Expenses</a>
                     <a class="dropdown-item" href="{% url 'rampup:add_rampup' %}">Manage Product RampUp</a>
                     <a class="dropdown-item" href="{% url 'rampup:add_rampup_value' %}">Manage Product RampUp Values</a>
-                    <a class="dropdown-item" href="{% url 'seasonality:add_seasonality_value' %}">Manage Product Seasonality Values</a>
                     <a class="dropdown-item" href="{% url 'seasonality:add_seasonality' %}">Manage Product Seasonality</a>
+                    <a class="dropdown-item" href="{% url 'seasonality:add_seasonality_value' %}">Manage Product Seasonality Values</a>
+                    <a class="dropdown-item" href="{% url 'products:create_product' %}">Manage Products</a>
                     <a class="dropdown-item" href="{% url 'products:product_assignment' %}">Manage Product Assignments</a>
+                    <a class="dropdown-item" href="{% url 'products:add_cost_of_sale' %}">Manage Products Cost Of Sale</a>
+                    <a class="dropdown-item" href="{% url 'products:add_expense' %}">Manage Expenses</a>
                     <a class="dropdown-item" href="{% url 'products:tax_management' %}">Tax Management</a>
                     <a class="dropdown-item" href="{% url 'revenues:RevenueInput' %}">Revenue Projections </a>
 		

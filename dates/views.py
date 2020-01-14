@@ -40,3 +40,24 @@ def create_dates(request):
         form = forms.DatesForm()
     return render(request, 'dates/dates_form.html', {'form': form})
 
+
+def edit_dates(request):
+    if request.method == 'POST':
+        form = forms.EditDates(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                if 'year_counts' in data:
+                    year_count = data.pop('year_counts')
+                new_f_year = FinancialYear(**data)
+                new_f_year.save()
+                create_linked_financial_years(new_f_year, year_count)
+            except Exception as ex:
+                form = forms.DatesForm()
+                return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
+            return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year',
+                                                          'message': 'Successfully Added Financial Year'})
+    else:
+        form = forms.DatesForm()
+    return render(request, 'dates/dates_form.html', {'form': form})
+
