@@ -25,3 +25,16 @@ class EditDates(forms.Form):
     description = forms.CharField(widget=forms.Select(choices=years), initial='-1', required=True)
 
 
+class UpdateForm(forms.Form):
+    description = forms.CharField()
+    start_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                "type": "date",
+                "placeholder": "mm/dd/yyyy"
+            }
+        ))
+    inflation = forms.FloatField()
+
+    description.widget.attrs['placeholder'] = 'Year Description'
+    inflation.widget.attrs['placeholder'] = 'Inflation Value'

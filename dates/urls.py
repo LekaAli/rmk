@@ -5,4 +5,5 @@ app_name = 'dates'
 urlpatterns = [
     path('CreateDates/', views.create_dates, name='CreateDates'),
     path('EditDates/', views.edit_dates, name='EditDates'),
+    path('UpdateDates/', views.update_dates, name='UpdateDates'),
     ]

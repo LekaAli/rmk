@@ -53,11 +53,29 @@ def edit_dates(request):
                     'start_date': financial_year_instance.start_date,
                     'inflation': financial_year_instance.inflation
                     })
-                return render(request, 'dates/dates_form.html', {'form': form, 'action': 'edit', 'data_instance': financial_year_instance})
+                return render(request, 'dates/dates_form.html', {'form': form, 'action': 'update'})
             except Exception as ex:
                 form = forms.EditDates()
                 print('ERR: ', ex)
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
     form = forms.EditDates()
+    return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form})
+
+
+def update_dates(request):
+    if request.method == 'POST':
+        form = forms.UpdateForm(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                financial_year_instance = FinancialYear.objects.get(description=data['description'])
+                financial_year_instance.inflation = data['inflation']
+                financial_year_instance.save()
+                return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Updated Financial Year'})
+            except Exception as ex:
+                form = forms.EditDates()
+                print('ERR: ', ex)
+                return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
+    form = forms.UpdateForm()
     return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form})
 
