@@ -46,4 +46,38 @@ def add_rampup_value(request):
             return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'message': 'Ramp Up Successfully Added'})
     else:
         form = CapacityRampUpValuesForm()
-    return render(request, 'rampup/add_rampup_values.html', {'form': form})
+    return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'add'})
+
+
+def edit_rampup_value(request):
+    if request.method == 'POST':
+        form = CapacityRampUpValuesForm(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                rampup_value_instance = RampUpValue(**data)
+                rampup_value_instance.save()
+            except Exception as ex:
+                form = CapacityRampUpValuesForm()
+                return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex})
+            return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'message': 'Ramp Up Successfully Added'})
+    else:
+        form = CapacityRampUpValuesForm()
+    return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'edit'})
+
+
+def update_rampup_value(request):
+    if request.method == 'POST':
+        form = CapacityRampUpValuesForm(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                rampup_value_instance = RampUpValue(**data)
+                rampup_value_instance.save()
+            except Exception as ex:
+                form = CapacityRampUpValuesForm()
+                return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex})
+            return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'message': 'Ramp Up Successfully Added'})
+    else:
+        form = CapacityRampUpValuesForm()
+    return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'edit'})

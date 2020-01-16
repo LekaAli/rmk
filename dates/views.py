@@ -71,7 +71,7 @@ def update_dates(request):
                 financial_year_instance = FinancialYear.objects.get(description=data['description'])
                 financial_year_instance.inflation = data['inflation']
                 financial_year_instance.save()
-                return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Updated Financial Year'})
+                return render(request, 'dates/success.html', {'btn_name': 'Edit Another Financial Year', 'message': 'Successfully Updated Financial Year'})
             except Exception as ex:
                 form = forms.EditDates()
                 print('ERR: ', ex)

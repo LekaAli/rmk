@@ -30,6 +30,7 @@
             <tr>
                 <td><input type ='submit' value='{% if action == "edit" %} Edit Year {% elif action == "update" %} Update Year {%else%} Add Year {% endif%}' id='id_submit_button'></td>
             </tr>
+            {% if action != 'update' %}
             <tr>
                 <td><a href='{% if action == "edit" %} {% url "dates:CreateDates" %} {% elif action == "update" %} {% url "dates:UpdateDates" %} {%else%} {% url "dates:EditDates" %} {% endif%}'>
                     {% if action == "edit" %} Add Financial Year
@@ -37,6 +38,7 @@
                     {%else%} Edit Financial Year {% endif%}
                 </a></td>
             </tr>
+            {% endif %}
         </tbody>
     </table>
           
