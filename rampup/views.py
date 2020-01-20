@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
-from .forms import CapacityRampUpForm, CapacityRampUpValuesForm
+from .forms import CapacityRampUpForm, CapacityRampUpValuesForm, CapacityRampUpValuesUpdateForm, CapacityRampUpValuesEditForm
 from dates.models import FinancialYear
 from .models import RampUp, RampUpValue
 
@@ -68,16 +68,17 @@ def edit_rampup_value(request):
 
 def update_rampup_value(request):
     if request.method == 'POST':
-        form = CapacityRampUpValuesForm(request.POST)
+        form = CapacityRampUpValuesUpdateForm(request.POST)
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                rampup_value_instance = RampUpValue(**data)
-                rampup_value_instance.save()
+                # f = CapacityRampUpValuesEditForm(request.POST)
+                rampup_value_instance = RampUpValue.objects.get(**data)
+                form = CapacityRampUpValuesForm({'month': rampup_value_instance.month, 'percentage': rampup_value_instance.percentage})
             except Exception as ex:
                 form = CapacityRampUpValuesForm()
                 return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'message': 'Ramp Up Successfully Added'})
+            return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'update'})
     else:
         form = CapacityRampUpValuesForm()
     return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'edit'})

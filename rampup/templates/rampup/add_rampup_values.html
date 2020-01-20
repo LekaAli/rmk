@@ -6,23 +6,27 @@
 
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
-  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'rampup:edit_rampup_value' %} {% endif %}", method="POST", enctype="multipart/form-data">
+  <form class= "form-horizontal"
+        action="{% if action == 'edit' %} {% url 'rampup:update_rampup_value' %} {% elif action == 'update' %} {% url 'rampup:update_rampup_value' %} {% endif %}"
+        method="POST", enctype="multipart/form-data">
     {% csrf_token %}
-
+    <input type="hidden" value="{{ action }}" name="which_form"/>
     <table>
         <thead>
-            <h3>{% if action == 'add' %} Add Ramp Up Values {% else %} Edit Ramp Up Values {% endif %}</h3>
+            <h3>{% if action == 'add' %} Add Ramp Up Values {% elif action == 'edit' %} Edit Ramp Up Values {% else %} Update Ramp Up Value {% endif %}</h3>
         </thead>
         <tbody>
             <tr>
                 <td>{{ form.month }}</td>
             </tr>
+            {% if action == 'add' or action == 'update' %}
             <tr>
                 <td>{{ form.percentage }}</td>
             </tr>
+            {% endif %}
             <tr>
                 <td>
-                    <input type ='submit' value = 'Add Value' id='id_add_rampup_values_button'>
+                    <input type ='submit' value = '{% if action == "add" %} Add Value {% elif action == "edit" %} Edit Value {% else %} Update Value {% endif %}' id='id_add_rampup_values_button'>
                 </td>
             </tr>
             {% if action == 'add' %}

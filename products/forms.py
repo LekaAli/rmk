@@ -73,7 +73,7 @@ class TaxForm(forms.Form):
     YEARS = [(-1, '---Select Financial Year---')]
     try:
         YEARS.extend(list(FinancialYear.objects.values_list('id', 'description')))
-    except ExpenseForm as ex:
+    except Exception as ex:
         pass
     financial_year = forms.CharField(widget=forms.Select(choices=YEARS), initial='-1', required=True)
     tax_percentage = forms.FloatField()

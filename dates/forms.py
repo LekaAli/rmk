@@ -21,7 +21,10 @@ class DatesForm(forms.Form):
     
 class EditDates(forms.Form):
     years = [(-1, '---Select Financial Year---')]
-    years.extend(list(FinancialYear.objects.values_list('id', 'description')))
+    try:
+        years.extend(list(FinancialYear.objects.values_list('id', 'description')))
+    except Exception as ex:
+        pass
     description = forms.CharField(widget=forms.Select(choices=years), initial='-1', required=True)
 
 
