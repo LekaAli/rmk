@@ -51,16 +51,19 @@ def add_rampup_value(request):
 
 def edit_rampup_value(request):
     if request.method == 'POST':
-        form = CapacityRampUpValuesForm(request.POST)
+        form = CapacityRampUpValuesEditForm(request.POST)
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                rampup_value_instance = RampUpValue(**data)
-                rampup_value_instance.save()
+                rampup_value_instance = RampUpValue.objects.get(**data)
+                form = CapacityRampUpValuesForm({
+                    'month': rampup_value_instance.month,
+                    'percentage': rampup_value_instance.percentage
+                })
             except Exception as ex:
-                form = CapacityRampUpValuesForm()
+                form = CapacityRampUpValuesEditForm()
                 return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'message': 'Ramp Up Successfully Added'})
+            return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'update'})
     else:
         form = CapacityRampUpValuesForm()
     return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'edit'})
@@ -72,13 +75,13 @@ def update_rampup_value(request):
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                # f = CapacityRampUpValuesEditForm(request.POST)
-                rampup_value_instance = RampUpValue.objects.get(**data)
-                form = CapacityRampUpValuesForm({'month': rampup_value_instance.month, 'percentage': rampup_value_instance.percentage})
+                rampup_value_instance = RampUpValue.objects.get(**{'month': data.get('month', 0)})
+                rampup_value_instance.percentage = data.get('percentage')
+                rampup_value_instance.save()
             except Exception as ex:
                 form = CapacityRampUpValuesForm()
-                return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex})
-            return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'update'})
+                return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex, 'action': 'edit'})
+            return render(request, 'dates/success.html', {'btn_name': 'Update Another Ramp Up Value', 'message': 'Ramp Up Value Successfully Updated'})
     else:
         form = CapacityRampUpValuesForm()
     return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'edit'})

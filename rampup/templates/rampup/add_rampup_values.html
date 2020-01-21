@@ -7,7 +7,7 @@
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
   <form class= "form-horizontal"
-        action="{% if action == 'edit' %} {% url 'rampup:update_rampup_value' %} {% elif action == 'update' %} {% url 'rampup:update_rampup_value' %} {% endif %}"
+        action="{% if action == 'edit' %} {% url 'rampup:edit_rampup_value' %} {% elif action == 'update' %} {% url 'rampup:update_rampup_value' %} {% endif %}"
         method="POST", enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" value="{{ action }}" name="which_form"/>

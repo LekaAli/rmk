@@ -6,25 +6,45 @@
 
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
-  <form class= "form-horizontal" action="", method="POST", enctype="multipart/form-data">
+  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'seasonality:edit_seasonality_value' %} {% elif action == 'update' %} {% url 'seasonality:update_seasonality_value' %} {% endif %}"
+        method="POST", enctype="multipart/form-data">
     {% csrf_token %}
 
     <table>
         <thead>
-            <h3>Add Seasonality Value</h3>
+            <h3>
+                {% if action == 'add' %} Add Seasonality Value
+                {% elif action == 'edit' %} Edit Seasonality Value
+                {% else %} Update Seasonality Value {% endif %}
+            </h3>
         </thead>
         <tbody>
             <tr>
                 <td>{{ form.month }}</td>
             </tr>
+            {% if action == 'add' or action == 'update' %}
             <tr>
                 <td>{{ form.percentage }}</td>
             </tr>
+             {% endif %}
             <tr>
                 <td>
-                    <input type ='submit' value = 'Add Value' id='id_add_seasonality_value_button'>
+                    <input type ='submit' value = '{% if action == "add" %} Add Value {% elif action == "edit" %} Edit Value {% else %} Update Value {% endif %}' id='id_add_seasonality_value_button'>
                 </td>
             </tr>
+            {% if action == 'add' %}
+            <tr>
+                <td>
+                    <a href="{% url 'seasonality:edit_seasonality_value' %}" >Edit Seasonality Values</a>
+                </td>
+            </tr>
+            {% elif action == 'edit' %}
+            <tr>
+                <td>
+                    <a href="{% url 'seasonality:add_seasonality_value' %}" >Add Seasonality Values</a>
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
   </form>

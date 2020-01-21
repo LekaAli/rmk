@@ -33,11 +33,10 @@ class CapacityRampUpValuesForm(forms.Form):
 
 class CapacityRampUpValuesEditForm(forms.Form):
     month = forms.CharField(widget=forms.Select(choices=MONTHS), initial='-1', required=True)
-    percentage = forms.CharField(widget=forms.TextInput, required=True)
-    percentage.widget.attrs['placeholder'] = 'Ramp Up Percentage Value'
-    
+
 
 class CapacityRampUpValuesUpdateForm(forms.Form):
     month = forms.CharField(widget=forms.Select(choices=MONTHS), initial='-1', required=True)
-    
-    # percentage.widget.attrs['placeholder'] = 'Ramp Up Percentage Value'
+    percentage = forms.CharField(widget=forms.TextInput, required=True)
+
+    percentage.widget.attrs['placeholder'] = 'Ramp Up Percentage Value'

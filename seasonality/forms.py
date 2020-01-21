@@ -28,3 +28,8 @@ class SeasonalityValuesForm(forms.Form):
     percentage = forms.CharField(widget=forms.TextInput)
     
     percentage.widget.attrs['placeholder'] = 'Seasonality Percentage Value'
+
+
+class SeasonalityValuesEditForm(forms.Form):
+    month = forms.CharField(widget=forms.Select(choices=MONTHS), required=True, initial='-1')
+
