@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm
-from .models import Product, CostOfSale, Expense, ProductSeasonalityRampUp, Tax
+from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
+from .models import Product, CostOfSale, Expense, ProductSeasonalityRampUp, Tax, ProductSeasonalityRampUp
 from seasonality.models import Seasonality
 from rampup.models import RampUp
 from dates.models import FinancialYear
@@ -182,7 +182,7 @@ def update_cost_of_sale(request):
     return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'add'})
 
 
-def product_seasonality_rampup_assignment(request):
+def add_product_assignment(request):
     if request.method == 'POST':
         form = ProductSeasonalityRampUpAssignment(request.POST)
         if form.is_valid():
@@ -206,11 +206,53 @@ def product_seasonality_rampup_assignment(request):
                 product_seasonality_rampup_assignment.save()
             except Exception as ex:
                 form = ProductSeasonalityRampUpAssignment()
-                return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'errors': ex})
+                return render(
+                    request,
+                    'products/product_assign_seasonality_rampup.html', {'form': form, 'errors': ex , 'action' : 'add'})
             return render(request, 'dates/success.html', {'btn_name': 'Add Another Product Assignment', 'message': 'Product Assignment Successfully Added'})
     else:
         form = ProductSeasonalityRampUpAssignment()
-    return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form})
+    return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'action': 'add'})
+
+
+def edit_product_assignment(request):
+    if request.method == 'POST':
+        form = ProductAssignmentEditForm(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                product_instance = ProductSeasonalityRampUp.objects.get(product_id=data['product'])
+                form = ProductSeasonalityRampUpAssignment({
+                    'product': product_instance.product.id,
+                    'seasonality': product_instance.seasonality.id,
+                    'rampup': product_instance.rampup.id
+                })
+            except Exception as ex:
+                form = ProductAssignmentEditForm()
+                return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'action': 'edit'})
+            return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'action': 'update'})
+    else:
+        form = ProductAssignmentEditForm()
+    return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'action': 'edit'})
+
+
+def update_product_assignment(request):
+    if request.method == 'POST':
+        form = ProductSeasonalityRampUpAssignment(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                product_instance = ProductSeasonalityRampUp.objects.get(product_id=data['product'])
+                product_instance.seasonality.id = data.get('seasonality')
+                product_instance.rampup.id = data.get('rampup')
+                product_instance.save()
+            except Exception as ex:
+                form = ProductSeasonalityRampUpAssignment()
+                return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'errors': ex, 'action': 'update'})
+            return render(request, 'dates/success.html', {'btn_name': 'Update Another Product Assignment', 'message': 'Product Assignment Successfully Updated'})
+    else:
+        form = ProductSeasonalityRampUpAssignment()
+    return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'action': 'add'})
 
 
 def add_tax_value(request):

@@ -1,6 +1,6 @@
 from django import forms
 from dates.models import FinancialYear
-from .models import SeasonalityValue
+from .models import SeasonalityValue, Seasonality
 from rmkplatform.constants import TYPE, MONTHS
 
 
@@ -23,6 +23,15 @@ class SeasonalityForm(forms.Form):
     will_roll_over.widget.attrs['style'] = 'width:20px'
 
 
+class SeasonalityEditForm(forms.Form):
+    SEASONALITY = [(-1, '---Select Seasonality---')]
+    try:
+        SEASONALITY.extend(list(Seasonality.objects.values_list('id', 'name')))
+    except Exception as ex:
+        pass
+    name = forms.CharField(widget=forms.Select(choices=SEASONALITY), initial='-1')
+
+    
 class SeasonalityValuesForm(forms.Form):
     month = forms.CharField(widget=forms.Select(choices=MONTHS), required=True, initial='-1')
     percentage = forms.CharField(widget=forms.TextInput)

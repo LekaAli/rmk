@@ -1,5 +1,5 @@
 from django import forms
-from .models import RampUpValue
+from .models import RampUpValue, RampUp
 from dates.models import FinancialYear
 from rmkplatform.constants import TYPE, MONTHS
 
@@ -22,6 +22,15 @@ class CapacityRampUpForm(forms.Form):
     
     name.widget.attrs['placeholder'] = 'Ramp Up Description'
     will_roll_over.widget.attrs['style'] = 'width:20px'
+
+
+class CapacityRampUpEditForm(forms.Form):
+    RAMPUP = [(-1, '---Select RampUp---')]
+    try:
+        RAMPUP.extend(list(RampUp.objects.values_list('id', 'name')))
+    except Exception as ex:
+        pass
+    name = forms.CharField(widget=forms.Select(choices=RAMPUP), initial='-1')
 
 
 class CapacityRampUpValuesForm(forms.Form):

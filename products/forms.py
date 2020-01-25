@@ -77,23 +77,32 @@ class ProductSeasonalityRampUpAssignment(forms.Form):
     try:
         products.extend(list(Product.objects.values_list('id', 'name')))
     except Exception as ex:
-        products = []
+        pass
 
     seasonality = [(-1, '---Select Product Seasonality---')]
     try:
         seasonality.extend(list(Seasonality.objects.values_list('id', 'name')))
     except Exception as ex:
-        seasonality = []
+        pass
 
     rampup = [(-1, '---Select Product Ramp Up---')]
     try:
         rampup.extend(list(RampUp.objects.values_list('id', 'name')))
     except Exception as ex:
-        rampup = []
+        pass
     product = forms.CharField(widget=forms.Select(choices=products), initial='-1', required=True)
     seasonality = forms.CharField(widget=forms.Select(choices=seasonality), initial='-1', required=True)
     rampup = forms.CharField(widget=forms.Select(choices=rampup), initial='-1', required=True)
 
+
+class ProductAssignmentEditForm(forms.Form):
+    products = [(-1, '---Select Product---')]
+    try:
+        products.extend(list(Product.objects.values_list('id', 'name')))
+    except Exception as ex:
+        pass
+    product = forms.CharField(widget=forms.Select(choices=products), initial='-1', required=True)
+    
 
 class TaxForm(forms.Form):
     YEARS = [(-1, '---Select Financial Year---')]
