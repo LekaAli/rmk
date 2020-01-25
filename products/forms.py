@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product
+from .models import Product, Expense
 from rampup.models import RampUp
 from seasonality.models import Seasonality
 from rmkplatform.constants import MONTHS
@@ -8,7 +8,6 @@ from dates.models import FinancialYear
 
 class ProductForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput)
-    # projection_start = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'placeholder': 'dd/mm/yyyy'}))
     MONTH = [(-1, '---Select Projection Month---')]
     MONTHS = [MONTHS[i] for i in range(len(MONTHS)) if i != 0]
     MONTH.extend(MONTHS)
@@ -19,6 +18,15 @@ class ProductForm(forms.Form):
     name.widget.attrs['placeholder'] = 'Product Description'
     average_unit_price.widget.attrs['placeholder'] = 'Unit Price'
     average_quantity_per_month.widget.attrs['placeholder'] = 'Quantity Per Month'
+
+
+class ProductEditForm(forms.Form):
+    PRODUCT = [(-1, '---Select Product---')]
+    try:
+        PRODUCT.extend(list(Product.objects.values_list('id', 'name')))
+    except Exception as ex:
+        pass
+    name = forms.CharField(widget=forms.Select(choices=PRODUCT), required=True, initial='-1')
 
 
 class CostOfSaleForm(forms.Form):
@@ -37,6 +45,15 @@ class CostOfSaleForm(forms.Form):
     percentage.widget.attrs['placeholder'] = 'Cost Of Sale Value'
 
 
+class CostOfSaleEditForm(forms.Form):
+    products = [(-1, '---Select Product---')]
+    try:
+        products.extend(list(Product.objects.values_list('id', 'name')))
+    except Exception as ex:
+        products = []
+    product = forms.CharField(widget=forms.Select(choices=products))
+    
+    
 class ExpenseForm(forms.Form):
     description = forms.CharField(widget=forms.TextInput)
     is_fixed = forms.BooleanField(required=False)
@@ -46,6 +63,15 @@ class ExpenseForm(forms.Form):
     value.widget.attrs['placeholder'] = 'Expense Value'
 
 
+class ExpenseEditForm(forms.Form):
+    EXPENSES = [('-1', '---Select Expense---')]
+    try:
+        EXPENSES.extend(list(Expense.objects.values_list('id', 'description')))
+    except Exception as ex:
+        pass
+    description = forms.CharField(widget=forms.Select(choices=EXPENSES), initial='-1')
+    
+    
 class ProductSeasonalityRampUpAssignment(forms.Form):
     products = [(-1, '---Select Product---')]
     try:
@@ -78,3 +104,12 @@ class TaxForm(forms.Form):
     financial_year = forms.CharField(widget=forms.Select(choices=YEARS), initial='-1', required=True)
     tax_percentage = forms.FloatField()
     tax_percentage.widget.attrs['placeholder'] = 'Tax Percentage Value'
+    
+    
+class TaxEditForm(forms.Form):
+    YEARS = [(-1, '---Select Financial Year---')]
+    try:
+        YEARS.extend(list(FinancialYear.objects.values_list('id', 'description')))
+    except Exception as ex:
+        pass
+    financial_year = forms.CharField(widget=forms.Select(choices=YEARS), initial='-1', required=True)

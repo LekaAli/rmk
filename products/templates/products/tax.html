@@ -6,25 +6,44 @@
 
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
-  <form class= "form-horizontal" action="", method="POST", enctype="multipart/form-data">
+  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'products:edit_tax_management' %} {% elif action == 'update' %} {% url 'products:update_tax_management' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
 
     <table>
         <thead>
-            <h3>Add Tax</h3>
+            <h3>
+                {% if action == 'add' %} Add Tax
+                {% elif action == 'edit' %} Edit Tax
+                {% else %} Update Tax {% endif %}
+            </h3>
         </thead>
         <tbody>
             <tr>
                 <td>{{ form.financial_year }}</td>
             </tr>
+            {% if action != 'edit' %}
             <tr>
                 <td>{{ form.tax_percentage }}</td>
             </tr>
+            {% endif %}
             <tr>
                 <td>
-                    <input type ='submit' value = 'Add Tax' id='id_add_product_cost_of_sale_button'>
+                    <input type ='submit' value = '{% if action == "add" %} Add {% elif action == "edit" %} Edit {% else %} Update {% endif %}' id='id_add_product_cost_of_sale_button'>
                 </td>
             </tr>
+            {% if action == 'add' %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'products:edit_tax_management' %}" >Edit Cost Of Sale</a>
+                        </td>
+                    </tr>
+                    {% elif action == 'edit' %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'products:add_tax_management' %}" >Add Cost Of Sale</a>
+                        </td>
+                    </tr>
+            {% endif %}
         </tbody>
     </table>
   </form>
