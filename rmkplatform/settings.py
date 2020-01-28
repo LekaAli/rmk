@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'businessplan',
     'users',
     'dates',
-    'inflation',
     'seasonality',
     'rampup',
     'products',

@@ -77,5 +77,5 @@ def update_dates(request):
                 print('ERR: ', ex)
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
     form = forms.UpdateForm()
-    return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form})
+    return render(request, 'dates/dates_form.html', {'action': 'add', 'form': form})
 

@@ -25,7 +25,6 @@ urlpatterns = [
     path('rampup/', include('rampup.urls', namespace='rampup')),
     path('revenues/', include('revenues.urls', namespace='revenues')),
     path('dates/', include('dates.urls', namespace='dates')),
-    path('inflation/', include('inflation.urls', namespace='inflation')),
     path('seasonality/', include('seasonality.urls', namespace='seasonality')),
     path('users/', include ('users.urls')),
     path('admin/', admin.site.urls),

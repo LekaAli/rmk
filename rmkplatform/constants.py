@@ -1,5 +1,6 @@
 MONTHS = (
-        (0, '---Select Month---'),
+        (-1, '---Select Month---'),
+        (0, 'All'),
         (1, 'January'),
         (2, 'February'),
         (3, 'March'),

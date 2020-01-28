@@ -34,13 +34,13 @@
             {% if action == 'add' %}
                     <tr>
                         <td>
-                            <a href="{% url 'products:edit_tax_management' %}" >Edit Cost Of Sale</a>
+                            <a href="{% url 'products:edit_tax_management' %}" >Edit Tax</a>
                         </td>
                     </tr>
                     {% elif action == 'edit' %}
                     <tr>
                         <td>
-                            <a href="{% url 'products:add_tax_management' %}" >Add Cost Of Sale</a>
+                            <a href="{% url 'products:add_tax_management' %}" >Add Tax</a>
                         </td>
                     </tr>
             {% endif %}

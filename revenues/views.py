@@ -1,16 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView
 from revenues.models import Revenue
-from django.urls import reverse
-from django.views import generic
-from django.http import FileResponse
-from io import BytesIO
+from revenues.forms import GenerateRevenuePrediction
+from products.models import Product, ProductSeasonalityRampUp, CostOfSale
 from reportlab.pdfgen import canvas
-from .import forms
-
-# Create your views here.
 
 
 class RevenueInput(CreateView):
@@ -19,3 +12,21 @@ class RevenueInput(CreateView):
     
     fields = '__all__'
 
+
+def generate_revenue_projection(request):
+    if request.method == 'POST':
+        form = GenerateRevenuePrediction(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            form_data.get('product')
+            try:
+                product_instance = Product.objects.filter(id=form_data['product'])
+                assignment_instance = ProductSeasonalityRampUp.objects.filter(product_id=form_data['product'])
+                cost_of_sale_instance = CostOfSale.objects.filter(product_id=form_data['product'])
+            except (KeyError,) as ex:
+                pass
+        else:
+            pass
+    else:
+        form = GenerateRevenuePrediction()
+    return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
