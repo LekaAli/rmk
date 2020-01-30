@@ -3,6 +3,7 @@ from django.views.generic.edit import CreateView
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
 from products.models import Product, ProductSeasonalityRampUp, CostOfSale
+from django.db.models.query import QuerySet
 from reportlab.pdfgen import canvas
 
 
@@ -27,16 +28,49 @@ def generate_revenue_projection(request):
                 assignment_instance = ProductSeasonalityRampUp.objects.filter(product_id__in=product_instance.values_list('id') if int(form_data['product']) == 0 else [form_data['product']])
                 cost_of_sale_instance = CostOfSale.objects.filter(product_id__in=product_instance.values_list('id') if int(form_data['product']) == 0 else [form_data['product']])
                 if product_instance and assignment_instance and cost_of_sale_instance:
+                    form = GenerateRevenuePrediction()
                     # check if seasonality and ream up is not empty.
-                    if assignment_instance.seasonality is None:
+                    if isinstance(assignment_instance, ProductSeasonalityRampUp):
+                        if assignment_instance.seasonality is None:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                        if assignment_instance.rampup is None:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                        
+                        # check if seasonality and ramp up values are assigned.
+                        if len(assignment_instance.seasonality.seasonality_values.all()) == 0:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                        if len(assignment_instance.rampup.rampup_values.all()) == 0:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                    if isinstance(assignment_instance, QuerySet):
+                        if len(assignment_instance) == 0:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+
+                    if isinstance(product_instance, Product):
+                        if product_instance.seasonality is None:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                        if assignment_instance.rampup is None:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+    
+                        # check if seasonality and ramp up values are assigned.
+                        if len(assignment_instance.seasonality.seasonality_values.all()) == 0:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                        if len(assignment_instance.rampup.rampup_values.all()) == 0:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                    elif isinstance(product_instance, QuerySet):
+                        if len(assignment_instance) == 0:
+                            return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                    else:
                         return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
-                    if assignment_instance.rampup is None:
+
+                if isinstance(cost_of_sale_instance, CostOfSale):
+                    if product_instance is None:
                         return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
-                    # check if seasonality and ramp up values are assigned.
-                    if len(assignment_instance.seasonality.seasonality_values.all()) == 0:
+                elif isinstance(cost_of_sale_instance, QuerySet):
+                    if len(cost_of_sale_instance) == 0:
                         return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
-                    if len(assignment_instance.rampup.rampup_values.all()) == 0:
-                        return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                else:
+                    return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
+                    
                 # all checks succeeded, perform revenue predictions.
                 # require: product, financial year & month
                 # check financial year
