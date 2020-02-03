@@ -83,9 +83,10 @@ class Revenue(models.Model):
     
     def monthly_revenue_count(self):
         
-        revenue_count = Revenue.objects.all().values_list('financial_year', flat=True)
+        monthly_revenue_counts = Revenue.objects.filter(product=self.product).values_list('financial_year', flat=True)
+        revenue_count = len(monthly_revenue_counts)
         current_year = Revenue.objects.filter(financial_year=self.financial_year)
-        past_monthly_revenue_count = revenue_count.count() + 1 if current_year.count() == 0 else revenue_count.count()
+        past_monthly_revenue_count = revenue_count + 1 if current_year == 0 else revenue_count
         if past_monthly_revenue_count <= 12:
             return 1
         elif 12 < past_monthly_revenue_count <= 24:
@@ -100,7 +101,7 @@ class Revenue(models.Model):
         product_estimations = self.product.product_link.all()
         self.inflation = self.financial_year.inflation
         revenue_years_count = self.monthly_revenue_count()
-        past_years_count = Sale.objects.all().values_list('period', flat=True).distinct().count()
+        past_years_count = Sale.objects.filter(product=self.product).values_list('period', flat=True).distinct().count()
         if product_estimations.count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe go feta gatee.
             product_projection_instance = self.product.product_link.first()
             if revenue_years_count in [1, 2]:
@@ -141,6 +142,8 @@ class Revenue(models.Model):
                     product_sale.save()
         else:
             if not self.pk:
+                #Every year must have 12 months instance of revenue before calculating sale.
+                
                 product_sale = Sale(product_id=self.product.id, period=past_years_count + 1, month=self.month)
                 product_sale.total_sale_revenue = self.product_revenue
                 product_sale.save()

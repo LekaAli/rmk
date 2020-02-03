@@ -4,7 +4,7 @@ from django.views.generic.edit import CreateView
 from dates.models import FinancialYear
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
-from products.models import Product, ProductSeasonalityRampUp, CostOfSale
+from products.models import Product, ProductSeasonalityRampUp, CostOfSale, Sale
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS
 from reportlab.pdfgen import canvas
@@ -68,12 +68,19 @@ def generate_revenue_projection(request):
                 f_year_instance = FinancialYear.objects.get(id=form_data.get('year'))
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     for product in product_instance:
-                        for month in MONTHS:
-                            try:
-                                revenue_instance = Revenue(**{'product': product, 'financial_year': f_year_instance, 'month': month[0]})
-                                revenue_instance.save()
-                            except Exception as ex:
-                                pass
+                        current_revenues = Revenue.objects.filter(product=product, financial_year=f_year_instance).values_list('month', 'product_revenue')
+                        #Ge ngwaga o le 0 goba 24 Revenue, tswelapele ka go dira di culculation tsa di revenue tsa kgwedi
+                        if 0 <= current_revenues.count() < 24:
+                            for month in MONTHS[2:]:
+                                try:
+                                    revenue_instance = Revenue(**{'product': product, 'financial_year': f_year_instance, 'month': month[0]})
+                                    revenue_instance.save()
+                                except Exception as ex:
+                                    pass
+                        else:  # Calculate Revenue ka ngwaga eseng ka kgwedi le kgwedi.
+                            # current_revenue = Sale.objects.filter(product=product).last()
+                            revenue_instance = Revenue(**{'product': product, 'financial_year': f_year_instance})
+                            revenue_instance.save()
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     for product in product_instance:
                         try:
@@ -82,7 +89,7 @@ def generate_revenue_projection(request):
                         except Exception as ex:
                             pass
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
-                    for month in MONTHS:
+                    for month in MONTHS[2:]:
                         try:
                             revenue_instance = Revenue(**{'product': product_instance, 'financial_year': f_year_instance, 'month': month[0]})
                             revenue_instance.save()
