@@ -65,39 +65,44 @@ def generate_revenue_projection(request):
                     return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
                 
                 # calculate product revenue here
-                f_year_instance = FinancialYear.objects.get(id=form_data.get('year'))
+                financial_year_ids = list(FinancialYear.objects.values_list('id', flat=True))
+                try:
+                    current_f_year_index = financial_year_ids.index(int(form_data.get('year')))
+                    f_year_id = financial_year_ids[current_f_year_index - 1 if current_f_year_index > 0 else current_f_year_index]
+                except (ValueError, IndexError):
+                    f_year_id = form_data.get('year')
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     for product in product_instance:
-                        current_revenues = Revenue.objects.filter(product=product, financial_year=f_year_instance).values_list('month', 'product_revenue')
+                        current_revenues = Revenue.objects.filter(product=product).values_list('month', 'product_revenue')
                         #Ge ngwaga o le 0 goba 24 Revenue, tswelapele ka go dira di culculation tsa di revenue tsa kgwedi
                         if 0 <= current_revenues.count() < 24:
                             for month in MONTHS[2:]:
                                 try:
-                                    revenue_instance = Revenue(**{'product': product, 'financial_year': f_year_instance, 'month': month[0]})
+                                    revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year')), 'month': month[0]})
                                     revenue_instance.save()
                                 except Exception as ex:
                                     pass
                         else:  # Calculate Revenue ka ngwaga eseng ka kgwedi le kgwedi.
                             # current_revenue = Sale.objects.filter(product=product).last()
-                            revenue_instance = Revenue(**{'product': product, 'financial_year': f_year_instance})
+                            revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year'))})
                             revenue_instance.save()
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     for product in product_instance:
                         try:
-                            revenue_instance = Revenue(**{'product': product, 'financial_year': f_year_instance, 'month': form_data.get('month')})
+                            revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year')), 'month': form_data.get('month')})
                             revenue_instance.save()
                         except Exception as ex:
                             pass
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     for month in MONTHS[2:]:
                         try:
-                            revenue_instance = Revenue(**{'product': product_instance, 'financial_year': f_year_instance, 'month': month[0]})
+                            revenue_instance = Revenue(**{'product': product_instance, 'financial_year_id': int(form_data.get('year')), 'month': month[0]})
                             revenue_instance.save()
                         except Exception as ex:
                             pass
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     try:
-                        revenue_instance = Revenue(**{'product': product_instance, 'financial_year': f_year_instance, 'month': form_data.get('month')})
+                        revenue_instance = Revenue(**{'product': product_instance, 'financial_year_id': int(form_data.get('year')), 'month': form_data.get('month')})
                         revenue_instance.save()
                     except Exception as ex:
                         pass

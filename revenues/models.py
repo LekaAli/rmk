@@ -91,10 +91,14 @@ class Revenue(models.Model):
             return 1
         elif 12 < past_monthly_revenue_count <= 24:
             return 2
-        elif past_monthly_revenue_count == 25:
-            return 3
         else:
-            return 4
+            year_value = past_monthly_revenue_count - 24
+            return 3 if abs(year_value - 2) == 0 else self.calc_year_value(year_value)
+    
+    @staticmethod
+    def calc_year_value(value):
+        
+        return 4 + abs(value - 2)
     
     def save(self, *args, **kwargs):
         
@@ -142,9 +146,7 @@ class Revenue(models.Model):
                     product_sale.save()
         else:
             if not self.pk:
-                #Every year must have 12 months instance of revenue before calculating sale.
-                
-                product_sale = Sale(product_id=self.product.id, period=past_years_count + 1, month=self.month)
+                product_sale = Sale(product_id=self.product.id, period=past_years_count, month=self.month)
                 product_sale.total_sale_revenue = self.product_revenue
                 product_sale.save()
         super(Revenue, self).save(*args, **kwargs)
