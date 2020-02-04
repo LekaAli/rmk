@@ -64,13 +64,6 @@ def generate_revenue_projection(request):
                 if not form_data.get('month'):
                     return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
                 
-                # calculate product revenue here
-                financial_year_ids = list(FinancialYear.objects.values_list('id', flat=True))
-                try:
-                    current_f_year_index = financial_year_ids.index(int(form_data.get('year')))
-                    f_year_id = financial_year_ids[current_f_year_index - 1 if current_f_year_index > 0 else current_f_year_index]
-                except (ValueError, IndexError):
-                    f_year_id = form_data.get('year')
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     for product in product_instance:
                         current_revenues = Revenue.objects.filter(product=product).values_list('month', 'product_revenue')

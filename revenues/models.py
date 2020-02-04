@@ -83,10 +83,7 @@ class Revenue(models.Model):
     
     def monthly_revenue_count(self):
         
-        monthly_revenue_counts = Revenue.objects.filter(product=self.product).values_list('financial_year', flat=True)
-        revenue_count = len(monthly_revenue_counts)
-        current_year = Revenue.objects.filter(financial_year=self.financial_year)
-        past_monthly_revenue_count = revenue_count + 1 if current_year == 0 else revenue_count
+        past_monthly_revenue_count = len(Revenue.objects.filter(product=self.product).values_list('financial_year', flat=True))
         if past_monthly_revenue_count <= 12:
             return 1
         elif 12 < past_monthly_revenue_count <= 24:
@@ -134,19 +131,23 @@ class Revenue(models.Model):
             self.product_revenue = 0
            
         if revenue_years_count < 3:
-            product_sale = Sale.objects.filter(product_id=self.product.id, period=revenue_years_count, month=self.month)
-            if len(product_sale) == 0:
-                product_sale = Sale(product_id=self.product.id, period=revenue_years_count, month=self.month)
+            product_sale = Sale.objects.filter(product_id=self.product.id, period=revenue_years_count)
+            if product_sale.count() == 0:
+                product_sale = Sale(product_id=self.product.id, period=revenue_years_count)
+                if self.month:
+                    product_sale.month = self.month
                 product_sale.month_sale = self.product_revenue
                 product_sale.save()
             else:
-                product_sale = product_sale.first()
+                product_sale = product_sale.last()
                 if not self.pk:
                     product_sale.month_sale = float(product_sale.month_sale) + self.product_revenue
                     product_sale.save()
         else:
             if not self.pk:
-                product_sale = Sale(product_id=self.product.id, period=past_years_count, month=self.month)
+                product_sale = Sale(product_id=self.product.id, period=past_years_count + 1)
+                if self.month:
+                    product_sale.month = self.month
                 product_sale.total_sale_revenue = self.product_revenue
                 product_sale.save()
         super(Revenue, self).save(*args, **kwargs)
