@@ -38,12 +38,12 @@ class Revenue(models.Model):
         rampup_percentage = 1.0
         seasonality_percentage = 1.0
         for monthly_value in product_projection.seasonality.seasonality_values.all():
-            if monthly_value.month != self.month:
+            if monthly_value.month != int(self.month):
                 continue
             seasonality_percentage = monthly_value.month_percentage
             break
         for monthly_value in product_projection.rampup.rampup_values.all():
-            if monthly_value.month != self.month:
+            if monthly_value.month != int(self.month):
                 continue
             rampup_percentage = monthly_value.month_percentage
             break
@@ -141,14 +141,15 @@ class Revenue(models.Model):
             else:
                 product_sale = product_sale.last()
                 if not self.pk:
-                    product_sale.month_sale = float(product_sale.month_sale) + self.product_revenue
+                    product_sale.month_sale = self.product_revenue
+                    product_sale.total_sale_revenue = product_sale.total_sale_revenue + self.product_revenue
                     product_sale.save()
         else:
             if not self.pk:
                 product_sale = Sale(product_id=self.product.id, period=past_years_count + 1)
                 if self.month:
                     product_sale.month = self.month
-                product_sale.total_sale_revenue = self.product_revenue
+                product_sale.total_sale_revenue = product_sale.total_sale_revenue + self.product_revenue
                 product_sale.save()
         super(Revenue, self).save(*args, **kwargs)
 
