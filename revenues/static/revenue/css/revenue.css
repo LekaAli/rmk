@@ -1,0 +1,21 @@
+#id_add_product_button {
+    margin-top: 1%;
+    border-radius: 5px;
+    min-width: 120px;
+    padding: 10px;
+    background-color: hsl(0, 100%, 50%);
+    border: 2px solid red;
+    font-weight: bold;
+    color: hsl(0, 100%, 100%)
+}
+#id_average_unit_price, #id_average_quantity_per_month, #id_projection_start, #id_name  {
+    margin-top: 1%;
+    border-radius: 5px;
+    width: 324px;
+    padding: 5px;
+}
+
+h3 {
+    margin-left: 10px;
+    color: hsl(0, 100%, 50%);
+}

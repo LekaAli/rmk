@@ -76,7 +76,6 @@ def generate_revenue_projection(request):
                                 except Exception as ex:
                                     pass
                         else:  # Calculate Revenue ka ngwaga eseng ka kgwedi le kgwedi.
-                            # current_revenue = Sale.objects.filter(product=product).last()
                             revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year'))})
                             revenue_instance.save()
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:

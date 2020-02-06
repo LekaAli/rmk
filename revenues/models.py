@@ -134,22 +134,18 @@ class Revenue(models.Model):
             product_sale = Sale.objects.filter(product_id=self.product.id, period=revenue_years_count)
             if product_sale.count() == 0:
                 product_sale = Sale(product_id=self.product.id, period=revenue_years_count)
-                if self.month:
-                    product_sale.month = self.month
-                product_sale.month_sale = self.product_revenue
+                product_sale.total_sale_revenue = float(product_sale.total_sale_revenue) + self.product_revenue
                 product_sale.save()
             else:
                 product_sale = product_sale.last()
                 if not self.pk:
                     product_sale.month_sale = self.product_revenue
-                    product_sale.total_sale_revenue = product_sale.total_sale_revenue + self.product_revenue
+                    product_sale.total_sale_revenue = float(product_sale.total_sale_revenue) + self.product_revenue
                     product_sale.save()
         else:
             if not self.pk:
                 product_sale = Sale(product_id=self.product.id, period=past_years_count + 1)
-                if self.month:
-                    product_sale.month = self.month
-                product_sale.total_sale_revenue = product_sale.total_sale_revenue + self.product_revenue
+                product_sale.total_sale_revenue = float(product_sale.total_sale_revenue) + self.product_revenue
                 product_sale.save()
         super(Revenue, self).save(*args, **kwargs)
 
