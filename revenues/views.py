@@ -105,3 +105,4 @@ def generate_revenue_projection(request):
     else:
         form = GenerateRevenuePrediction()
     return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
+
