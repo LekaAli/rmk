@@ -3,6 +3,7 @@ from products.models import Sale
 from dates.models import FinancialYear
 from rampup.models import RampUp
 from seasonality.models import Seasonality
+# from utils.decorators import apply_default
 
 
 class Revenue(models.Model):
@@ -34,8 +35,10 @@ class Revenue(models.Model):
         verbose_name = 'Product Revenue'
         verbose_name_plural = 'Products Revenue'
     
-    @staticmethod
-    def set_default_val(val, flag=False):
+    def set_default_val(self, val, flag=False):
+        revenue_years = Revenue.objects.filter(product_id=self.product.id).values_list('financial_year', flat=True)
+        if len(revenue_years) < 12:
+            return val
         if val <= 0 or flag is True:
             return 1.0
         return val
@@ -43,7 +46,7 @@ class Revenue(models.Model):
     def calculate_product_revenue(self, product_projection):
         rampup_percentage = 1.0
         seasonality_percentage = 1.0
-        flag = len(list(set(Revenue.objects.filter(product_id=self.product.id).values_list('financial_year', flat=True)))) == 2
+        flag = self.monthly_revenue_count() == 2
         for monthly_value in product_projection.seasonality.seasonality_values.all():
             if monthly_value.month != int(self.month):
                 continue
@@ -87,14 +90,14 @@ class Revenue(models.Model):
     
     def monthly_revenue_count(self):
         
-        past_monthly_revenue_count = len(Revenue.objects.filter(product=self.product).values_list('financial_year', flat=True))
-        if past_monthly_revenue_count <= 12:
+        past_monthly_revenue_count = Revenue.objects.filter(product=self.product).values_list('financial_year', flat=True).count()
+        if past_monthly_revenue_count < 12:
             return 1
-        elif 12 < past_monthly_revenue_count <= 24:
+        elif 12 <= past_monthly_revenue_count < 24:
             return 2
         else:
             year_value = past_monthly_revenue_count - 24
-            return 3 if abs(year_value - 2) == 0 else self.calc_year_value(year_value)
+            return 3 if year_value == 1 else self.calc_year_value(year_value)
     
     @staticmethod
     def calc_year_value(value):
@@ -112,7 +115,7 @@ class Revenue(models.Model):
             if revenue_years_count in [1, 2]:
                 self.product_revenue = self.calculate_product_revenue(product_projection_instance)
             elif revenue_years_count == 3:
-                monthly_product_revenue = sum(Sale.objects.filter(period=2).values_list('month_sale', flat=True))
+                monthly_product_revenue = sum(Sale.objects.filter(period=2).values_list('total_sale_revenue', flat=True))
                 self.product_revenue = (self.financial_year.inflation_value + 1) * float(monthly_product_revenue)
             else:
                 past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count)
@@ -143,7 +146,6 @@ class Revenue(models.Model):
             else:
                 product_sale = product_sale.last()
                 if not self.pk:
-                    product_sale.month_sale = self.product_revenue
                     product_sale.total_sale_revenue = float(product_sale.total_sale_revenue) + self.product_revenue
                     product_sale.save()
         else:
