@@ -8,6 +8,7 @@ from products.models import Product, ProductSeasonalityRampUp, CostOfSale, Sale
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS
 from reportlab.pdfgen import canvas
+from utils.pdf_creator import html_to_pdf_creator
 
 
 class RevenueInput(CreateView):
@@ -104,5 +105,7 @@ def generate_revenue_projection(request):
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
     else:
         form = GenerateRevenuePrediction()
+        response = html_to_pdf_creator(request)
+        return response
     return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
 
