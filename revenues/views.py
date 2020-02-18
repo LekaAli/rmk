@@ -105,7 +105,7 @@ def generate_revenue_projection(request):
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
     else:
         form = GenerateRevenuePrediction()
-        response = html_to_pdf_creator(request)
+        response = html_to_pdf_creator()
         return response
     return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
 
