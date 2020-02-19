@@ -5,6 +5,27 @@
     <title>{{ title }}</title>
 </head>
 <body>
-
+    <table style="border: solid 1px black;padding:10px">
+        <thead></thead>
+        <tbody>
+        {% if report_data %}
+            {% for product_name, revenue_instance in report_data.revenues.items %}
+                    <tr>
+                        <td colspan="2">
+                        <h1>{{ product_name }}</h1>
+                        </td>
+                    </tr>
+                    {% for revenue in revenue_instance %}
+                        <tr>
+                            <td style="">{{ revenue.3 }}</td>
+                            <td style="">{{ revenue.4 }}</td>
+                        </tr>
+                    {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div>No Report Data</div>
+        {% endif %}
+        </tbody>
+    </table>
 </body>
 </html>

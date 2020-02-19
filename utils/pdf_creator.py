@@ -8,7 +8,7 @@ from importlib import import_module
 
 class EngineSelector(object):
 	def __init__(self, app_name):
-		self.engine = import_module('%s' % app_name)
+		self.app_engine = import_module('%s' % app_name)
 
 
 def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
@@ -18,7 +18,14 @@ def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 		template = get_template(template_name)
 		# engine and data selection
 		engine = EngineSelector(app_name)
-		html = template.render({'pagesize': 'A3', 'title': 'Revenue Predictions'})
+		data = {}
+		if engine.app_engine.AppEngine:
+			data = engine.app_engine.AppEngine.generate_report_data()
+		html = template.render({
+			'pagesize': 'A3',
+			'title': 'Revenue Predictions',
+			'report_data': data
+		})
 		results = BytesIO()
 		pdf = pisa.pisaDocument(html, dest=results)
 	except Exception as ex: # TemplateDoesNotExist:
