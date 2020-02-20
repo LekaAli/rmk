@@ -22,7 +22,7 @@ def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 		if engine.app_engine.AppEngine:
 			data = engine.app_engine.AppEngine.generate_report_data()
 		html = template.render({
-			'pagesize': 'A3',
+			'view_option': '',
 			'title': 'Revenue Predictions',
 			'report_data': data
 		})
