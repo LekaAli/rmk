@@ -3,9 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
+    <style>
+        @page {
+        size: A4 portrait;
+        margin: 2cm;
+
+        @frame header_frame {           /* Static frame */
+            -pdf-frame-content: header_content;
+            left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+            -pdf-frame-border: 1;
+        }
+        @frame footer_frame {           /* Static frame */
+            -pdf-frame-content: footer_content;
+            left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+            -pdf-frame-border: 1;
+        }
+
+        @frame content {
+        left: 44pt;
+            width: 450pt;
+            top: 90pt;
+            height: 632pt;
+        }
+    }
+    </style>
 </head>
 <body>
-    <table style="border: solid 1px black;padding:10px">
+<div id="header_content">Hello Header</div>
+<div id=""></div>
+<div id="footer_content">
+    <center><b>
+        <pdf:pagenumber>
+        of <pdf:pagecount>
+    </b>
+    </center>
+</div>
+    <table style="border: solid 1px black;padding:0px">
         <thead></thead>
         <tbody>
         {% if report_data %}
@@ -15,12 +48,14 @@
                         <h1>{{ product_name }}</h1>
                         </td>
                     </tr>
+
                     {% for revenue in revenue_instance %}
-                        <tr>
+         <tr>
                             <td style="">{{ revenue.3 }}</td>
-                            <td style="">{{ revenue.4 }}</td>
+                            <td style="">{{ revenue.4| floatformat:2 }}</td>
                         </tr>
                     {% endfor %}
+
             {% endfor %}
         {% else %}
             <div>No Report Data</div>
