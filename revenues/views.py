@@ -24,12 +24,13 @@ def generate_revenue_projection(request):
         if form.is_valid():
             form_data = form.cleaned_data
             try:
-                if int(form_data['product']) != 0:
+                if int(form_data['product']) != 0:  # projection for a given product
                     product_instance = Product.objects.get(id=form_data['product'])
-                else:
+                else:  # projection for all available products
                     product_instance = Product.objects.all()
-                assignment_instance = ProductSeasonalityRampUp.objects.filter(product_id__in=product_instance.values_list('id') if int(form_data['product']) == 0 else [form_data['product']])
-                cost_of_sale_instance = CostOfSale.objects.filter(product_id__in=product_instance.values_list('id') if int(form_data['product']) == 0 else [form_data['product']])
+                    product_id_lst = product_instance.values_list('id', flat=True)
+                assignment_instance = ProductSeasonalityRampUp.objects.filter(product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']])
+                cost_of_sale_instance = CostOfSale.objects.filter(product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']])
                 if product_instance and assignment_instance and cost_of_sale_instance:
                     form = GenerateRevenuePrediction()
                     # check if seasonality and ream up is not empty.
@@ -105,8 +106,8 @@ def generate_revenue_projection(request):
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
     else:
         form = GenerateRevenuePrediction()
-        # response = html_to_pdf_creator()
-        #
-        # return response
+        response = html_to_pdf_creator()
+
+        return response
     return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
 
