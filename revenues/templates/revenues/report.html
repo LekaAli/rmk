@@ -9,17 +9,17 @@
 
         @frame header_frame {
             -pdf-frame-content: header_content;
-            left: 50pt; width: 512pt; top: 50pt; height: 40pt;
+            left: 45pt; width: 512pt; top: 50pt; height: 40pt;
             -pdf-frame-border: 1;
         }
         @frame footer_frame {
             -pdf-frame-content: footer_content;
-            left: 50pt; width: 512pt; top: 772pt; height: 40pt;
+            left: 45pt; width: 512pt; top: 772pt; height: 40pt;
             -pdf-frame-border: 1;
         }
 
         @frame content {
-        left: 50pt;
+        left: 45pt;
             width: 512pt;
             top: 90pt;
             height: 680pt;
@@ -30,7 +30,7 @@
     </style>
 </head>
 <body>
-<div id="header_content">Hello Header</div>
+<div id="header_content" style="">Hello Header</div>
 <div id=""></div>
 <div id="footer_content">
     <center><b>
@@ -39,33 +39,34 @@
     </b>
     </center>
 </div>
-    <table style="border: solid 1px black;padding:0px" repeat="1">
+    <table style="padding:0px" repeat="1">
         <thead></thead>
         <tbody>
         {% if report_data %}
             {% for product_name, revenue_instance in report_data.revenues.items %}
+                <!-- Product Revenue Information Begins Here-->
                     <tr>
-                        <td colspan="2">
+                        <td colspan="13" style="text-align:center">
                         <h1>{{ product_name }}</h1>
                         </td>
                     </tr>
+                    <tr>
+                        {% for year, revenue in revenue_instance.items %}
+                            <tr>
+                                <td colspan="13" style="text-align:center">
+                                <h1>{{ year }}</h1>
+                                </td>
+                            </tr>
+                            {% for revenue_item in revenue %}
+                                <td style="text-align:center">
+                                    <h2>{{ revenue_item.3 }}</h2>
+                                    <div>{{ revenue_item.4| floatformat:2 }}</div>
+                                </td>
+                            {% endfor %}
+                        {% endfor %}
 
-                    {% for revenue in revenue_instance %}
-                        <tr>
-                            <td style="">{{ revenue.3 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                            <td style="">{{ revenue.4| floatformat:2 }}</td>
-                        </tr>
-                    {% endfor %}
+                    </tr>
+                <!-- Product Revenue Information Ends Here-->
             {% endfor %}
         {% else %}
             <div>No Report Data</div>
