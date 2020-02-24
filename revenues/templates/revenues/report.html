@@ -25,24 +25,27 @@
     </style>
 </head>
 <body>
-<div id="header_content" style="text-align: center"><h1>Products Revenue Projections</h1></div>
+<div id="header_content" style="text-align: center">
+    <h1>Products Revenue Projections</h1>
+    <img src="" alt="Image" />
+</div>
 <div id=""></div>
 <div id="footer_content" style="text-align: center;padding-top: 20px">
         <pdf:pagenumber>
         of <pdf:pagecount>
 </div>
-    <table style="padding:0px" repeat="1">
+    <table repeat="1" >
         <thead></thead>
         <tbody>
         {% if report_data %}
             {% for year_name, product_revenue_dict in report_data.monthly_revenues.items %}
                 <!-- Product Revenue Information Begins Here-->
-                    <tr style="border: 3px solid black;padding-top: 5px; margin: 5px">
+                    <tr style="border: 3px solid #696969;padding-top: 5px; margin: 5px">
                         <td colspan="14" style="text-align:center">
                         <h1>{{ year_name }}</h1>
                         </td>
                     </tr>
-                    <tr style="border: 1px solid black;padding-top: 5px">
+                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                         <td style="text-align:center">
                             <h1>Product</h1>
                         </td>
@@ -56,7 +59,7 @@
                         </td>
                     </tr>
                     {% for product_name, product_revenue_lst in product_revenue_dict.items %}
-                        <tr style="border: 1px solid black;padding-top: 5px">
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                             <td style="text-align:center; font-weight: bold">
                                 {{ product_name }}
                             </td>
@@ -82,7 +85,7 @@
                 <!-- Product Revenue Information Ends Here-->
             {% endfor %}
             <!-- Monthly revenue total Begins Here -->
-            <tr style="border: 1px solid black;padding-top: 5px">
+            <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                 <td style="text-align:center; font-weight: bold">
                     Total
                 </td>

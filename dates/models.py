@@ -4,7 +4,19 @@ from django.urls import reverse
 
 
 class FinancialYear(models.Model):
-	description = models.CharField(max_length=100)
+	YEARS = (
+		(1, 'Year 1'),
+		(2, 'Year 2'),
+		(3, 'Year 3'),
+		(4, 'Year 4'),
+		(5, 'Year 5'),
+		(6, 'Year 6'),
+		(7, 'Year 7'),
+		(8, 'Year 8'),
+		(9, 'Year 9'),
+		(10, 'Year 10'),
+	)
+	description = models.PositiveSmallIntegerField(choices=YEARS)
 	start_date = models.DateField()
 	end_date = models.DateField()
 	inflation = models.FloatField(default=0.00, blank=True, null=True)
