@@ -40,7 +40,7 @@
         {% if report_data %}
             {% for year_name, product_revenue_dict in report_data.monthly_revenues.items %}
                 <!-- Product Revenue Information Begins Here-->
-                    <tr style="border: 3px solid #696969;padding-top: 5px; margin: 5px">
+                    <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         <td colspan="14" style="text-align:center">
                         <h1>{{ year_name }}</h1>
                         </td>
@@ -49,10 +49,14 @@
                         <td style="text-align:center">
                             <h1>Product</h1>
                         </td>
-                        {% for month_name in report_data.months %}
-                            <td style="text-align:center">
-                                <h1>{{ month_name }}</h1>
-                            </td>
+                        {% for year, month_lst in report_data.months.items %}
+                            {% if year_name == year %}
+                                {% for month_name in month_lst %}
+                                    <td style="text-align:center">
+                                        <h1>{{ month_name }}</h1>
+                                    </td>
+                                {% endfor %}
+                            {% endif %}
                         {% endfor %}
                         <td style="text-align:center">
                             <h1>Total</h1>
@@ -83,22 +87,32 @@
                     {% endfor %}
 
                 <!-- Product Revenue Information Ends Here-->
-            {% endfor %}
-            <!-- Monthly revenue total Begins Here -->
-            <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                <td style="text-align:center; font-weight: bold">
-                    Total
-                </td>
-                {% for month, month_total in report_data.monthly_revenue_total.items %}
-                    <td style="text-align:center;font-weight:bold">
-                        <div>{{ month_total| floatformat:2 }}</div>
+
+                <!-- Monthly revenue total Begins Here -->
+                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                    <td style="text-align:center; font-weight: bold">
+                        Total
                     </td>
-                {% endfor %}
-                <td style="text-align:center; font-weight: bold">
-                    {{ report_data.monthly_total_summation| floatformat:2 }}
-                </td>
-            </tr>
-            <!-- Monthly revenue total Ends Here -->
+                    {% for year, monthly_revenue_total_dict in report_data.monthly_revenue_total.items %}
+                        {% if year_name == year %}
+                            {% for month, month_total in monthly_revenue_total_dict.items %}
+                            <td style="text-align:center;font-weight:bold">
+                                <div>{{ month_total| floatformat:2 }}</div>
+                            </td>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    {% for year, monthly_total_summation in report_data.monthly_total_summation.items %}
+                        {% if year_name == year %}
+                        <td style="text-align:center; font-weight: bold">
+                            {{ monthly_total_summation| floatformat:2 }}
+                        </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                <!-- Monthly revenue total Ends Here -->
+            {% endfor %}
+
         {% else %}
             <div>No Report Data</div>
         {% endif %}

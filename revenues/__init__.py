@@ -19,26 +19,37 @@ class AppEngine(object):
         )
         sorted_by_year = sorted(product_revenues, key=lambda revenue_instance: revenue_instance[2])
         grouped_by_year = groupby(sorted_by_year, lambda revenue_instance: revenue_instance[2])
-        data = {'monthly_revenue_total': dict(), 'monthly_revenues': dict(), 'yearly_revenues': dict()}
+        data = {
+            'monthly_revenue_total': dict(),
+            'monthly_revenues': dict(),
+            'yearly_revenues': dict(),
+            'monthly_total_summation': dict(),
+            'months': dict()
+        }
         for year_name, year_revenue_iter in grouped_by_year:
-            data['monthly_revenues'].update({'%s' % year_name: list(year_revenue_iter)})
+            year_revenue_lst = list(year_revenue_iter)
+            data['monthly_revenues'].update({'%s' % year_name: year_revenue_lst})
             sorted_by_month = sorted(
-                data['monthly_revenues'].get(year_name),
+                year_revenue_lst,
                 key=lambda year_revenue_instance: year_revenue_instance[3]
             )
             grouped_by_month = groupby(sorted_by_month, key=lambda year_revenue_instance: year_revenue_instance[3])
+            data['monthly_revenue_total'][year_name] = dict()
             for month, month_revenue in grouped_by_month:
-                data['monthly_revenue_total'].update(
-                    {
-                        '%s' % month_dict.get(month): sum(
-                            list(
-                                map(lambda x: x[4], list(month_revenue))
-                            )
-                        )
-                    }
-                )
-        data['months'] = [month[:3] for month in data['monthly_revenue_total'].keys()]
-        data['monthly_total_summation'] = sum([month for month in data['monthly_revenue_total'].values()])
+                month_revenue_total = {
+                    '%s' % month_dict.get(month): sum(list(map(lambda x: x[4], list(month_revenue))))
+                }
+                data['monthly_revenue_total'][year_name].update(month_revenue_total)
+            data['monthly_total_summation'].update(
+                {
+                    '%s' % year_name: sum(data['monthly_revenue_total'].get(year_name).values())
+                }
+            )
+            data['months'].update(
+                {
+                    '%s' % year_name: [month[:3] for month in data['monthly_revenue_total'].get(year_name).keys()]
+                }
+            )
         for year_name, year_revenues in data['monthly_revenues'].items():
             sorted_by_products = sorted(year_revenues, key=lambda product_revenue_instance: product_revenue_instance[1])
             grouped_by_products = groupby(
