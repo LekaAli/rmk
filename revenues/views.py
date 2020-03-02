@@ -1,13 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
-
-from dates.models import FinancialYear
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
 from products.models import Product, ProductSeasonalityRampUp, CostOfSale, Sale
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS
-from reportlab.pdfgen import canvas
 from utils.pdf_creator import html_to_pdf_creator
 
 
@@ -29,8 +26,12 @@ def generate_revenue_projection(request):
                 else:  # projection for all available products
                     product_instance = Product.objects.all()
                     product_id_lst = product_instance.values_list('id', flat=True)
-                assignment_instance = ProductSeasonalityRampUp.objects.filter(product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']])
-                cost_of_sale_instance = CostOfSale.objects.filter(product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']])
+                assignment_instance = ProductSeasonalityRampUp.objects.filter(
+                    product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']]
+                )
+                cost_of_sale_instance = CostOfSale.objects.filter(
+                    product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']]
+                )
                 if product_instance and assignment_instance and cost_of_sale_instance:
                     form = GenerateRevenuePrediction()
                     # check if seasonality and ream up is not empty.

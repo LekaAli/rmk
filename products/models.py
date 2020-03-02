@@ -83,7 +83,7 @@ class Sale(models.Model):
 
 class CostOfSale(models.Model):
     product = models.ForeignKey(Product, related_name='product_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True)
-    percentage = models.PositiveSmallIntegerField(default=0, help_text="Cost of sale value should be a percentage")
+    percentage = models.FloatField(default=0, help_text="Cost of sale value should be a percentage")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -93,7 +93,15 @@ class CostOfSale(models.Model):
 
     def __str__(self):
         return '%s - %s' % (self.product.name, self.percentage)
-
+    
+    @property
+    def _percentage(self):
+        return self.percentage / 100
+    
+    def save(self, *args, **kwargs):
+        self.percentage = self._percentage
+        super(CostOfSale, self).save(*args, **kwargs)
+       
 
 class GrossProfit(models.Model):
     MONTHS = (

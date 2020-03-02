@@ -4,6 +4,15 @@ from itertools import groupby
 class AppEngine(object):
     
     @classmethod
+    def calc_cost_of_sale(cls, revenue_instance):
+        from products.models import CostOfSale
+        product_cost_of_sale = CostOfSale.objects.filter(product__name=revenue_instance[1])
+        if product_cost_of_sale.count() > 0:
+            val = product_cost_of_sale.first()
+            return float(revenue_instance[4]) * val.percentage
+        return revenue_instance[4]
+    
+    @classmethod
     def generate_report_data(cls):
         
         from revenues.models import Revenue, Sale
@@ -24,7 +33,8 @@ class AppEngine(object):
             'monthly_revenues': dict(),
             'yearly_revenues': dict(),
             'monthly_total_summation': dict(),
-            'months': dict()
+            'months': dict(),
+            'monthly_cost_of_sale_total': dict()
         }
         for year_name, year_revenue_iter in grouped_by_year:
             year_revenue_lst = list(year_revenue_iter)
@@ -35,11 +45,17 @@ class AppEngine(object):
             )
             grouped_by_month = groupby(sorted_by_month, key=lambda year_revenue_instance: year_revenue_instance[3])
             data['monthly_revenue_total'][year_name] = dict()
+            data['monthly_cost_of_sale_total'][year_name] = dict()
             for month, month_revenue in grouped_by_month:
+                month_revenue = list(month_revenue)
                 month_revenue_total = {
-                    '%s' % month_dict.get(month): sum(list(map(lambda x: x[4], list(month_revenue))))
+                    '%s' % month_dict.get(month): sum(list(map(lambda x: x[4], month_revenue)))
+                }
+                month_cost_of_sale_total = {
+                    '%s' % month_dict.get(month): sum(list(map(cls.calc_cost_of_sale, month_revenue)))
                 }
                 data['monthly_revenue_total'][year_name].update(month_revenue_total)
+                data['monthly_cost_of_sale_total'][year_name].update(month_cost_of_sale_total)
             data['monthly_total_summation'].update(
                 {
                     '%s' % year_name: sum(data['monthly_revenue_total'].get(year_name).values())
