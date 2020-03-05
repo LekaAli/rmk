@@ -138,9 +138,9 @@ class Revenue(models.Model):
             self.product_revenue = 0
            
         if revenue_years_count < 3:
-            product_sale = Sale.objects.filter(product_id=self.product.id, period=revenue_years_count)
+            product_sale = Sale.objects.filter(product_id=self.product.id, month=self.month, period=revenue_years_count)
             if product_sale.count() == 0:
-                product_sale = Sale(product_id=self.product.id, period=revenue_years_count)
+                product_sale = Sale(product_id=self.product.id, month=self.month, period=revenue_years_count)
                 product_sale.total_sale_revenue = float(product_sale.total_sale_revenue) + self.product_revenue
                 product_sale.save()
             else:

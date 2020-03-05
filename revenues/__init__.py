@@ -16,9 +16,11 @@ class AppEngine(object):
     def generate_report_data(cls):
         
         from revenues.models import Revenue, Sale
+        from products.models import GrossProfit
         month_dict = {key: value for key, value in sorted(Revenue.MONTHS, key=lambda x: x[0])}
         products = list(Sale.objects.values_list('product', flat=True).distinct())
         revenues = Revenue.objects.filter(product_id__in=products).order_by('id')
+        gross_profits = GrossProfit.objects.filter(product_id__in=products).order_by('id')
         product_revenues = revenues.values_list(
             'id',
             'product__name',
@@ -26,6 +28,16 @@ class AppEngine(object):
             'month',
             'product_revenue'
         )
+        product_gross_profit_cost_of_sale = gross_profits.values_list(
+            'id',
+            'product__name',
+            'financial_year__description',
+            'month',
+            'cost_of_sale_value',
+            'gross_profit_value'
+        )
+        sorted_gross_profit_cost_of_sale = sorted(product_gross_profit_cost_of_sale, key=lambda instance: instance[2])
+        grouped_gross_profit_cost_of_sale = groupby(sorted_gross_profit_cost_of_sale, key=lambda instance: instance[2])
         sorted_by_year = sorted(product_revenues, key=lambda revenue_instance: revenue_instance[2])
         grouped_by_year = groupby(sorted_by_year, lambda revenue_instance: revenue_instance[2])
         data = {
@@ -34,9 +46,43 @@ class AppEngine(object):
             'yearly_revenues': dict(),
             'monthly_total_summation': dict(),
             'months': dict(),
+            'cost_of_sale_total': dict(),
             'cost_of_sale': dict(),
-            'monthly_cost_of_sale_total': dict()
+            'monthly_cost_of_sale_total': dict(),
+            'gross_profit_total': dict()
         }
+        for year_name, year_gross_profit_cost_of_sale_iter in grouped_gross_profit_cost_of_sale:
+            year_gross_profit_cost_of_sale = list(year_gross_profit_cost_of_sale_iter)
+            sorted_year_gross_profit_cost_of_sale = sorted(
+                year_gross_profit_cost_of_sale,
+                key=lambda instance: instance[3]
+            )
+            grouped_year_gross_profit_cost_of_sale = groupby(
+                sorted_year_gross_profit_cost_of_sale,
+                key=lambda instance: instance[3]
+            )
+            data['cost_of_sale_total'].update({year_name: dict()})
+            data['cost_of_sale'].update({year_name: dict()})
+            data['gross_profit_total'].update({year_name: dict()})
+            for month, month_gross_profit_cost_of_sale_iter in grouped_year_gross_profit_cost_of_sale:
+                monthly_values = list(month_gross_profit_cost_of_sale_iter)
+                data['gross_profit_total'][year_name].update({
+                    '%s' % month: sum(list(map(lambda x: x[5], monthly_values)))
+                })
+                data['cost_of_sale_total'][year_name].update({
+                    '%s' % month: sum(list(map(lambda x: x[4], monthly_values)))
+                })
+                sorted_cost_of_sale = sorted(monthly_values, key=lambda instance: instance[1])
+                grouped_cost_of_sale = groupby(sorted_cost_of_sale, key=lambda instance: instance[1])
+                data['cost_of_sale'][year_name].update({month: dict()})
+                for product_name, product_cost_of_sale_iter in grouped_cost_of_sale:
+                    cost_of_sale_val = list(product_cost_of_sale_iter)
+                    data['cost_of_sale'][year_name][month].update(
+                        {
+                            product_name: cost_of_sale_val[0][4]
+                        }
+                    )
+
         for year_name, year_revenue_iter in grouped_by_year:
             year_revenue_lst = list(year_revenue_iter)
             data['monthly_revenues'].update({year_name: year_revenue_lst})
