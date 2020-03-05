@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
-from products.models import Product, ProductSeasonalityRampUp, CostOfSale, Sale
+from products.models import Product, ProductSeasonalityRampUp, CostOfSale, GrossProfit
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS
+from dates.models import FinancialYear
 from utils.pdf_creator import html_to_pdf_creator
 
 
@@ -74,31 +75,86 @@ def generate_revenue_projection(request):
                         if 0 <= current_revenues.count() < 24:
                             for month in MONTHS[2:]:
                                 try:
-                                    revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year')), 'month': month[0]})
+                                    revenue_instance = Revenue(**{
+                                        'product': product,
+                                        'financial_year_id': int(form_data.get('year')),
+                                        'month': month[0]
+                                    })
                                     revenue_instance.save()
+                                    gross_profit_instance = GrossProfit(**{
+                                        'product': product,
+                                        'financial_year_id': int(form_data.get('year')),
+                                        'month': month,
+                                        'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
+                                    })
+                                    gross_profit_instance.save()
                                 except Exception as ex:
                                     pass
                         else:  # Calculate Revenue ka ngwaga eseng ka kgwedi le kgwedi.
-                            revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year'))})
+                            revenue_instance = Revenue(**{
+                                'product': product,
+                                'financial_year_id': int(form_data.get('year'))
+                            })
                             revenue_instance.save()
+                            f_year_instance = FinancialYear.objects.get(id=int(form_data.get('year')))
+                            gross_profit_instance = GrossProfit(**{
+                                'product': product,
+                                'financial_year_id': int(form_data.get('year')),
+                                'month': f_year_instance.end_date.month,
+                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
+                            })
+                            gross_profit_instance.save()
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     for product in product_instance:
                         try:
-                            revenue_instance = Revenue(**{'product': product, 'financial_year_id': int(form_data.get('year')), 'month': form_data.get('month')})
+                            revenue_instance = Revenue(**{
+                                'product': product,
+                                'financial_year_id': int(form_data.get('year')),
+                                'month': form_data.get('month')
+                            })
                             revenue_instance.save()
+                            gross_profit_instance = GrossProfit(**{
+                                'product': product,
+                                'financial_year_id': int(form_data.get('year')),
+                                'month': form_data.get('month'),
+                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
+                            })
+                            gross_profit_instance.save()
                         except Exception as ex:
                             pass
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     for month in MONTHS[2:]:
                         try:
-                            revenue_instance = Revenue(**{'product': product_instance, 'financial_year_id': int(form_data.get('year')), 'month': month[0]})
+                            revenue_instance = Revenue(**{
+                                'product': product_instance,
+                                'financial_year_id': int(form_data.get('year')),
+                                'month': month[0]
+                            })
                             revenue_instance.save()
+                            gross_profit_instance = GrossProfit(**{
+                                'product': product_instance,
+                                'financial_year_id': int(form_data.get('year')),
+                                'month': form_data.get('month'),
+                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product_instance).first().id
+                            })
+                            gross_profit_instance.save()
                         except Exception as ex:
                             pass
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     try:
-                        revenue_instance = Revenue(**{'product': product_instance, 'financial_year_id': int(form_data.get('year')), 'month': form_data.get('month')})
+                        revenue_instance = Revenue(**{
+                            'product': product_instance,
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': form_data.get('month')
+                        })
                         revenue_instance.save()
+                        gross_profit_instance = GrossProfit(**{
+                            'product': product_instance,
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': form_data.get('month'),
+                            'cost_of_sale_id': cost_of_sale_instance.filter(product=product_instance).first().id
+                        })
+                        gross_profit_instance.save()
                     except Exception as ex:
                         pass
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
@@ -107,8 +163,8 @@ def generate_revenue_projection(request):
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
     else:
         form = GenerateRevenuePrediction()
-        response = html_to_pdf_creator()
-
-        return response
+        # response = html_to_pdf_creator()
+        #
+        # return response
     return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
 
