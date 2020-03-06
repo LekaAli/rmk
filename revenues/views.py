@@ -84,7 +84,7 @@ def generate_revenue_projection(request):
                                     gross_profit_instance = GrossProfit(**{
                                         'product': product,
                                         'financial_year_id': int(form_data.get('year')),
-                                        'month': month,
+                                        'month': month[0] if isinstance(month, tuple) else month,
                                         'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
                                     })
                                     gross_profit_instance.save()

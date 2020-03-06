@@ -42,7 +42,7 @@
                 <!-- Product Revenue Information Begins Here-->
                     <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         <td colspan="14" style="text-align:center">
-                        <h1>Year {{ year_name }}</h1>
+                        <h1>Revenue: Year {{ year_name }}</h1>
                         </td>
                     </tr>
                     <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
@@ -112,6 +112,88 @@
                 </tr>
                 <!-- Monthly revenue total Ends Here -->
             {% endfor %}
+
+        <!-- Cost of sale starts here-->
+        <table repeat="1">
+        <thead></thead>
+        <tbody>
+            {% for year_name, yearly_cost_of_sale in report_data.cost_of_sale.items %}
+                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="14" style="text-align:center">
+                        <h1>Cost Of Sale: Year {{ year_name }}</h1>
+                        </td>
+                </tr>
+                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                    {% for month, values in yearly_cost_of_sale.items %}
+                        <td>
+                            <div>
+                                <h1>{{ month }}</h1>
+                                {% for product_name, amount in values.items %}
+                                    <p>{{ amount |floatformat:2 }}
+                                {% endfor %}
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+        </tbody>
+        </table>
+        <!-- Cost of sale ends here-->
+
+
+        <!-- Gross Profit starts here-->
+        <table repeat="1">
+        <thead></thead>
+        <tbody>
+            {% for year_name, yearly_gross_profit_total in report_data.gross_profit_total.items %}
+                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="14" style="text-align:center">
+                        <h1>Gross Profit: Year {{ year_name }}</h1>
+                        </td>
+                </tr>
+                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                    {% for month, amount in yearly_gross_profit_total.items %}
+                        <td>
+                            <div>
+                                <h1>{{ month }}</h1>
+                                <p>{{ amount |floatformat:2 }}</p>
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+        </tbody>
+        </table>
+        <!-- Gross Profit ends here-->
+
+
+        <!-- Expenses starts here-->
+        <table repeat="1">
+        <thead></thead>
+        <tbody>
+            {% for year_name, yearly_gross_profit_total in report_data.gross_profit_total.items %}
+                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="14" style="text-align:center">
+                        <h1>Gross Profit: Year {{ year_name }}</h1>
+                        </td>
+                </tr>
+                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                    {% for month, amount in yearly_gross_profit_total.items %}
+                        <td>
+                            <div>
+                                <h1>{{ month }}</h1>
+                                <p>{{ amount |floatformat:2 }}</p>
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+        </tbody>
+        </table>
+        <!-- Expenses ends here-->
 
         {% else %}
             <div>No Report Data</div>

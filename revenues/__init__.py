@@ -1,4 +1,5 @@
 from itertools import groupby
+from rmkplatform.constants import MONTHS
 
 
 class AppEngine(object):
@@ -65,6 +66,8 @@ class AppEngine(object):
             data['cost_of_sale'].update({year_name: dict()})
             data['gross_profit_total'].update({year_name: dict()})
             for month, month_gross_profit_cost_of_sale_iter in grouped_year_gross_profit_cost_of_sale:
+                month_dict = {val[0]: val[1][:3] for val in MONTHS[2:]}
+                month = month_dict.get(month)
                 monthly_values = list(month_gross_profit_cost_of_sale_iter)
                 data['gross_profit_total'][year_name].update({
                     '%s' % month: sum(list(map(lambda x: x[5], monthly_values)))
@@ -74,6 +77,7 @@ class AppEngine(object):
                 })
                 sorted_cost_of_sale = sorted(monthly_values, key=lambda instance: instance[1])
                 grouped_cost_of_sale = groupby(sorted_cost_of_sale, key=lambda instance: instance[1])
+                
                 data['cost_of_sale'][year_name].update({month: dict()})
                 for product_name, product_cost_of_sale_iter in grouped_cost_of_sale:
                     cost_of_sale_val = list(product_cost_of_sale_iter)
@@ -119,13 +123,10 @@ class AppEngine(object):
                 sorted_by_products, key=lambda product_revenue_instance: product_revenue_instance[1]
             )
             products_dict = dict()
-            cost_of_sale_dict = dict()
             for product_name, product_revenue_lst in grouped_by_products:
                 product_revenue_lst = list(product_revenue_lst)
                 products_dict[product_name] = product_revenue_lst
-                cost_of_sale_dict.update({'%s' % product_name: list(map(cls.calc_cost_of_sale, product_revenue_lst))})
             data['monthly_revenues'][year_name] = products_dict
-            data['cost_of_sale'][year_name] = cost_of_sale_dict
             data['yearly_revenues'].update({year_name: dict()})
             for product_name, product_revenue in products_dict.items():
                 data['yearly_revenues'][year_name].update(

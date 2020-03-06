@@ -211,26 +211,34 @@ class ProfitBeforeTax(models.Model):
         verbose_name = 'Profit Before Tax'
         verbose_name_plural = 'Profit Before Taxes'
     
-    def calculate_net_profit_before_tax(self, gross_values):
-        gross_value = sum([gross.gross_profit_value for gross in gross_values])
+    def calculate_net_profit_before_tax(self, revenue_values):
+        revenue_value = sum([revenue.product_revenue for revenue in revenue_values])
         expenses = Expense.objects.all()
         fixed_expenses = sum(
             [float(expense.value) + (self.financial_year.inflation / float(100) * float(expense.value)) for expense in
              expenses if expense.is_fixed is True])
-        not_fixed_expenses = sum([(float(expense.value) / float(100) * float(gross_value)) for expense in expenses if
+        not_fixed_expenses = sum([(float(expense.value) / float(100) * float(revenue_value)) for expense in expenses if
                                   expense.is_fixed is False])
         self.expense = fixed_expenses + not_fixed_expenses
-        self.monthly_gross_value = float(gross_value) - float(self.expense)
+        gross_profit_values = GrossProfit.objects.filter(
+            financial_year=self.financial_year.id,
+            month=self.month).values_list(
+            'gross_profit_value', flat=True
+        )
+        gross_profit_monthly_total = sum(gross_profit_values)
+        self.monthly_gross_value = float(gross_profit_monthly_total) - float(self.expense)
         self.total_gross_value = self.total_gross_value + self.monthly_gross_value
        
     def save(self, *args, **kwargs):
-        gross_values = GrossProfit.objects.filter(financial_year=self.financial_year.id, month=self.month)
-        if gross_values.count() > 0:  # monthly gross values
-            self.calculate_net_profit_before_tax(gross_values)
+    
+        from revenues.models import Revenue
+        revenue_values = Revenue.objects.filter(financial_year=self.financial_year.id, month=self.month)
+        if revenue_values.count() > 0:  # monthly gross values
+            self.calculate_net_profit_before_tax(revenue_values)
         else:
-            gross_values = GrossProfit.objects.filter(financial_year=self.financial_year.id)
-            if gross_values.count() > 0:  # yearly gross values
-                self.calculate_net_profit_before_tax(gross_values)
+            revenue_values = Revenue.objects.filter(financial_year=self.financial_year.id)
+            if revenue_values.count() > 0:  # yearly gross values
+                self.calculate_net_profit_before_tax(revenue_values)
             else:
                 self.monthly_gross_value = 0
         super(ProfitBeforeTax, self).save(*args, **kwargs)
