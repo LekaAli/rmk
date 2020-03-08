@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
-from products.models import Product, ProductSeasonalityRampUp, CostOfSale, GrossProfit
+from products.models import Product, ProductSeasonalityRampUp, CostOfSale, GrossProfit, ProfitBeforeTax, Tax, NetProfit
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS
 from dates.models import FinancialYear
@@ -104,6 +104,26 @@ def generate_revenue_projection(request):
                                 'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
                             })
                             gross_profit_instance.save()
+                    for month in MONTHS[2:]:
+                        profit_before_tax_instance = ProfitBeforeTax(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': month[0] if isinstance(month, tuple) else month
+                        })
+                        profit_before_tax_instance.save()
+                    
+                    for month in MONTHS[2:]:
+                        tax_instance = Tax(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': month[0] if isinstance(month, tuple) else month,
+                            'tax_percentage': form_data.get('tax', 1.0)
+                        })
+                        tax_instance.save()
+                    for month in MONTHS[2:]:
+                        net_profit_instance = NetProfit(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': month[0] if isinstance(month, tuple) else month
+                        })
+                        net_profit_instance.save()
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     for product in product_instance:
                         try:
@@ -120,8 +140,25 @@ def generate_revenue_projection(request):
                                 'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
                             })
                             gross_profit_instance.save()
+                            
                         except Exception as ex:
                             pass
+                    profit_before_tax_instance = ProfitBeforeTax(**{
+                        'financial_year_id': int(form_data.get('year')),
+                        'month': form_data.get('month')
+                    })
+                    profit_before_tax_instance.save()
+                    tax_instance = Tax(**{
+                        'financial_year_id': int(form_data.get('year')),
+                        'month': form_data.get('month'),
+                        'tax_percentage': form_data.get('tax', 1.0)
+                    })
+                    tax_instance.save()
+                    net_profit_instance = NetProfit(**{
+                        'financial_year_id': int(form_data.get('year')),
+                        'month': form_data.get('month')
+                    })
+                    net_profit_instance.save()
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     for month in MONTHS[2:]:
                         try:
@@ -140,6 +177,25 @@ def generate_revenue_projection(request):
                             gross_profit_instance.save()
                         except Exception as ex:
                             pass
+                    for month in MONTHS[2:]:
+                        profit_before_tax_instance = ProfitBeforeTax(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': month[0]
+                        })
+                        profit_before_tax_instance.save()
+                    for month in MONTHS[2:]:
+                        tax_instance = Tax(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': month[0],
+                            'tax_percentage': form_data.get('tax', 1.0)
+                        })
+                        tax_instance.save()
+                    for month in MONTHS[2:]:
+                        net_profit_instance = NetProfit(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': month[0]
+                        })
+                        net_profit_instance.save()
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     try:
                         revenue_instance = Revenue(**{
@@ -155,6 +211,22 @@ def generate_revenue_projection(request):
                             'cost_of_sale_id': cost_of_sale_instance.filter(product=product_instance).first().id
                         })
                         gross_profit_instance.save()
+                        profit_before_tax_instance = ProfitBeforeTax(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': form_data.get('month')
+                        })
+                        profit_before_tax_instance.save()
+                        tax_instance = Tax(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': form_data.get('month'),
+                            'tax_percentage': form_data.get('tax', 1.0)
+                        })
+                        tax_instance.save()
+                        net_profit_instance = NetProfit(**{
+                            'financial_year_id': int(form_data.get('year')),
+                            'month': form_data.get('month')
+                        })
+                        net_profit_instance.save()
                     except Exception as ex:
                         pass
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})

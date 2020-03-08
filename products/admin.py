@@ -35,21 +35,23 @@ class ExpenseAdmin(admin.ModelAdmin):
 
 class ProfitBeforeTaxAdmin(admin.ModelAdmin):
     save_on_top = True
-    list_display = ['id', 'financial_year', 'month', 'gross', 'expense', 'monthly_gross_value', 'total_gross_value']
-    list_display_links = ['id', 'financial_year', 'month', 'gross', 'expense', 'monthly_gross_value', 'total_gross_value']
-    readonly_fields = ['gross', 'expense', 'monthly_gross_value', 'total_gross_value']
+    list_display = ['id', 'financial_year', 'month', 'expense', 'profit_before_tax']
+    list_display_links = ['id', 'financial_year', 'month', 'expense', 'profit_before_tax']
+    readonly_fields = ['expense', 'profit_before_tax']
 
 
 class TaxAdmin(admin.ModelAdmin):
     save_on_top = True
-    list_display = ['id', 'financial_year', 'tax_percentage', 'profit_loss_value', 'total_tax_value']
-    list_display_links = ['id', 'financial_year', 'tax_percentage', 'profit_loss_value', 'total_tax_value']
+    list_display = ['id', 'financial_year', 'month', 'tax_percentage', 'profit_loss_value', 'total_tax_value']
+    list_display_links = ['id', 'financial_year', 'month', 'tax_percentage', 'profit_loss_value', 'total_tax_value']
     readonly_fields = ['profit_loss_value', 'total_tax_value']
 
 
 class NetProfitAdmin(admin.ModelAdmin):
     save_on_top = True
-
+    list_display = ['id', 'financial_year', 'month', 'net_profit']
+    list_display_links = ['id', 'financial_year', 'month', 'net_profit']
+    
 
 class CostOfSaleAdmin(admin.ModelAdmin):
     save_on_top = True

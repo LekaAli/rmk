@@ -4,12 +4,13 @@ from products.models import Product
 from dates.models import FinancialYear
 from rmkplatform.constants import MONTHS
 
+
 class RevenueForm(forms.ModelForm):
     class Meta:
         model = Revenue
         fields = '__all__'
         
-        
+
 class GenerateRevenuePrediction(forms.Form):
     PRODUCTS = [(-1, '---Select Product---'), (0, 'All')]
     YEARS = [(-1, '---Select Financial Year---')]
@@ -29,7 +30,11 @@ class GenerateRevenuePrediction(forms.Form):
     product = forms.CharField(widget=forms.Select(choices=PRODUCTS), initial='-1')
     year = forms.CharField(widget=forms.Select(choices=YEARS), initial='-1')
     month = forms.CharField(widget=forms.Select(choices=MONTHS), initial='-1')
+    tax = forms.CharField(widget=forms.TextInput)
+
+    tax.widget.attrs['placeholder'] = 'Tax Percentage'
     
     product.default_error_messages['required'] = 'Product is Required.'
     year.default_error_messages['required'] = 'Financial Year is Required.'
     month.default_error_messages['required'] = 'Month is Required.'
+    tax.default_error_messages['required'] = 'Tax value is Required.'
