@@ -164,17 +164,6 @@
                         <h1>Cost Of Sale: Year {{ year_name }}</h1>
                         </td>
                 </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td>
-                        <h1> Product </h1>
-                    </td>
-                    <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px"></td>
-                    {% for month in yearly_cost_of_sale.keys %}
-                        <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                            <h1>{{ month }}</h1>
-                        </td>
-                    {% endfor %}
-                </tr>
 
                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                     {% for product_dict in yearly_cost_of_sale.values %}
@@ -249,21 +238,6 @@
                         <h1>Expenses: Year {{ year_name }}</h1>
                         </td>
                 </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td>
-                        <h1>Expense</h1>
-                    </td>
-                    <td></td>
-                    {% for month in yearly_expenses_dict.values %}
-                        {% if forloop.first %}
-                            {% for month in month.keys %}
-                                <td>
-                                    <h1>{{ month }}</h1>
-                                </td>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                </tr>
                 {% for expense_name, expense_dict in yearly_expenses_dict.items %}
                     <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                         <td style="text-align:left; font-weight: bold">{{ expense_name }}</td>
@@ -299,14 +273,6 @@
                         <h1>Profit Before Tax: Year {{ year_name }}</h1>
                         </td>
                 </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td></td>
-                    {% for month in yearly_profit_before_tax_dict.keys %}
-                        <td>
-                            <h1>{{ month }}</h1>
-                        </td>
-                    {% endfor %}
-                </tr>
 
                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                     {% for value in yearly_profit_before_tax_dict.values %}
@@ -332,14 +298,6 @@
                         <h1>Tax: Year {{ year_name }}</h1>
                         </td>
                 </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td></td>
-                    {% for month in yearly_tax_dict.keys %}
-                        <td>
-                            <h1>{{ month }}</h1>
-                        </td>
-                    {% endfor %}
-                </tr>
 
                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                     {% for value in yearly_tax_dict.values %}
@@ -364,14 +322,6 @@
                         <td colspan="14" style="text-align:left">
                         <h1>Net Profit: Year {{ year_name }}</h1>
                         </td>
-                </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td></td>
-                    {% for month in yearly_net_profit_dict.keys %}
-                        <td>
-                            <h1>{{ month }}</h1>
-                        </td>
-                    {% endfor %}
                 </tr>
 
                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
