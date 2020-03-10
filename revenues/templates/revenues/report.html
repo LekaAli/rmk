@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
+    <link href="revenue/css/revenue.css" type="text/css" />
     <style>
         @page {
         size: A4 {{ view_option| default:'portrait' }};
@@ -35,7 +36,7 @@
         <table>
             <tr>
                 <td style="">
-                    <b>COMPANT DETAILS:</b><br/>
+                    <b>COMPANY DETAILS:</b><br/>
                     RMK Industries (Pty) Ltd<br/>
                     Reg No. 2012/163681/07<br/>
                     Director: Malose Makgeta<br/>
@@ -48,9 +49,9 @@
                     Polokwane 0699
                 </td>
                 <td>
-                    <b>POSTAL ADDRESS:</b>/<br/>
+                    <b>POSTAL ADDRESS:</b><br/>
                     P O Box 886<br/>
-                    Postal Address<br/>
+                    Thornhill,<br/>
                     Polokwane, 0882
                 </td>
                 <td>
@@ -76,7 +77,7 @@
             {% for year_name, product_revenue_dict in report_data.monthly_revenues.items %}
                 <!-- Product Revenue Information Begins Here-->
                     <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Revenue: Year {{ year_name }}</h1>
                         </td>
                     </tr>
@@ -159,7 +160,7 @@
         <tbody>
             {% for year_name, yearly_cost_of_sale in report_data.cost_of_sale.items %}
                 <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Cost Of Sale: Year {{ year_name }}</h1>
                         </td>
                 </tr>
@@ -216,7 +217,7 @@
         <tbody>
             {% for year_name, yearly_gross_profit_total in report_data.gross_profit_total.items %}
                 <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Gross Profit: Year {{ year_name }}</h1>
                         </td>
                 </tr>
@@ -244,7 +245,7 @@
         <tbody>
             {% for year_name, yearly_expenses_dict in report_data.expenses.items %}
                 <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Expenses: Year {{ year_name }}</h1>
                         </td>
                 </tr>
@@ -272,6 +273,17 @@
                         {% endfor %}
                     </tr>
                 {% endfor %}
+                {% for year, monthly_expense_total_dict in report_data.expense_total.items %}
+                    {% if year_name == year %}
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            <td style="text-align:left; font-weight: bold">Total</td>
+                            <td></td>
+                            {% for month, amount in monthly_expense_total_dict.items %}
+                                <td>{{ amount|floatformat:2 }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
         </tbody>
         </table>
@@ -283,7 +295,7 @@
         <tbody>
             {% for year_name, yearly_profit_before_tax_dict in report_data.profit_before_tax.items %}
                 <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Profit Before Tax: Year {{ year_name }}</h1>
                         </td>
                 </tr>
@@ -316,7 +328,7 @@
         <tbody>
             {% for year_name, yearly_tax_dict in report_data.tax.items %}
                 <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Tax: Year {{ year_name }}</h1>
                         </td>
                 </tr>
@@ -349,7 +361,7 @@
         <tbody>
             {% for year_name, yearly_net_profit_dict in report_data.net_profit.items %}
                 <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center">
+                        <td colspan="14" style="text-align:left">
                         <h1>Net Profit: Year {{ year_name }}</h1>
                         </td>
                 </tr>

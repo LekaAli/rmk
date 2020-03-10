@@ -40,13 +40,18 @@ class AppEngine(object):
             )
             data['expenses'].update({year_name: dict()})
             data['profit_before_tax'].update({year_name: dict()})
+            data['expense_total'].update({year_name: dict()})
             for month, profit_before_tax_monthly_iter in profit_before_tax_sorted_monthly_iter:
                 profit_before_tax_monthly_lst = list(profit_before_tax_monthly_iter)[0]
+                expense_dict = literal_eval(profit_before_tax_monthly_lst[3])
                 data['expenses'][year_name].update(
                     {
-                        month_dict.get(month)[:3]: literal_eval(profit_before_tax_monthly_lst[3])
+                        month_dict.get(month)[:3]: expense_dict
                     }
                 )
+                data['expense_total'][year_name].update({
+                    month_dict.get(month)[:3]: expense_dict.get('expense_total')
+                })
                 data['profit_before_tax'][year_name].update(
                     {
                         month_dict.get(month)[:3]: profit_before_tax_monthly_lst[4]
@@ -149,6 +154,7 @@ class AppEngine(object):
             'monthly_cost_of_sale_total': dict(),
             'gross_profit_total': dict(),
             'expenses': dict(),
+            'expense_total': dict(),
             'profit_before_tax': dict(),
             'tax': dict(),
             'net_profit': dict()
@@ -243,3 +249,5 @@ class AppEngine(object):
             cls.calc_tax(data, month_dict)
             cls.calc_net_profit(data, month_dict)
         return data
+
+# <pdf:pagenumber> of <pdf:pagecount>
