@@ -77,10 +77,16 @@
             {% for year_name, product_revenue_dict in report_data.monthly_revenues.items %}
                 <!-- Product Revenue Information Begins Here-->
                     <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Revenue: Year {{ year_name }}</h1>
+                        <td colspan="14" style="text-align:center">
+                        <h1>Year {{ year_name }}</h1>
                         </td>
                     </tr>
+                    <tr style="border: 1px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="14" style="text-align:left">
+                        <h1>Revenue</h1>
+                        </td>
+                    </tr> <!-- REVENUE HEADER: TITLE -->
+
                     <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                         <td style="text-align:center">
                             <h1>Product</h1>
@@ -97,7 +103,8 @@
                         <td style="text-align:center">
                             <h1>Total</h1>
                         </td>
-                    </tr>
+                    </tr> <!-- REVENUE HEADER: MONTH TITLE -->
+
                     {% for product_name, product_revenue_lst in product_revenue_dict.items %}
                         <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                             <td style="text-align:center; font-weight: bold">
@@ -147,6 +154,151 @@
                     {% endfor %}
                 </tr>
                 <!-- Monthly revenue total Ends Here -->
+
+            <!-- OTHER REPORT PARTS MUST BE PUT HERE -->
+                {% for cost_of_sale_year, yearly_cost_of_sale in report_data.cost_of_sale.items %}
+                    {% if year_name == cost_of_sale_year %}
+                        <tr style="border: 1px solid #696969;padding-top: 5px; margin-top: 10px">
+                                <td colspan="14" style="text-align:left">
+                                <h1>Cost Of Sale</h1>
+                                </td>
+                        </tr>
+
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            {% for product_dict in yearly_cost_of_sale.values %}
+                                {% if forloop.first %}
+                                    <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                        {% for product_name in product_dict.keys %}
+                                            <p  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;font-weight:bold">{{ product_name }}</p>
+                                        {% endfor %}
+                                    </td>
+                                    <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px"></td>
+                                {% endif %}
+                                <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                    {% for cost_val in product_dict.values %}
+                                        <p  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">{{ cost_val|floatformat:2 }}</p>
+                                    {% endfor %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            <td style="font-weight:bold">Total</td>
+                            <td></td>
+                            {% for year, monthly_total_dict in report_data.monthly_cost_of_sale_total.items %}
+                                {% if cost_of_sale_year == year %}
+                                    {% for monthly_cost in monthly_total_dict.values %}
+                                        <td style="font-weight:bold">{{ monthly_cost| floatformat:2 }}</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}<!-- COST OF SALE END HERE -->
+                {% for gross_profit_year, yearly_gross_profit_total in report_data.gross_profit_total.items %}
+                    {% if year_name == gross_profit_year %}
+                        <tr style="border: 1px solid #696969;padding-top: 5px; margin-top: 10px">
+                                <td colspan="14" style="text-align:left">
+                                <h1>Gross Profit</h1>
+                                </td>
+                        </tr>
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px"></td>
+                            {% for month, amount in yearly_gross_profit_total.items %}
+                                <td>
+                                    <div>
+                                        <p>{{ amount |floatformat:2 }}</p>
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}<!-- GROSS PROFIT END HERE -->
+
+                {% for expense_year, yearly_expenses_dict in report_data.expenses.items %}
+                    <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                            <td colspan="14" style="text-align:left">
+                            <h1>Expenses</h1>
+                            </td>
+                    </tr>
+                    {% for expense_name, expense_dict in yearly_expenses_dict.items %}
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            <td style="text-align:left; font-weight: bold">{{ expense_name }}</td>
+                            <td></td>
+                            {% for month, amount in expense_dict.items %}
+                                <td>{{ amount|floatformat:2 }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    {% for year, monthly_expense_total_dict in report_data.expense_total.items %}
+                        {% if expense_year == year %}
+                            <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                <td style="text-align:left; font-weight: bold">Total</td>
+                                <td></td>
+                                {% for month, amount in monthly_expense_total_dict.items %}
+                                    <td>{{ amount|floatformat:2 }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}<!-- EXPENSES-->
+
+                {% for profit_before_tax_year, yearly_profit_before_tax_dict in report_data.profit_before_tax.items %}
+                    {% if profit_before_tax_year == year_name %}
+                        <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                <td colspan="14" style="text-align:left">
+                                <h1>Profit Before Tax</h1>
+                                </td>
+                        </tr>
+
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            {% for value in yearly_profit_before_tax_dict.values %}
+                                {% if forloop.first %}
+                                    <td></td>
+                                {% endif %}
+                                <td style="text-align:left; font-weight: bold">{{ value|floatformat:2 }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}<!-- PROFIT BEFORE TAX -->
+
+                {% for tax_year, yearly_tax_dict in report_data.tax.items %}
+                    {% if tax_year == year_name %}
+                        <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                <td colspan="14" style="text-align:left">
+                                <h1>Tax</h1>
+                                </td>
+                        </tr>
+
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            {% for value in yearly_tax_dict.values %}
+                                {% if forloop.first %}
+                                    <td></td>
+                                {% endif %}
+                                <td style="text-align:left; font-weight: bold">{{ value|floatformat:2 }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %} <!-- TAX  -->
+
+                {% for net_profit_year, yearly_net_profit_dict in report_data.net_profit.items %}
+                    {% if net_profit_year == year_name %}
+                    <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                            <td colspan="14" style="text-align:left">
+                            <h1>Net Profit</h1>
+                            </td>
+                    </tr>
+
+                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                        {% for value in yearly_net_profit_dict.values %}
+                            {% if forloop.first %}
+                                <td></td>
+                            {% endif %}
+                            <td style="text-align:left; font-weight: bold">{{ value|floatformat:2 }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            <!-- OTHER REPORT PARTS MUST BE PUT HERE -->
             {% endfor %}
 
        {% else %}
@@ -154,188 +306,5 @@
         {% endif %}
         </tbody>
     </table>
-        <!-- Cost of sale starts here-->
-        <table repeat="1"  style="margin-top: 20px">
-        <thead></thead>
-        <tbody>
-            {% for year_name, yearly_cost_of_sale in report_data.cost_of_sale.items %}
-                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Cost Of Sale: Year {{ year_name }}</h1>
-                        </td>
-                </tr>
-
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    {% for product_dict in yearly_cost_of_sale.values %}
-                        {% if forloop.first %}
-                            <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                                {% for product_name in product_dict.keys %}
-                                    <p  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;font-weight:bold">{{ product_name }}</p>
-                                {% endfor %}
-                            </td>
-                            <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px"></td>
-                        {% endif %}
-                        <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                            {% for cost_val in product_dict.values %}
-                                <p  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">{{ cost_val|floatformat:2 }}</p>
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td style="font-weight:bold">Total</td>
-                    <td></td>
-                    {% for year, monthly_total_dict in report_data.monthly_cost_of_sale_total.items %}
-                        {% if year_name == year %}
-                            {% for monthly_cost in monthly_total_dict.values %}
-                                <td style="font-weight:bold">{{ monthly_cost| floatformat:2 }}</td>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-
-        </tbody>
-        </table>
-        <!-- Cost of sale ends here-->
-
-
-        <!-- Gross Profit starts here-->
-        <table repeat="1"   style="margin-top: 20px">
-        <thead></thead>
-        <tbody>
-            {% for year_name, yearly_gross_profit_total in report_data.gross_profit_total.items %}
-                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Gross Profit: Year {{ year_name }}</h1>
-                        </td>
-                </tr>
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    <td  style="border-bottom: 2px solid #A9A9A9;padding-top: 5px"></td>
-                    {% for month, amount in yearly_gross_profit_total.items %}
-                        <td>
-                            <div>
-                                <h1 style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">{{ month }}</h1>
-                                <p>{{ amount |floatformat:2 }}</p>
-                            </div>
-                        </td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-
-        </tbody>
-        </table>
-        <!-- Gross Profit ends here-->
-
-
-        <!-- Expenses starts here-->
-        <table repeat="1"   style="margin-top: 20px">
-        <thead></thead>
-        <tbody>
-            {% for year_name, yearly_expenses_dict in report_data.expenses.items %}
-                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Expenses: Year {{ year_name }}</h1>
-                        </td>
-                </tr>
-                {% for expense_name, expense_dict in yearly_expenses_dict.items %}
-                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                        <td style="text-align:left; font-weight: bold">{{ expense_name }}</td>
-                        <td></td>
-                        {% for month, amount in expense_dict.items %}
-                            <td>{{ amount|floatformat:2 }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                {% for year, monthly_expense_total_dict in report_data.expense_total.items %}
-                    {% if year_name == year %}
-                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                            <td style="text-align:left; font-weight: bold">Total</td>
-                            <td></td>
-                            {% for month, amount in monthly_expense_total_dict.items %}
-                                <td>{{ amount|floatformat:2 }}</td>
-                            {% endfor %}
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
-        </tbody>
-        </table>
-        <!-- Expenses ends here-->
-
-        <!-- Profit before tax starts here-->
-        <table repeat="1"   style="margin-top: 20px">
-        <thead></thead>
-        <tbody>
-            {% for year_name, yearly_profit_before_tax_dict in report_data.profit_before_tax.items %}
-                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Profit Before Tax: Year {{ year_name }}</h1>
-                        </td>
-                </tr>
-
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    {% for value in yearly_profit_before_tax_dict.values %}
-                        {% if forloop.first %}
-                            <td></td>
-                        {% endif %}
-                        <td style="text-align:left; font-weight: bold">{{ value|floatformat:2 }}</td>
-                    {% endfor %}
-                </tr>
-
-            {% endfor %}
-        </tbody>
-        </table>
-        <!-- Profit before tax ends here-->
-
-        <!-- Tax starts here-->
-        <table repeat="1"   style="margin-top: 20px">
-        <thead></thead>
-        <tbody>
-            {% for year_name, yearly_tax_dict in report_data.tax.items %}
-                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Tax: Year {{ year_name }}</h1>
-                        </td>
-                </tr>
-
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    {% for value in yearly_tax_dict.values %}
-                        {% if forloop.first %}
-                            <td></td>
-                        {% endif %}
-                        <td style="text-align:left; font-weight: bold">{{ value|floatformat:2 }}</td>
-                    {% endfor %}
-                </tr>
-
-            {% endfor %}
-        </tbody>
-        </table>
-        <!-- Tax ends here-->
-
-        <!-- Net Profit starts here-->
-        <table repeat="1"   style="margin-top: 20px">
-        <thead></thead>
-        <tbody>
-            {% for year_name, yearly_net_profit_dict in report_data.net_profit.items %}
-                <tr style="border: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left">
-                        <h1>Net Profit: Year {{ year_name }}</h1>
-                        </td>
-                </tr>
-
-                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                    {% for value in yearly_net_profit_dict.values %}
-                        {% if forloop.first %}
-                            <td></td>
-                        {% endif %}
-                        <td style="text-align:left; font-weight: bold">{{ value|floatformat:2 }}</td>
-                    {% endfor %}
-                </tr>
-
-            {% endfor %}
-        </tbody>
-        </table>
-        <!-- Net Profit ends here-->
 </body>
 </html>
