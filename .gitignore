@@ -2,3 +2,5 @@
 */migrations/*.py
 *.sqlite
 *.xlsx
+*.pyc
+db.sqlite
