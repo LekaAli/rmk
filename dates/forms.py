@@ -1,9 +1,10 @@
 from django import forms
-from .models import FinancialYear
+from dates.date_utils import years, filter_dates
 
-
+    
 class DatesForm(forms.Form):
-    description = forms.CharField()
+    
+    description = forms.CharField(widget=forms.Select(choices=filter_dates(years)), initial='-1', required=True)
     start_date = forms.DateField(
         widget=forms.DateInput(
             attrs={
@@ -20,11 +21,7 @@ class DatesForm(forms.Form):
     
     
 class EditDates(forms.Form):
-    years = [(-1, '---Select Financial Year---')]
-    try:
-        years.extend(list(FinancialYear.objects.values_list('id', 'description')))
-    except Exception as ex:
-        pass
+    
     description = forms.CharField(widget=forms.Select(choices=years), initial='-1', required=True)
 
 

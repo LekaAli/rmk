@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
-from .models import Product, CostOfSale, Expense, ProductSeasonalityRampUp, Tax, ProductSeasonalityRampUp
+from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm
+from .forms import ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
+from .models import Product, CostOfSale, Expense, Tax, ProductSeasonalityRampUp
 from seasonality.models import Seasonality
 from rampup.models import RampUp
 from dates.models import FinancialYear
