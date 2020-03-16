@@ -28,6 +28,6 @@ def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 		})
 		results = BytesIO()
 		pdf = pisa.pisaDocument(html, dest=results)
-	except Exception as ex: # TemplateDoesNotExist:
+	except Exception as ex:  # TemplateDoesNotExist:
 		return HttpResponse(ex)
 	return HttpResponse(results.getvalue(), content_type='application/pdf')
