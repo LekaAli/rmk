@@ -25,7 +25,7 @@ SECRET_KEY = '(f%1nm*vxqm9c&pd2=3)ti0gb^)gjkkvk#fkrfr+es@9o(_jra'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['tshoane.com']
 
 INSTALLED_APPS = [
     'businessplan',
