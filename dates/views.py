@@ -22,23 +22,50 @@ def create_linked_financial_years(f_year_instance, year_count=5):
 
 
 def create_dates(request):
+    
+    from django.http import QueryDict
     if request.method == 'POST':
-        form = forms.DatesForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                if 'year_counts' in data:
-                    year_count = data.pop('year_counts')
-                new_f_year = FinancialYear(**data)
-                new_f_year.save()
-                create_linked_financial_years(new_f_year, year_count)
-            except Exception as ex:
-                form = forms.DatesForm()
-                return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Added Financial Year'})
+        form_data = dict(request.POST)
+        description_data = form_data.get('description')
+        data_dict = dict()
+        errors = list()
+        for index in range(0, len(description_data)):
+            for name in form_data.keys():
+                if name != 'csrfmiddlewaretoken':
+                    data_dict.update({name: form_data[name][index]})
+            query_dict = QueryDict('', mutable=True)
+            query_dict.update(data_dict)
+            data_dict = dict()
+            form = forms.DatesForm(query_dict)
+            if form.is_valid():
+                try:
+                    data = form.cleaned_data
+                    new_f_year = FinancialYear(**data)
+                    new_f_year.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if errors:
+            form = forms.DatesForm()
+            return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
+        return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Added Financial Year'})
     else:
         form = forms.DatesForm()
     return render(request, 'dates/dates_form.html', {'form': form})
+
+
+def advanced_create_dates(request):
+    if request.method == 'POST':
+        # process POST request data before check them against the form
+        form = forms.AdvancedDatesForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            year_count = data.get('year_counts', 0)
+            financial_year_counts = list(range(year_count))
+            form = forms.DatesForm()
+            return render(request, 'dates/dates_form.html', {'year_count': financial_year_counts, 'form': form})
+    else:
+        form = forms.AdvancedDatesForm()
+    return render(request, 'dates/add_n_financial_years.html', {'form': form})
 
 
 def edit_dates(request):
