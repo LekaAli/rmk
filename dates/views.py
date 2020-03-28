@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView
@@ -13,44 +14,75 @@ class CreateDates1(CreateView):
 
 
 def create_linked_financial_years(f_year_instance, year_count=5):
-    year_start_date = f_year_instance.end_date
-    for year_count in range(2, year_count + 1):
-        desc = ''.join(['Year ', '%s' % year_count])
-        f_year = FinancialYear(**{'description': desc, 'start_date': year_start_date})
-        f_year.save()
-        year_start_date = f_year.end_date
+    
+    if year_count not in ['', '1']:
+        year_count = int(year_count)
+        year_start_date = f_year_instance.end_date
+        for year_count in range(2, year_count + 1):
+            if isinstance(year_start_date, str):
+                from datetime import date, timedelta
+                date_chunks = [int(d_part) for d_part in year_start_date.split('-')]
+                year_start_date = date(*date_chunks)
+            start_date = year_start_date + timedelta(days=1)
+            desc = ''.join(['Year ', '%s' % year_count])
+            f_year = FinancialYear(**{'description': desc, 'start_date': start_date})
+            f_year.save()
+            year_start_date = f_year.end_date
 
 
 def create_dates(request):
     
-    from django.http import QueryDict
     if request.method == 'POST':
         form_data = dict(request.POST)
-        description_data = form_data.get('description')
-        data_dict = dict()
         errors = list()
-        for index in range(0, len(description_data)):
-            for name in form_data.keys():
-                if name != 'csrfmiddlewaretoken':
-                    data_dict.update({name: form_data[name][index]})
-            query_dict = QueryDict('', mutable=True)
-            query_dict.update(data_dict)
-            data_dict = dict()
-            form = forms.DatesForm(query_dict)
-            if form.is_valid():
-                try:
-                    data = form.cleaned_data
-                    new_f_year = FinancialYear(**data)
-                    new_f_year.save()
-                except Exception as ex:
-                    errors.append(ex)
+        try:
+            f_year_instance = FinancialYear(**{
+                'start_date': form_data['start_date'][0],
+                'end_date': form_data['end_date'][0],
+                'description': 'Year 1'
+            })
+            f_year_instance.save()
+        except IntegrityError as ex:
+            f_year = FinancialYear.objects.filter(description='Year 1')
+            f_y_instance = f_year.first()
+            f_y_instance.start_date = form_data['start_date'][0]
+            f_y_instance.end_date = form_data['end_date'][0]
+            f_y_instance.save()
+        except Exception as ex:
+            errors.append(ex)
+        create_linked_financial_years(f_year_instance, form_data['year_count'][0])
         if errors:
             form = forms.DatesForm()
-            return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
+            return render(request, 'dates/dates_form.html', {'form': form, 'errors': errors})
         return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Added Financial Year'})
     else:
         form = forms.DatesForm()
     return render(request, 'dates/dates_form.html', {'form': form})
+
+
+def manage_inflation_values(request):
+    financial_years_count = FinancialYear.objects.values_list('description', flat=True)
+    if request.method == 'POST':
+        errors = list()
+        form = forms.DatesForm(request.POST)
+        data = dict(form.data)
+        inflation_values = data.get('inflation')
+        for index in range(1, len(inflation_values) + 1):
+            f_year = FinancialYear.objects.filter(description='Year %s' % index)
+            if f_year:
+                f_year_instance = f_year.first()
+                f_year_instance.inflation = float(inflation_values[index-1])
+                f_year_instance.save()
+            else:
+                errors.append('Year %s not found' % index)
+        if errors:
+            pass
+        return render(request, 'dates/success.html',
+                      {'btn_name': 'Updates Inflation Values', 'view': 'inflation', 'message': 'Successfully Updated Inflation Values'})
+    else:
+        form = forms.DatesForm()
+        year_count = range(1, len(financial_years_count) + 1)
+    return render(request, 'dates/manage_inflation.html', {'form': form, 'years': financial_years_count})
 
 
 def advanced_create_dates(request):
@@ -60,9 +92,8 @@ def advanced_create_dates(request):
         if form.is_valid():
             data = form.cleaned_data
             year_count = data.get('year_counts', 0)
-            financial_year_counts = list(range(year_count))
             form = forms.DatesForm()
-            return render(request, 'dates/dates_form.html', {'year_count': financial_year_counts, 'form': form})
+            return render(request, 'dates/dates_form.html', {'year_count': year_count, 'form': form})
     else:
         form = forms.AdvancedDatesForm()
     return render(request, 'dates/add_n_financial_years.html', {'form': form})

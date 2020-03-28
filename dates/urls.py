@@ -7,4 +7,5 @@ urlpatterns = [
     path('CreateDates/', views.advanced_create_dates, name='CreateDates'),
     path('EditDates/', views.edit_dates, name='EditDates'),
     path('UpdateDates/', views.update_dates, name='UpdateDates'),
+    path('ManageInflation/', views.manage_inflation_values, name='ManageInflation'),
     ]

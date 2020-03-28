@@ -18,18 +18,12 @@
             </h3>
         </thead>
         <tbody>
-            <tr>
-                <td>{{ form.name }}</td>
-            </tr>
             {% if action != 'edit' %}
             <tr>
-                <td>{{ form.rampup_type }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.rampup_values }}</td>
-            </tr>
-            <tr>
                 <td>{{ form.year }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.rampup_type }}</td>
             </tr>
             <tr>
                 <td>{{ form.will_roll_over.label }}: {{ form.will_roll_over }}</td>
@@ -37,7 +31,7 @@
             {% endif %}
             <tr>
                 <td>
-                    <input type ='submit' value = '{% if action == "add" %} Add {% elif action == "edit" %} Edit {% else %} Update {% endif %}' id='id_add_rampup_button'>
+                    <input type ='submit' value = '{% if action == "add" %} Create {% elif action == "edit" %} Edit {% else %} Update {% endif %}' id='id_add_rampup_button'>
                 </td>
             </tr>
             {% if action == 'add' %}

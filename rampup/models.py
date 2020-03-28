@@ -4,6 +4,7 @@ from rmkplatform.constants import MONTHS, TYPE
 
 
 class RampUpValue(models.Model):
+    financial_year = models.ForeignKey(FinancialYear, related_name='rampup_f_year', on_delete=models.CASCADE, null=True, blank=True)
     month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
     percentage = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -22,7 +23,7 @@ class RampUpValue(models.Model):
         return ''.join([v for k, v in MONTHS if k == self.month])
     
     def __str__(self):
-        return '%s - %s' % (self.month_name, self.percentage)
+        return '%s - %s - %s' % (self.financial_year, self.month_name, self.percentage)
 
 
 class RampUp(models.Model):

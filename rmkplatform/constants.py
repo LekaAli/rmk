@@ -14,8 +14,7 @@ MONTHS = (
         (11, 'November'),
         (12, 'December'),
     )
-TYPE = (
+TYPE = [
         (-1, '---Select Type---'),
-        (0, 'For Many Products'),
-        (1, 'For One Product')
-    )
+        (0, 'All Products')
+]

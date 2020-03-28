@@ -16,7 +16,7 @@ class FinancialYear(models.Model):
 		(9, 'Year 9'),
 		(10, 'Year 10'),
 	)
-	description = models.PositiveSmallIntegerField(choices=YEARS)
+	description = models.CharField(max_length=75, blank=True, null=True, unique=True)
 	start_date = models.DateField()
 	end_date = models.DateField()
 	inflation = models.FloatField(default=0.00, blank=True, null=True)
@@ -28,28 +28,29 @@ class FinancialYear(models.Model):
 		verbose_name_plural = 'Financial Years'
 	
 	def save(self, *args, **kwargs):
-		# derived_year = self.start_date.year + 1
-		# derived_month = self.start_date.month - 1
-		# derived_month = 12 if derived_month == 0 else derived_month
-		# month_number_of_days = {1: 31, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
-		# if derived_year % 4 == 0 and (derived_year % 100 != 0 or derived_year % 400 == 0):
-		# 	if derived_month == 2:
-		# 		derived_day = 29
-		# 		self.end_date = self.start_date.replace(year=derived_year, month=derived_month, day=derived_day)
-		# 	else:
-		# 		self.end_date = self.start_date.replace(
-		# 			year=derived_year,
-		# 			month=derived_month,
-		# 			day=month_number_of_days[derived_month])
-		# else:
-		# 	if derived_month == 2:
-		# 		derived_day = 28
-		# 		self.end_date = self.start_date.replace(year=derived_year, month=derived_month, day=derived_day)
-		# 	else:
-		# 		self.end_date = self.start_date.replace(
-		# 			year=derived_year,
-		# 			month=derived_month,
-		# 			day=month_number_of_days[derived_month])
+		if not self.end_date:
+			derived_year = self.start_date.year + 1
+			derived_month = self.start_date.month - 1
+			derived_month = 12 if derived_month == 0 else derived_month
+			month_number_of_days = {1: 31, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+			if derived_year % 4 == 0 and (derived_year % 100 != 0 or derived_year % 400 == 0):
+				if derived_month == 2:
+					derived_day = 29
+					self.end_date = self.start_date.replace(year=derived_year, month=derived_month, day=derived_day)
+				else:
+					self.end_date = self.start_date.replace(
+						year=derived_year,
+						month=derived_month,
+						day=month_number_of_days[derived_month])
+			else:
+				if derived_month == 2:
+					derived_day = 28
+					self.end_date = self.start_date.replace(year=derived_year, month=derived_month, day=derived_day)
+				else:
+					self.end_date = self.start_date.replace(
+						year=derived_year,
+						month=derived_month,
+						day=month_number_of_days[derived_month])
 		super(FinancialYear, self).save(*args, **kwargs)
 	
 	@property

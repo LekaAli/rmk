@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render, reverse
 from .forms import CapacityRampUpForm, CapacityRampUpValuesForm, CapacityRampUpValuesUpdateForm, CapacityRampUpValuesEditForm, CapacityRampUpEditForm
 from dates.models import FinancialYear
 from .models import RampUp, RampUpValue
+from rmkplatform.constants import MONTHS
 
 
 def add_rampup(request):
@@ -11,22 +12,38 @@ def add_rampup(request):
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                vals = data.pop('rampup_values')
                 year_instance = FinancialYear.objects.filter(id=data['year'])
                 if year_instance.count() > 0:
-                    data['year'] = year_instance[0]
+                    year = year_instance.first()
+                    months = dict()
+                    start = year.start_date.month
+                    for year_value in range(year.start_date.year, year.end_date.year + 1):
+                        months.update({year_value: list()})
+                        for month in range(start, 12 + 1):
+                            months[year_value].append(month)
+                            if year_value == year.end_date.year and (month % 12) == year.end_date.month:
+                                break
+                        start = 1
+                    month = {entry[0]: entry[1] for entry in MONTHS[2:]}
+                    month_lst = list()
+                    for year_id, month_ids in months.items():
+                        for month_id in month_ids:
+                            month_lst.append([month_id, '%s %s' % (month.get(month_id), year_id)])
                 else:
                     form = CapacityRampUpForm()
                     return render(request, 'rampup/add_rampup.html', {'form': form, 'errors': '', 'action': 'add'})
-                rampup_instance = RampUp(**data)
-                rampup_instance.save()
-                if len(vals) > 0:
-                    rampup_instance.rampup_values.add(*vals)
-                    rampup_instance.save()
+                form = CapacityRampUpValuesForm()
+                return render(request, 'rampup/add_rampup_values.html',
+                              {'form': form, 'action': 'add', 'months': month_lst, 'year': data['year']})
+                # rampup_instance = RampUp(**data)
+                # rampup_instance.save()
+                # if len(vals) > 0:
+                #     rampup_instance.rampup_values.add(*vals)
+                #     rampup_instance.save()
             except Exception as ex:
                 form = CapacityRampUpForm()
                 return render(request, 'rampup/add_rampup.html', {'form': form, 'errors': ex, 'action': 'add'})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up', 'message': 'Ramp Up Successfully Added'})
+            # return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up', 'message': 'Ramp Up Successfully Added'})
     else:
         form = CapacityRampUpForm()
     return render(request, 'rampup/add_rampup.html', {'form': form, 'action': 'add'})
@@ -78,16 +95,21 @@ def update_rampup(request):
 
 def add_rampup_value(request):
     if request.method == 'POST':
-        form = CapacityRampUpValuesForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                rampup_value_instance = RampUpValue(**data)
-                rampup_value_instance.save()
-            except Exception as ex:
-                form = CapacityRampUpValuesForm()
-                return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex, 'action': 'add'})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'message': 'Ramp Up Successfully Added'})
+        request_data = dict(request.POST)
+        data = {'month': request_data.get('month'), 'percentage': request_data.get('percentage'), 'year': request_data.get('year')[0]}
+        form_data = dict()
+        for month_index, month_value in enumerate(data.get('month')):
+            form_data.update({'month': month_value, 'percentage': data['percentage'][month_index], 'financial_year': data['year']})
+            form = CapacityRampUpValuesForm(form_data)
+            if form.is_valid():
+                try:
+                    data = form.cleaned_data
+                    rampup_value_instance = RampUpValue(**data)
+                    rampup_value_instance.save()
+                except Exception as ex:
+                    form = CapacityRampUpValuesForm()
+                    return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex, 'action': 'add'})
+                return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'view': 'rampup', 'message': 'Ramp Up Successfully Added'})
     else:
         form = CapacityRampUpValuesForm()
     return render(request, 'rampup/add_rampup_values.html', {'form': form, 'action': 'add'})

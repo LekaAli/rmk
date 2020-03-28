@@ -1,26 +1,30 @@
 from django import forms
 from .models import RampUpValue, RampUp
 from dates.models import FinancialYear
+from products.models import Product
 from rmkplatform.constants import TYPE, MONTHS
 
 
 class CapacityRampUpForm(forms.Form):
     YEARS = [(-1, '---Select Financial Year---')]
     try:
-        YEARS.extend(list(FinancialYear.objects.values_list('id', 'description')))
+        YEARS.extend(list(FinancialYear.objects.filter(description__in=['Year 1', 'Year 2']).values_list('id', 'description')))
+        YEARS.append(('-2', 'All'))
         VALUES = RampUpValue.objects.all()
-        V = [(val.id, '%s - %s' % (val.month_name, val.percentage)) for val in VALUES]
+        V = [(val.id, '%s - %s' % (val.month, val.percentage)) for val in VALUES]
     except Exception as ex:
         V = []
         YEARS = []
-    
-    name = forms.CharField(widget=forms.TextInput)
+    try:
+        products = Product.objects.values_list('id', 'name')
+        TYPE.extend(products)
+    except Exception as ex:
+        TYPE = []
+
     rampup_type = forms.CharField(widget=forms.Select(choices=TYPE), initial='-1', required=True)
-    rampup_values = forms.MultipleChoiceField(choices=V, widget=forms.SelectMultiple(), required=False)
     year = forms.ChoiceField(widget=forms.Select(), choices=YEARS, initial='-1', required=True)
     will_roll_over = forms.BooleanField(required=False)
-    
-    name.widget.attrs['placeholder'] = 'Ramp Up Description'
+
     will_roll_over.widget.attrs['style'] = 'width:20px'
 
 
