@@ -12,21 +12,24 @@
     {% csrf_token %}
     <input type="hidden" value="{{ action }}" name="which_form"/>
     <input type="hidden" value="{{ year }}" name="year"/>
+    <input type="hidden" value="{{ product }}" name="product"/>
     <table>
         <thead>
             <h3>{% if action == 'add' %} Add Ramp Up Values {% elif action == 'edit' %} Edit Ramp Up Values {% else %} Update Ramp Up Value {% endif %}</h3>
         </thead>
         <tbody>
-            {% for month in months %}
-                <tr>
-                    <td>
-                        <select name="month">
-                            <option value="{{ month.0 }}" selected>{{ month.1 }}</option>
-                        </select>
+            {% for year, months in values.items %}
+                {% for month in months %}
+                    <tr>
+                        <td>
+                            <select name="month">
+                                <option value="{{ month.0 }}" selected>{{ month.1 }}</option>
+                            </select>
 
-                    </td>
-                    <td><input type="text" name="percentage" required placeholder="{{ month.1 }} Value" /></td>
-                </tr>
+                        </td>
+                        <td><input type="text" name="percentage" required placeholder="{{ month.1 }} Value" /></td>
+                    </tr>
+                {% endfor %}
             {% endfor %}
             <tr>
                 <td>

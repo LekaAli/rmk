@@ -38,9 +38,22 @@ class CapacityRampUpEditForm(forms.Form):
 
 
 class CapacityRampUpValuesForm(forms.Form):
+    YEARS = [(-1, '---Select Financial Year---')]
+    try:
+        YEARS.extend(
+            list(FinancialYear.objects.filter(description__in=['Year 1', 'Year 2']).values_list('id', 'description')))
+        YEARS.append(('-2', 'All'))
+    except Exception as ex:
+        pass
+    try:
+        products = Product.objects.values_list('id', 'name')
+        TYPE.extend(products)
+    except Exception as ex:
+        TYPE = []
+    financial_year = forms.CharField(widget=forms.Select(choices=YEARS), initial='-1', required=True)
     month = forms.CharField(widget=forms.Select(choices=MONTHS), initial='-1', required=True)
     percentage = forms.CharField(widget=forms.TextInput, required=True)
-    
+    product = forms.MultipleChoiceField(choices=TYPE, widget=forms.SelectMultiple(), required=False)
     percentage.widget.attrs['placeholder'] = 'Ramp Up Percentage Value'
 
 
