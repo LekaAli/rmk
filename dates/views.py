@@ -25,7 +25,12 @@ def create_linked_financial_years(f_year_instance, year_count=5):
                 year_start_date = date(*date_chunks)
             start_date = year_start_date + timedelta(days=1)
             desc = ''.join(['Year ', '%s' % year_count])
-            f_year = FinancialYear(**{'description': desc, 'start_date': start_date})
+            fin_year = FinancialYear.objects.filter(description=desc)
+            if fin_year:
+                f_year = fin_year.first()
+                f_year.start_date = start_date
+            else:
+                f_year = FinancialYear(**{'description': desc, 'start_date': start_date})
             f_year.save()
             year_start_date = f_year.end_date
 
@@ -50,10 +55,10 @@ def create_dates(request):
             f_y_instance.save()
         except Exception as ex:
             errors.append(ex)
-        create_linked_financial_years(f_year_instance, form_data['year_count'][0])
         if errors:
             form = forms.DatesForm()
             return render(request, 'dates/dates_form.html', {'form': form, 'errors': errors})
+        create_linked_financial_years(f_year_instance, form_data['year_count'][0])
         return render(request, 'dates/success.html', {'btn_name': 'Add Another Financial Year', 'message': 'Successfully Added Financial Year'})
     else:
         form = forms.DatesForm()

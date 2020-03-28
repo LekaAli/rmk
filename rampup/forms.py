@@ -14,7 +14,6 @@ class CapacityRampUpForm(forms.Form):
         V = [(val.id, '%s - %s' % (val.month, val.percentage)) for val in VALUES]
     except Exception as ex:
         V = []
-        YEARS = []
     try:
         products = Product.objects.values_list('id', 'name')
         TYPE.extend(products)
