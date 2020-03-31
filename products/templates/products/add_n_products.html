@@ -1,0 +1,46 @@
+{% extends "businessplan/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
+
+  <form class= "form-horizontal" action="", method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <table>
+        <thead>
+            <h3 id='id_header'>
+                {% if action == 'add' %} Add Product
+                {% elif action == 'edit' %} Edit Product
+                {% else %} Update Product {% endif %}
+            </h3>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ form.product_count }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <input type ='submit' value = '{% if action == "add" %} Create Product {% elif action == "edit" %} Edit Product {% else %} Update Product {% endif %}' id='id_add_product_button'>
+                </td>
+            </tr>
+            {% if action == 'add' %}
+                <tr>
+                    <td>
+                        <a href="{% url 'products:edit_product' %}" >Edit Product</a>
+                    </td>
+                </tr>
+                {% elif action == 'edit' %}
+                <tr>
+                    <td>
+                        <a href="{% url 'products:create_product' %}" >Add Product</a>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+  </form>
+</div>
+{% endblock %}

@@ -27,10 +27,8 @@ def create_linked_financial_years(f_year_instance, year_count=5):
             desc = ''.join(['Year ', '%s' % year_count])
             fin_year = FinancialYear.objects.filter(description=desc)
             if fin_year:
-                f_year = fin_year.first()
-                f_year.start_date = start_date
-            else:
-                f_year = FinancialYear(**{'description': desc, 'start_date': start_date})
+                FinancialYear.objects.exclude(description='Year 1').delete()
+            f_year = FinancialYear(**{'description': desc, 'start_date': start_date})
             f_year.save()
             year_start_date = f_year.end_date
 

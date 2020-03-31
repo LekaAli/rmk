@@ -20,6 +20,12 @@ class ProductForm(forms.Form):
     average_quantity_per_month.widget.attrs['placeholder'] = 'Quantity Per Month'
 
 
+class AddNProductForm(forms.Form):
+    product_count = forms.CharField(widget=forms.TextInput)
+    
+    product_count.widget.attrs['placeholder'] = 'Add How Many Product(s)'
+    
+    
 class ProductEditForm(forms.Form):
     PRODUCT = [(-1, '---Select Product---')]
     try:

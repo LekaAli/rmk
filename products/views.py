@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm
+from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, AddNProductForm
 from .forms import ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
 from .models import Product, CostOfSale, Expense, Tax, ProductSeasonalityRampUp
 from seasonality.models import Seasonality
@@ -22,6 +22,23 @@ def create_product(request):
     else:
         form = ProductForm()
     return render(request, 'products/product.html', {'form': form, 'action': 'add'})
+
+
+def add_n_product(request):
+    if request.method == 'POST':
+        form = AddNProductForm(request.POST)
+        if form.is_valid():
+            try:
+                data = form.cleaned_data
+                product_count = range(int(data['product_count']))
+                form = ProductForm()
+            except Exception as ex:
+                form = ProductForm()
+                return render(request, 'products/product.html', {'form': form, 'errors': ex})
+            return render(request, 'products/product.html', {'form': form, 'product_count': product_count})
+    else:
+        form = AddNProductForm()
+    return render(request, 'products/add_n_products.html', {'form': form, 'action': 'add'})
 
 
 def edit_product(request):

@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
+<div class="panel-dody" style="margin-top: 20%; height: 40%; width: 37%; margin-left: 35%; padding: 6%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
   <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'products:edit_product' %} {% elif action == 'update' %} {% url 'products:update_product' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
@@ -17,7 +17,13 @@
                 {% else %} Update Product {% endif %}
             </h3>
         </thead>
-        <tbody>
+        <tbody >
+        {% for product in product_count %}
+            <tr>
+                <td style="padding-top: 5px; font-weight:bold">
+                    Product: {{ product }}
+                </td>
+            </tr>
             <tr>
                 <td>{{ form.name }}</td>
             </tr>
@@ -32,6 +38,7 @@
                 <td>{{ form.projection_start }}</td>
             </tr>
             {% endif %}
+        {% endfor %}
             <tr>
                 <td>
                     <input type ='submit' value = '{% if action == "add" %} Add Product {% elif action == "edit" %} Edit Product {% else %} Update Product {% endif %}' id='id_add_product_button'>
