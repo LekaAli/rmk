@@ -35,7 +35,7 @@ def add_n_product(request):
             except Exception as ex:
                 form = ProductForm()
                 return render(request, 'products/product.html', {'form': form, 'errors': ex})
-            return render(request, 'products/product.html', {'form': form, 'product_count': product_count})
+            return render(request, 'products/product.html', {'form': form, 'product_count': product_count, 'action': 'add'})
     else:
         form = AddNProductForm()
     return render(request, 'products/add_n_products.html', {'form': form, 'action': 'add'})
