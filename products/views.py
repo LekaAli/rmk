@@ -1,5 +1,7 @@
+from django.http import QueryDict
 from django.shortcuts import render
-from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, AddNProductForm
+from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, \
+    AddNProductForm, AddNExpenseForm
 from .forms import ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
 from .models import Product, CostOfSale, Expense, Tax, ProductSeasonalityRampUp
 from seasonality.models import Seasonality
@@ -9,19 +11,39 @@ from dates.models import FinancialYear
 
 def create_product(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                new_product_instance = Product(**data)
-                new_product_instance.save()
-            except Exception as ex:
-                form = ProductForm()
-                return render(request, 'products/product.html', {'form': form, 'errors': ex})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Product', 'message': 'Product Successfully Added'})
+        query_data = dict(request.POST)
+        data = {
+            'name': query_data.get('name'),
+            'projection_start': query_data.get('projection_start'),
+            'average_unit_price': query_data.get('average_unit_price'),
+            'average_quantity_per_month': query_data.get('average_quantity_per_month'),
+        }
+        errors = list()
+        for index, name in enumerate(data.get('name')):
+            form_data = {
+                'name': name,
+                'projection_start': data.get('projection_start')[index],
+                'average_unit_price': data.get('average_unit_price')[index],
+                'average_quantity_per_month': data.get('average_quantity_per_month')[index],
+                
+            }
+            query = QueryDict('', mutable=True)
+            query.update(form_data)
+            form = ProductForm(query)
+            if form.is_valid():
+                try:
+                    form_data = form.cleaned_data
+                    new_product_instance = Product(**form_data)
+                    new_product_instance.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if errors:
+            form = ProductForm()
+            return render(request, 'products/product.html', {'form': form, 'errors': errors, 'action': 'add'})
+        return render(request, 'dates/success.html', {'btn_name': 'Add Another Product', 'message': 'Product Successfully Added', 'view': 'product'})
     else:
         form = ProductForm()
-    return render(request, 'products/product.html', {'form': form, 'action': 'add'})
+        return render(request, 'products/product.html', {'form': form, 'action': 'add'})
 
 
 def add_n_product(request):
@@ -63,20 +85,55 @@ def edit_product(request):
     return render(request, 'products/product.html', {'form': form, 'action': 'edit'})
 
 
-def add_expense(request):
+def add_n_expense(request):
     if request.method == 'POST':
-        form = ExpenseForm(request.POST)
+        form = AddNExpenseForm(request.POST)
         if form.is_valid():
             try:
-                expense_instance = Expense(**form.cleaned_data)
-                expense_instance.save()
-            except Exception as ex:
+                data = form.cleaned_data
+                expense_count = range(int(data['expense_count']))
                 form = ExpenseForm()
-                return render(request, 'products/expense.html', {'form': form, 'errors': ex, 'action': 'add'})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Expense', 'message': 'Expense Successfully Added'})
+            except Exception as ex:
+                form = AddNExpenseForm()
+                return render(request, 'products/add_n_expenses.html', {'form': form, 'errors': ex})
+            return render(request, 'products/expense.html',
+                          {'form': form, 'expense_count': expense_count, 'action': 'add'})
+    else:
+        form = AddNExpenseForm()
+    return render(request, 'products/add_n_expenses.html', {'form': form, 'action': 'add'})
+
+
+def add_expense(request):
+    if request.method == 'POST':
+        query_dict = dict(request.POST)
+        data = {
+            'description': query_dict.get('description'),
+            'is_fixed': query_dict.get('is_fixed'),
+            'value': query_dict.get('value')
+        }
+        errors = list()
+        for index, description in enumerate(data.get('description')):
+            form_data = {
+                'description': description,
+                'is_fixed': data.get('is_fixed')[index],
+                'value': data.get('value')[index]
+            }
+            query = QueryDict('', mutable=True)
+            query.update(form_data)
+            form = ExpenseForm(form_data)
+            if form.is_valid():
+                try:
+                    expense_instance = Expense(**form.cleaned_data)
+                    expense_instance.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if errors:
+            form = ExpenseForm()
+            return render(request, 'products/expense.html', {'form': form, 'errors': errors, 'action': 'add'})
+        return render(request, 'dates/success.html', {'btn_name': 'Add Another Expense', 'message': 'Expense(s) Successfully Added', 'view': 'expense'})
     else:
         form = ExpenseForm()
-    return render(request, 'products/expense.html', {'form': form, 'action': 'add'})
+        return render(request, 'products/expense.html', {'form': form, 'action': 'add'})
 
 
 def edit_expense(request):
