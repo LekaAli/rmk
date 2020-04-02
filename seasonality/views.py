@@ -1,4 +1,8 @@
+from django.http import QueryDict
 from django.shortcuts import render
+
+from products.models import Product
+from rampup.views import monthly_breakdown, cal_num_of_months
 from .forms import SeasonalityForm, SeasonalityValuesForm, SeasonalityValuesEditForm, SeasonalityEditForm
 from .models import Seasonality, SeasonalityValue
 from dates.models import FinancialYear
@@ -10,25 +14,32 @@ def add_seasonality(request):
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                vals = data.pop('seasonality_values')
-                year_instance = FinancialYear.objects.filter(id=data['year'])
+                if data['year'] in ['0', 0]:
+                    year_instance = FinancialYear.objects.filter(description__in=['Year 1', 'Year 2'])
+                else:
+                    year_instance = FinancialYear.objects.filter(id=data['year'])
+                    
+                if data['seasonality_type'] in ['0', 0]:
+                    product = list(Product.objects.values_list('id', flat=True))
+                else:
+                    product = list(Product.objects.filter(id=int(data['seasonality_type'])).values_list('id', flat=True))
+                values_dict = dict()
                 if year_instance.count() > 0:
-                    data['year'] = year_instance[0]
+                    for year in year_instance:
+                        values_dict.update({year.description: monthly_breakdown(year)})
                 else:
                     form = SeasonalityForm()
-                    return render(request, 'seasonality/product_seasonality.html', {'form': form, 'errors': '', 'action': 'add'})
-                seasonality_instance = Seasonality(**data)
-                seasonality_instance.save()
-                if len(vals) > 0:
-                    seasonality_instance.seasonality_values.add(*vals)
-                    seasonality_instance.save()
+                    return render(request, 'seasonality/product_seasonality.html', {'form': form, 'action': 'add'})
+                form = SeasonalityValuesForm()
+                return render(request, 'seasonality/add_seasonality_values.html',
+                              {'form': form, 'action': 'add', 'values': values_dict,
+                               'product': ','.join([str(i) for i in product]), 'year': ','.join(values_dict.keys())})
             except Exception as ex:
                 form = SeasonalityForm()
                 return render(request, 'seasonality/product_seasonality.html', {'form': form, 'errors': ex, 'action': 'add'})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Seasonality', 'message': 'Seasonality Successfully Added'})
     else:
         form = SeasonalityForm()
-    return render(request, 'seasonality/product_seasonality.html', {'form': form, 'action': 'add'})
+        return render(request, 'seasonality/product_seasonality.html', {'form': form, 'action': 'add'})
 
 
 def edit_seasonality(request):
@@ -75,7 +86,7 @@ def update_seasonality(request):
     return render(request, 'seasonality/product_seasonality.html', {'form': form, 'action': 'add'})
 
 
-def add_seasonality_value(request):
+def edit_seasonality_value(request):
     if request.method == 'POST':
         form = SeasonalityValuesForm(request.POST)
         if form.is_valid():
@@ -92,21 +103,49 @@ def add_seasonality_value(request):
     return render(request, 'seasonality/product_seasonality_values.html', {'form': form, 'action': 'add'})
 
 
-def edit_seasonality_value(request):
+def add_seasonality_value(request):
     if request.method == 'POST':
-        form = SeasonalityValuesEditForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                seasonality_value_instance = SeasonalityValue.objects.get(**data)
-                form = SeasonalityValuesForm({
-                    'month': seasonality_value_instance.month,
-                    'percentage': seasonality_value_instance.percentage
+        request_data = dict(request.POST)
+        data = {
+            'month': request_data.get('month'),
+            'percentage': request_data.get('percentage'),
+            'financial_year': request_data.get('year')[0].split(','),
+            'product': request_data.get('product')[0].split(',')
+        }
+        form_data = dict()
+        errors = list()
+        for year in data.get('financial_year'):
+            f_year = FinancialYear.objects.get(description=year)
+            num_of_month = cal_num_of_months(f_year.end_date, f_year.start_date)
+    
+            percentages = data['percentage'][:num_of_month] if year == 'Year 1' else data['percentage'][num_of_month:]
+            months = data.get('month')[:num_of_month] if year == 'Year 1' else data.get('month')[num_of_month:]
+            for month_index, month_value in enumerate(months):
+                form_data.update({
+                    'financial_year': year,
+                    'month': month_value,
+                    'percentage': percentages[month_index]
                 })
-            except Exception as ex:
-                form = SeasonalityValuesEditForm()
-                return render(request, 'seasonality/product_seasonality_values.html', {'form': form, 'errors': ex, 'action': 'edit'})
-            return render(request, 'seasonality/product_seasonality_values.html', {'form': form, 'action': 'update'})
+                query = QueryDict('', mutable=True)
+                query.update(form_data)
+                form = SeasonalityValuesForm(query)
+                if form.is_valid():
+                    try:
+                        clean_data = form.cleaned_data
+                        f_year = FinancialYear.objects.get(description=clean_data.get('financial_year'))
+                        clean_data['financial_year'] = f_year
+                        product_ids = [int(val) for val in data.get('product')]
+                        clean_data.pop('product')
+                        rampup_value_instance = SeasonalityValue(**clean_data)
+                        rampup_value_instance.save()
+                        rampup_value_instance.product.set(product_ids)
+                    except Exception as ex:
+                        errors.append(ex)
+        if errors:
+            form = SeasonalityValuesForm()
+            return render(request, 'seasonality/add_seasonality_values.html', {'form': form, 'errors': errors, 'action': 'add'})
+        return render(request, 'dates/success.html', {'btn_name': 'Add Another Seasonality Value', 'view': 'seasonality',
+                                                      'message': 'Seasonality Successfully Added'})
     else:
         form = SeasonalityValuesForm()
     return render(request, 'seasonality/product_seasonality_values.html', {'form': form, 'action': 'edit'})

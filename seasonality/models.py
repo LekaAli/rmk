@@ -4,9 +4,11 @@ from rmkplatform.constants import MONTHS, TYPE
 
 
 class SeasonalityValue(models.Model):
-    
+    financial_year = models.ForeignKey(FinancialYear, related_name='seasonality_f_year', on_delete=models.CASCADE, null=True,
+                                       blank=True)
     month = models.PositiveSmallIntegerField(null=True, blank=True, choices=MONTHS)
     percentage = models.DecimalField(default=0.00, max_digits=15, decimal_places=2)
+    product = models.ManyToManyField('products.Product', related_name='product_seasonality', blank=True)
     created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     modified = models.DateTimeField(auto_now=True)
 

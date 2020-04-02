@@ -1,0 +1,43 @@
+{% extends "businessplan/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="panel-dody" style="margin-top: 8%; height: 40%; width: 35%; margin-left: 30%; padding-left:4%; border: 5px solid blue; border-top: 10px solid blue">
+
+  <form class= "form-horizontal"
+        action="{% if action == 'edit' %} {% url 'seasonality:edit_seasonality_value' %} {% elif action == 'update' %} {% url 'seasonality:update_seasonality_value' %} {% else %} {% url 'seasonality:add_seasonality_value' %} {% endif %}"
+        method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" value="{{ action }}" name="which_form"/>
+    <input type="hidden" value="{{ year }}" name="year"/>
+    <input type="hidden" value="{{ product }}" name="product"/>
+    <table>
+        <thead>
+            <h3>{% if action == 'add' %} Add Seasonality Values {% elif action == 'edit' %} Edit Seasonality Values {% else %} Update Seasonality Value {% endif %}</h3>
+        </thead>
+        <tbody>
+            {% for year, months in values.items %}
+                {% for month in months %}
+                    <tr>
+                        <td>
+                            <select name="month">
+                                <option value="{{ month.0 }}" selected>{{ month.1 }}</option>
+                            </select>
+
+                        </td>
+                        <td><input type="text" name="percentage" required placeholder="{{ month.1 }} Value" /></td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            <tr>
+                <td>
+                    <input type ='submit' value = '{% if action == "add" %} Add Value {% elif action == "edit" %} Edit Value {% else %} Update Value {% endif %}' id='id_add_rampup_values_button'>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+  </form>
+</div>
+{% endblock %}
