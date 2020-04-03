@@ -1,0 +1,52 @@
+{% extends "businessplan/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="panel-dody" style="margin-top: 20%; height: 40%; width: 37%; margin-left: 35%; padding: 6%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
+
+  <form class= "form-horizontal" action="{% url 'login' %}", method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        <thead>
+            <h3 id='id_header'>
+                {% if view == 'inflation' %} Inflation(s) {% else %} Year(s) {% endif %}
+            </h3>
+        </thead>
+        <tbody >
+        {% for index, dates in data %}
+            <tr>
+                <td style="padding-top: 5px; font-weight:bold">
+                    {% if view == 'inflation' %} Inflation {% else %} Year {% endif %} : {{ index }}
+                </td>
+            </tr>
+            {% if view == 'dates' %}
+                <tr>
+                    <td> Description: {{ dates.description }}</td>
+                </tr>
+                <tr>
+                    <td> Start Date: {{ dates.start_date }}</td>
+                </tr>
+                <tr>
+                    <td> End Date: {{ dates.end_date }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td> Description: {{ dates.description }}</td>
+                </tr>
+                <tr>
+                    <td> Inflation Value: {{ dates.inflation }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+            <tr>
+                <td>
+                    <input type='submit' value='Close' id='id_add_product_button'>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+  </form>
+</div>
+{% endblock %}

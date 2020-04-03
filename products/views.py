@@ -46,6 +46,16 @@ def create_product(request):
         return render(request, 'products/product.html', {'form': form, 'action': 'add'})
 
 
+def view_product(request):
+    product = Product.objects.all().order_by('-id')
+    return render(request, 'products/view_product.html', context={'data': enumerate(product)})
+
+
+def view_expense(request):
+    expenses = Expense.objects.all().order_by('-id')
+    return render(request, 'products/view_expense.html', context={'data': enumerate(expenses)})
+
+
 def add_n_product(request):
     if request.method == 'POST':
         form = AddNProductForm(request.POST)

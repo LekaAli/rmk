@@ -102,6 +102,16 @@ def advanced_create_dates(request):
     return render(request, 'dates/add_n_financial_years.html', {'form': form})
 
 
+def view_dates(request):
+    years = FinancialYear.objects.all().order_by('-id')
+    return render(request, 'dates/view_dates.html', context={'data': enumerate(years), 'view': 'dates'})
+
+
+def view_inflation(request):
+    years = FinancialYear.objects.all().order_by('-id')
+    return render(request, 'dates/view_dates.html', context={'data': enumerate(years), 'view': 'inflation'})
+
+
 def edit_dates(request):
     if request.method == 'POST':
         form = forms.EditDates(request.POST)
