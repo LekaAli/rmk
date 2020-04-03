@@ -106,6 +106,11 @@ def update_rampup(request):
     return render(request, 'rampup/add_rampup.html', {'form': form, 'action': 'add'})
 
 
+def view_rampup_value(request):
+    rampups = RampUpValue.objects.all().order_by('-id')
+    return render(request, 'rampup/view_rampup.html', context={'data': enumerate(rampups)})
+
+
 def add_rampup_value(request):
     if request.method == 'POST':
         request_data = dict(request.POST)

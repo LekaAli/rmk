@@ -1,0 +1,46 @@
+{% extends "businessplan/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="panel-dody" style="margin-top: 20%; height: 40%; width: 37%; margin-left: 35%; padding: 6%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
+
+  <form class= "form-horizontal" action="{% url 'login' %}", method="POST", enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        <thead>
+            <h3 id='id_header'>
+                Ramp Up Values(s)
+            </h3>
+        </thead>
+        <tbody >
+        {% for index, rampup in data %}
+            <tr>
+                <td style="padding-top: 5px; font-weight:bold">
+                    Ramp Up Value : {{ index }}
+                </td>
+            </tr>
+            <tr>
+                <td> Financial Year: {{ rampup.financial_year }}</td>
+            </tr>
+            <tr>
+                <td> Month: {{ rampup.month }}</td>
+            </tr>
+            <tr>
+                <td> Percentage: {{ rampup.percentage| floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td> Product: {{ rampup.product }}</td>
+            </tr>
+        {% endfor %}
+            <tr>
+                <td>
+                    <input type='submit' value='Close' id='id_add_product_button'>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+  </form>
+</div>
+{% endblock %}

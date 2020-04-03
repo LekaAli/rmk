@@ -103,6 +103,11 @@ def edit_seasonality_value(request):
     return render(request, 'seasonality/product_seasonality_values.html', {'form': form, 'action': 'add'})
 
 
+def view_seasonality_value(request):
+    seasonalities = SeasonalityValue.objects.all().order_by('-id')
+    return render(request, 'seasonality/view_seasonality.html', context={'data': enumerate(seasonalities)})
+
+
 def add_seasonality_value(request):
     if request.method == 'POST':
         request_data = dict(request.POST)
