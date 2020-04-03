@@ -104,7 +104,7 @@ def edit_seasonality_value(request):
 
 
 def view_seasonality_value(request):
-    seasonalities = SeasonalityValue.objects.all().order_by('-id')
+    seasonalities = SeasonalityValue.objects.all().order_by('id')
     return render(request, 'seasonality/view_seasonality.html', context={'data': enumerate(seasonalities)})
 
 

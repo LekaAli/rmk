@@ -18,7 +18,7 @@
         {% for index, dates in data %}
             <tr>
                 <td style="padding-top: 5px; font-weight:bold">
-                    {% if view == 'inflation' %} Inflation {% else %} Year {% endif %} : {{ index }}
+                    {% if view == 'inflation' %} Inflation {% else %} Year {% endif %} : {{ index|add:"1" }}
                 </td>
             </tr>
             {% if view == 'dates' %}

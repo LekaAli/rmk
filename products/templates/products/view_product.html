@@ -18,7 +18,7 @@
         {% for index, product in data %}
             <tr>
                 <td style="padding-top: 5px; font-weight:bold">
-                    Product: {{ index }}
+                    Product: {{ index|add:"1" }}
                 </td>
             </tr>
             <tr>

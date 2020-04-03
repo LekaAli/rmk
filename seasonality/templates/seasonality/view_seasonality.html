@@ -18,7 +18,7 @@
         {% for index, seasonality in data %}
             <tr>
                 <td style="padding-top: 5px; font-weight:bold">
-                    Seasonality : {{ index }}
+                    Seasonality : {{ index|add:"1" }}
                 </td>
             </tr>
             <tr>

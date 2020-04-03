@@ -103,12 +103,12 @@ def advanced_create_dates(request):
 
 
 def view_dates(request):
-    years = FinancialYear.objects.all().order_by('-id')
+    years = FinancialYear.objects.all().order_by('id')
     return render(request, 'dates/view_dates.html', context={'data': enumerate(years), 'view': 'dates'})
 
 
 def view_inflation(request):
-    years = FinancialYear.objects.all().order_by('-id')
+    years = FinancialYear.objects.all().order_by('id')
     return render(request, 'dates/view_dates.html', context={'data': enumerate(years), 'view': 'inflation'})
 
 

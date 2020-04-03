@@ -107,7 +107,7 @@ def update_rampup(request):
 
 
 def view_rampup_value(request):
-    rampups = RampUpValue.objects.all().order_by('-id')
+    rampups = RampUpValue.objects.all().order_by('id')
     return render(request, 'rampup/view_rampup.html', context={'data': enumerate(rampups)})
 
 
