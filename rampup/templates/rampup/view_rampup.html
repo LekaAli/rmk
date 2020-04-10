@@ -22,16 +22,16 @@
                 </td>
             </tr>
             <tr>
-                <td> Financial Year: {{ rampup.financial_year }}</td>
+                <td> Financial Year: {{ rampup.0|default:'' }}</td>
             </tr>
             <tr>
-                <td> Month: {{ rampup.month }}</td>
+                <td> Month: {{ rampup.1|default:'' }}</td>
             </tr>
             <tr>
-                <td> Percentage: {{ rampup.percentage| floatformat:2 }}</td>
+                <td> Percentage: {{ rampup.2| floatformat:2 }}</td>
             </tr>
             <tr>
-                <td> Product: {{ rampup.product }}</td>
+                <td> Product: {{ rampup.3|default:'' }}</td>
             </tr>
         {% endfor %}
             <tr>

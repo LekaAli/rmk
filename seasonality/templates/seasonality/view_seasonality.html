@@ -22,16 +22,16 @@
                 </td>
             </tr>
             <tr>
-                <td> Financial Year: {{ seasonality.financial_year }}</td>
+                <td> Financial Year: {{ seasonality.0|default:'' }}</td>
             </tr>
             <tr>
-                <td> Month: {{ seasonality.month }}</td>
+                <td> Month: {{ seasonality.1|default:'' }}</td>
             </tr>
             <tr>
-                <td> Percentage: {{ seasonality.percentage| floatformat:2 }}</td>
+                <td> Percentage: {{ seasonality.2| floatformat:2 }}</td>
             </tr>
             <tr>
-                <td> Product: {{ seasonality.product }}</td>
+                <td> Product: {{ seasonality.3|default:'' }}</td>
             </tr>
         {% endfor %}
             <tr>

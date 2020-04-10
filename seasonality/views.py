@@ -1,6 +1,7 @@
 from django.http import QueryDict
 from django.shortcuts import render
 
+from dates.views import already_created_dates
 from products.models import Product
 from rampup.views import monthly_breakdown, cal_num_of_months
 from .forms import SeasonalityForm, SeasonalityValuesForm, SeasonalityValuesEditForm, SeasonalityEditForm
@@ -9,6 +10,14 @@ from dates.models import FinancialYear
 
 
 def add_seasonality(request):
+    is_loaded = already_created_dates('seasonality', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Update',
+            'view': 'seasonality',
+            'action': 'review',
+            'message': 'Seasonality Options'
+        })
     if request.method == 'POST':
         form = SeasonalityForm(request.POST)
         if form.is_valid():
@@ -104,7 +113,12 @@ def edit_seasonality_value(request):
 
 
 def view_seasonality_value(request):
-    seasonalities = SeasonalityValue.objects.all().order_by('id')
+    seasonalities = SeasonalityValue.objects.all().order_by('id').values_list(
+        'financial_year__description',
+        'month',
+        'percentage',
+        'product__name'
+    )
     return render(request, 'seasonality/view_seasonality.html', context={'data': enumerate(seasonalities)})
 
 

@@ -64,6 +64,14 @@ def create_dates(request):
 
 
 def manage_inflation_values(request):
+    is_loaded = already_created_dates('inflation', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Update',
+            'view': 'inflation',
+            'action': 'review',
+            'message': 'Inflation Options'
+        })
     financial_years_count = FinancialYear.objects.values_list('description', flat=True)
     if request.method == 'POST':
         errors = list()
@@ -84,11 +92,19 @@ def manage_inflation_values(request):
                       {'btn_name': 'Updates Inflation Values', 'view': 'inflation', 'message': 'Successfully Updated Inflation Values'})
     else:
         form = forms.DatesForm()
-        year_count = range(1, len(financial_years_count) + 1)
     return render(request, 'dates/manage_inflation.html', {'form': form, 'years': financial_years_count})
 
 
 def advanced_create_dates(request):
+    
+    is_loaded = already_created_dates('dates', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Update',
+            'view': 'dates',
+            'action': 'review',
+            'message': 'Financial Year Options'
+        })
     if request.method == 'POST':
         # process POST request data before check them against the form
         form = forms.AdvancedDatesForm(request.POST)
@@ -96,10 +112,10 @@ def advanced_create_dates(request):
             data = form.cleaned_data
             year_count = data.get('year_counts', 0)
             form = forms.DatesForm()
-            return render(request, 'dates/dates_form.html', {'year_count': year_count, 'form': form})
+            return render(request, 'dates/dates_form.html', {'year_count': year_count, 'form': form, 'action': 'add'})
     else:
         form = forms.AdvancedDatesForm()
-    return render(request, 'dates/add_n_financial_years.html', {'form': form})
+    return render(request, 'dates/add_n_financial_years.html', {'form': form, 'action': 'add'})
 
 
 def view_dates(request):
@@ -113,6 +129,7 @@ def view_inflation(request):
 
 
 def edit_dates(request):
+    year = FinancialYear.objects.all().order_by('id').values_list('id', 'description')
     if request.method == 'POST':
         form = forms.EditDates(request.POST)
         if form.is_valid():
@@ -122,15 +139,19 @@ def edit_dates(request):
                 form = forms.DatesForm({
                     'description': financial_year_instance.description,
                     'start_date': financial_year_instance.start_date,
+                    'end_date': financial_year_instance.end_date,
                     'inflation': financial_year_instance.inflation
                     })
-                return render(request, 'dates/dates_form.html', {'form': form, 'action': 'update'})
+                return render(
+                    request,
+                    'dates/dates_form.html',
+                    {'form': form, 'action': 'update', 'years': year, 'selected': financial_year_instance.id}
+                )
             except Exception as ex:
                 form = forms.EditDates()
-                print('ERR: ', ex)
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
     form = forms.EditDates()
-    return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form})
+    return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form, 'years': year})
 
 
 def update_dates(request):
@@ -139,14 +160,37 @@ def update_dates(request):
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                financial_year_instance = FinancialYear.objects.get(description=data['description'])
-                financial_year_instance.inflation = data['inflation']
+                financial_year_instance = FinancialYear.objects.get(id=data['description'])
+                financial_year_instance.start_date = data['start_date']
+                financial_year_instance.end_date = data['end_date']
                 financial_year_instance.save()
-                return render(request, 'dates/success.html', {'btn_name': 'Edit Another Financial Year', 'message': 'Successfully Updated Financial Year'})
+                return render(
+                    request,
+                    'dates/success.html',
+                    {
+                        'btn_name': 'Edit Another Financial Year',
+                        'message': 'Successfully Updated Financial Year',
+                        'view': 'dates'
+                    }
+                )
             except Exception as ex:
                 form = forms.EditDates()
-                print('ERR: ', ex)
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
     form = forms.UpdateForm()
     return render(request, 'dates/dates_form.html', {'action': 'add', 'form': form})
+
+
+def already_created_dates(view_name, flag):
+    from products.models import Product
+    from rampup.models import RampUpValue
+    from seasonality.models import SeasonalityValue
+    
+    view_models_dict = {
+        'dates': FinancialYear.objects.all().count() > 0,
+        'inflation': FinancialYear.objects.all().count() > 0,
+        'rampup': RampUpValue.objects.all().count() >= 24,
+        'seasonality': SeasonalityValue.objects.all().count() >= 12,
+        'product': Product.objects.all().count() > 0,
+    }
+    return view_models_dict.get(view_name, False) if flag != 'review' else False
 

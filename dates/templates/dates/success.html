@@ -23,10 +23,15 @@
      style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue"
      xmlns:width="http://www.w3.org/1999/xhtml">
 
-  <form class= "form-row" action="{% if view == 'inflation' %} {% url 'dates:ManageInflation' %} {% elif view == 'rampup' %} {% url 'rampup:add_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:add_seasonality' %} {% elif view == 'expense' %} {% url 'products:add_expense' %}{% elif view == 'product' %} {% url 'products:add_n_product' %}{% else %} {% url 'dates:CreateDates' %} {% endif %}", method="GET", enctype="multipart/form-data">
+  <form class= "form-row" action="{% if action != 'review' %}
+    {% if view == 'inflation' %} {% url 'dates:ManageInflation' %} {% elif view == 'rampup' %} {% url 'rampup:add_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:add_seasonality' %} {% elif view == 'expense' %} {% url 'products:add_expense' %}{% elif view == 'product' %} {% url 'products:add_n_product' %}{% else %} {% url 'dates:CreateDates' %} {% endif %}
+  {% else %}
+    {% if view == 'inflation' %} {% url 'dates:EditDates' %} {% elif view == 'rampup' %} {% url 'rampup:add_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:add_seasonality' %} {% elif view == 'expense' %} {% url 'products:add_expense' %}{% elif view == 'product' %} {% url 'products:add_n_product' %}{% else %} {% url 'dates:CreateDates' %} {% endif %}
+  {% endif %}", method="GET", enctype="multipart/form-data">
     {% csrf_token %}
+      <input type="hidden" value="{{ action }}" name="update">
     <table style="width: 100%">
-        <thead>
+        <thead style="text-align:center; width: 100%;">
             <h3 id='id_header'>{{ message }}</h3>
         </thead>
         <tbody>

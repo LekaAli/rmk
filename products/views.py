@@ -1,5 +1,7 @@
 from django.http import QueryDict
 from django.shortcuts import render
+
+from dates.views import already_created_dates
 from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, \
     AddNProductForm, AddNExpenseForm
 from .forms import ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
@@ -57,6 +59,15 @@ def view_expense(request):
 
 
 def add_n_product(request):
+
+    is_loaded = already_created_dates('product', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Updates',
+            'view': 'product',
+            'action': 'review',
+            'message': 'Product Options'
+        })
     if request.method == 'POST':
         form = AddNProductForm(request.POST)
         if form.is_valid():

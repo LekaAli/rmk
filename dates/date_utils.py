@@ -2,7 +2,7 @@ from .models import FinancialYear
 
 years = [(-1, '---Select Financial Year---')]
 try:
-    date_mapping = map(lambda x: (x[0], 'Year %s' % x[1]), FinancialYear.objects.values_list('id', 'description'))
+    date_mapping = map(lambda x: (x[0], x[1]), FinancialYear.objects.values_list('id', 'description'))
     years.extend(list(date_mapping))
 except Exception as ex:
     pass

@@ -4,7 +4,7 @@ from dates.models import FinancialYear
 
     
 class DatesForm(forms.Form):
-    
+    # year = FinancialYear.objects.filter(description=)
     description = forms.CharField(widget=forms.Select(choices=[('1', 'Year 1')]), initial='1', required=True)
     start_date = forms.DateField(
         widget=forms.DateInput(
@@ -34,7 +34,8 @@ class AdvancedDatesForm(forms.Form):
 class EditDates(forms.Form):
     
     description = forms.CharField(widget=forms.Select(choices=years), initial='-1', required=True)
-
+    description.widget.attrs['placeholder'] = 'Year Description'
+    
 
 class UpdateForm(forms.Form):
     description = forms.CharField()
@@ -45,7 +46,12 @@ class UpdateForm(forms.Form):
                 "placeholder": "mm/dd/yyyy"
             }
         ))
-    inflation = forms.FloatField()
+    end_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                "type": "date",
+                "placeholder": "mm/dd/yyyy"
+            }
+        ))
 
     description.widget.attrs['placeholder'] = 'Year Description'
-    inflation.widget.attrs['placeholder'] = 'Inflation Value'

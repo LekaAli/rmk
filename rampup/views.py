@@ -1,5 +1,7 @@
 from django.http import HttpResponseRedirect, QueryDict
 from django.shortcuts import redirect, render, reverse
+
+from dates.views import already_created_dates
 from .forms import CapacityRampUpForm, CapacityRampUpValuesForm, CapacityRampUpValuesUpdateForm, CapacityRampUpValuesEditForm, CapacityRampUpEditForm
 from dates.models import FinancialYear
 from .models import RampUp, RampUpValue
@@ -30,6 +32,14 @@ def cal_num_of_months(end_date, start_date):
 
 
 def add_rampup(request):
+    is_loaded = already_created_dates('rampup', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Update',
+            'view': 'rampup',
+            'action': 'review',
+            'message': 'Ramp Up Options'
+        })
     if request.method == 'POST':
         form = CapacityRampUpForm(request.POST)
         if form.is_valid():
@@ -107,7 +117,8 @@ def update_rampup(request):
 
 
 def view_rampup_value(request):
-    rampups = RampUpValue.objects.all().order_by('id')
+    rampups = RampUpValue.objects.all().order_by('id').values_list('financial_year__description', 'month', 'percentage', 'product__name')
+    print(rampups)
     return render(request, 'rampup/view_rampup.html', context={'data': enumerate(rampups)})
 
 
