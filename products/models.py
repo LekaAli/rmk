@@ -19,7 +19,7 @@ class Product(models.Model):
         (11, 'November'),
         (12, 'December'),
     )
-    name = models.CharField(max_length=50, blank=False, null=False)
+    name = models.CharField(max_length=50, blank=False, null=False, unique=True)
     projection_start = models.PositiveSmallIntegerField(blank=False, null=True, choices=MONTHS)
     average_unit_price = models.DecimalField(decimal_places=2, max_digits=15, default=0.00)
     average_quantity_per_month = models.PositiveIntegerField(default=1)

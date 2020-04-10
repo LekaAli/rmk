@@ -3,22 +3,50 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{{ action }}
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 35%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue" >
 
-  <form class= "form-row" action='', method="POST", enctype="multipart/form-data">
+  <form class= "form-row" action="{% if action == 'update' %} {% url 'dates:UpdateInflation' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
     <table>
         <thead>
             <h3 id='id_header'>Add Inflation Values</h3>
         </thead>
         <tbody>
-            {% for year in years %}
+            {% if action == 'edit' %}
                 <tr>
-                    <td><input type="text" value="{{ year }}" name="description" disabled/></td>
-                    <td><input type="text" value="" required name="inflation" placeholder="{{ year }} inflation value" /></td>
+                    <td>
+                        <select name="description">
+                            {% for year in years %}
+                                <option value="{{ year.0 }}">{{ year.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
                 </tr>
-            {% endfor %}
+            {% elif action == 'update' %}
+                <tr>
+                    <td>
+                        <select name="description">
+                            {% for year in years %}
+                                {% if selected == year.0 %}
+                                    <option value="{{ year.0 }}" selected>{{ year.1 }}</option>
+                                {% else 5]
+                                    <option value="{{ year.0 }}">{{ year.1 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form.inflation }}</td>
+                </tr>
+            {% else %}
+                {% for year in years %}
+                    <tr>
+                        <td><input type="text" value="{{ year }}" name="description" disabled/></td>
+                        <td><input type="text" value="" required name="inflation" placeholder="{{ year }} inflation value" /></td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
             <tr>
                 <td colspan="2"><input type ='submit' value='Add' id='id_submit_button'></td>
             </tr>

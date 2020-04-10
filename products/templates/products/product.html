@@ -17,27 +17,44 @@
             </h3>
         </thead>
         <tbody >
-        {% for product in product_count %}
-            <tr>
-                <td style="padding-top: 5px; font-weight:bold">
-                    Product: {{ product }}
-                </td>
-            </tr>
+        {% if action == 'add' %}
+            {% for product in product_count %}
+                <tr>
+                    <td style="padding-top: 5px; font-weight:bold">
+                        Product: {{ product }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ form.name }}</td>
+                </tr>
+                {% if action != 'edit' %}
+                <tr>
+                    <td>{{ form.average_unit_price }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.average_quantity_per_month }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.projection_start }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        {% else %}
             <tr>
                 <td>{{ form.name }}</td>
             </tr>
-            {% if action != 'edit' %}
-            <tr>
-                <td>{{ form.average_unit_price }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.average_quantity_per_month }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.projection_start }}</td>
-            </tr>
+            {% if action == 'update' %}
+                <tr>
+                    <td>{{ form.average_unit_price }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.average_quantity_per_month }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.projection_start }}</td>
+                </tr>
             {% endif %}
-        {% endfor %}
+        {% endif %}
             <tr>
                 <td>
                     <input type ='submit' value = '{% if action == "add" %} Add Product {% elif action == "edit" %} Edit Product {% else %} Update Product {% endif %}' id='id_add_product_button'>
@@ -52,7 +69,7 @@
                 {% elif action == 'edit' %}
                 <tr>
                     <td>
-                        <a href="{% url 'products:create_product' %}" >Add Product</a>
+                        <a href="{% url 'products:add_n_product' %}" >Add Product</a>
                     </td>
                 </tr>
             {% endif %}

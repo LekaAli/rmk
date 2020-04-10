@@ -211,7 +211,11 @@ def update_product(request):
             except Exception as ex:
                 form = ProductForm()
                 return render(request, 'products/product.html', {'form': form, 'action': 'update', 'errors': ex})
-            return render(request, 'dates/success.html', {'btn_name': 'Update Another Product', 'message': 'Product Successfully Updates'})
+            return render(
+                request,
+                'dates/success.html',
+                {'btn_name': 'Update', 'message': 'Product Options', 'view': 'product', 'action': 'review'}
+            )
     else:
         form = ProductForm()
     return render(request, 'products/product.html', {'form': form, 'action': 'add'})
