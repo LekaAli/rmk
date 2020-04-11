@@ -8,12 +8,6 @@ from rmkplatform.constants import TYPE, MONTHS
 class CapacityRampUpForm(forms.Form):
     
     YEARS = [(-1, '---Select Financial Year---')]
-    
-    # def __init__(self, *args, **kwargs):
-    #     self.years = kwargs.get('years', None)
-    #     super(CapacityRampUpForm, self).__init__(*args, **kwargs)
-    #     if self.years:
-    #         TYPE.extend(self.years)
     try:
         YEARS.extend(list(FinancialYear.objects.filter(description__in=['Year 1', 'Year 2']).values_list('id', 'description')))
         YEARS.append(('-2', 'All'))

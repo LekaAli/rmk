@@ -6,7 +6,7 @@
 
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
-  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'rampup:edit_rampup' %} {% elif action == 'update' %} {% url 'rampup:update_rampup' %} {% endif %}", method="POST", enctype="multipart/form-data">
+  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'seasonality:edit_seasonality' %} {% elif action == 'update' %} {% url 'seasonality:update_seasonality' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
 
     <table>
@@ -18,13 +18,42 @@
             </h3>
         </thead>
         <tbody>
-            {% if action != 'edit' %}
-            <tr>
-                <td>{{ form.year }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.seasonality_type }}</td>
-            </tr>
+            {% if action == 'add' %}
+                <tr>
+                    <td>{{ form.year }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.seasonality_type }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.will_roll_over.label }}: {{ form.will_roll_over }}</td>
+                </tr>
+            {% elif action == 'edit' %}
+                <tr><td>{{ form.year }}</td></tr>
+                <tr><td>{{ form.seasonality_type }}</td></tr>
+            {% elif action == 'update' %}
+                 <tr>
+                        <td style="padding-top: 5px; font-weight:bold">
+                            Seasonality Year: {{ year }}
+                        </td>
+                 </tr>
+                {% for index, seasonality in values %}
+                    <tr>
+                        <td style="padding-top: 5px; font-weight:bold">
+                            Month: {{ seasonality.2 }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="financial_year">
+                                <option value="{{ seasonality.1   }}">{{ seasonality.1 }}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><input type="text" name="month" required value="{{ seasonality.2 }}" readonly/></td></tr>
+                    <tr><td><input type="text" name="percentage" required placeholder="Month {{ seasonality.2 }} Value" value="{{ seasonality.3 }}"/></td></tr>
+                    <tr><td><input type="text" name="product" required value="{{ seasonality.4 }}" readonly/></td></tr>
+                {% endfor %}
             {% endif %}
             <tr>
                 <td>
@@ -34,13 +63,13 @@
             {% if action == 'add' %}
                 <tr>
                     <td>
-                        <a href="{% url 'rampup:edit_rampup' %}" >Edit Seasonality</a>
+                        <a href="{% url 'seasonality:edit_seasonality' %}" >Edit Seasonality</a>
                     </td>
                 </tr>
                 {% elif action == 'edit' %}
                 <tr>
                     <td>
-                        <a href="{% url 'rampup:add_rampup' %}" >Add Seasonality</a>
+                        <a href="{% url 'seasonality:add_seasonality' %}" >Add Seasonality</a>
                     </td>
                 </tr>
             {% endif %}

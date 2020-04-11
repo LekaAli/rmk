@@ -74,45 +74,90 @@ def add_rampup(request):
 
 def edit_rampup(request):
     if request.method == 'POST':
-        form = CapacityRampUpEditForm(request.POST)
+        form = CapacityRampUpForm(request.POST)
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                rampup_instance = RampUp.objects.get(id=data.get('name'))
-                form = CapacityRampUpForm({
-                    'name': rampup_instance.name,
-                    'rampup_type': rampup_instance.rampup_type,
-                    'rampup_values': list(rampup_instance.rampup_values.values_list('id')),
-                    'year': rampup_instance.year.id,
-                    'will_roll_over': rampup_instance.will_roll_over
-                })
+                rampup_value_instances = RampUpValue.objects.filter(
+                    financial_year=data['year'],
+                    product=data['rampup_type']
+                ).values_list('id', 'financial_year__description', 'month', 'percentage', 'product__name')
+                
             except Exception as ex:
-                form = CapacityRampUpEditForm()
+                form = CapacityRampUpForm()
                 return render(request, 'rampup/add_rampup.html', {'form': form, 'errors': ex, 'action': 'edit'})
-            return render(request, 'rampup/add_rampup.html', {'form': form, 'action': 'update'})
+            if len(rampup_value_instances) == 0:
+                form = CapacityRampUpForm()
+                return render(
+                    request, 
+                    'rampup/add_rampup.html',
+                    {'form': form, 'action': 'edit', 'message': 'No matching record(s) found'}
+                )
+            form = CapacityRampUpValuesForm()
+            return render(
+                request,
+                'rampup/add_rampup.html',
+                {
+                    'form': form,
+                    'action': 'update',
+                    'values': enumerate(rampup_value_instances),
+                    'year': rampup_value_instances[0][1]
+                }
+            )
     else:
-        form = CapacityRampUpEditForm()
+        form = CapacityRampUpForm()
     return render(request, 'rampup/add_rampup.html', {'form': form, 'action': 'edit'})
 
 
 def update_rampup(request):
     if request.method == 'POST':
-        form = CapacityRampUpForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                rampup_instance = RampUp.objects.get(name__iexact=data.get('name'))
-                rampup_instance.rampup_type = data.get('rampup_type')
-                rampup_instance.rampup_values.set(data.get('rampup_values'))
-                rampup_instance.year.id = data.get('year')
-                rampup_instance.will_roll_over = data.get('will_roll_over')
-                rampup_instance.save()
-            except Exception as ex:
-                form = CapacityRampUpForm()
-                return render(request, 'rampup/add_rampup.html', {'form': form, 'errors': ex, 'action': 'update'})
-            return render(request, 'dates/success.html', {'btn_name': 'Update Another Ramp Up', 'message': 'Ramp Up Successfully Updated'})
+        request_data = dict(request.POST)
+        data = {
+            'month': request_data.get('month'),
+            'percentage': request_data.get('percentage'),
+            'financial_year': list(set(request_data.get('financial_year'))),
+            'product': list(set(request_data.get('product')))
+        }
+        errors = False
+        for year in data.get('financial_year'):
+            f_year = FinancialYear.objects.get(description=year)
+            for product_name in data.get('product'):
+                try:
+                    for item_index, month_val in enumerate(data.get('month')):
+                        month_percent_val = data.get('percentage')[item_index]
+                        ramp_up_instance = RampUpValue.objects.filter(financial_year=f_year, month=month_val, product__name=product_name)
+                        ramp_up = ramp_up_instance.first()
+                        if ramp_up.percentage != float(month_percent_val):
+                            ramp_up.percentage = month_percent_val
+                            ramp_up.save()
+                except Exception as ex:
+                    errors = True
+                    break
+            if errors is True:
+                break
+        if errors is True:
+            rampup_value_instances = RampUpValue.objects.filter(
+                financial_year__description__in=request_data.get('financial_year'),
+                product__name__in=list(set(request_data.get('product')))
+            ).values_list('id', 'financial_year__description', 'month', 'percentage', 'product__name')
+            form = CapacityRampUpValuesForm()
+            return render(
+                request,
+                'rampup/add_rampup.html',
+                {
+                    'form': form,
+                    'action': 'update',
+                    'values': enumerate(rampup_value_instances),
+                    'year': rampup_value_instances[0][1]
+                }
+            )
+        return render(
+            request,
+            'dates/success.html',
+            {'btn_name': 'Update', 'view': 'rampup', 'action': 'review', 'message': 'Ramp Up Successfully Updated'}
+        )
     else:
-        form = CapacityRampUpForm()
+        form = CapacityRampUpValuesForm()
     return render(request, 'rampup/add_rampup.html', {'form': form, 'action': 'add'})
 
 
@@ -136,9 +181,11 @@ def add_rampup_value(request):
         for year in data.get('financial_year'):
             f_year = FinancialYear.objects.get(description=year)
             num_of_month = cal_num_of_months(f_year.end_date, f_year.start_date)
-                
+    
             percentages = data['percentage'][:num_of_month] if year == 'Year 1' else data['percentage'][num_of_month:]
             months = data.get('month')[:num_of_month] if year == 'Year 1' else data.get('month')[num_of_month:]
+            product_ids = [int(val) for val in data.get('product')]
+            RampUpValue.objects.filter(product__in=product_ids, financial_year=f_year).delete()
             for month_index, month_value in enumerate(months):
                 form_data.update({
                     'financial_year': year,
@@ -153,7 +200,6 @@ def add_rampup_value(request):
                         clean_data = form.cleaned_data
                         f_year = FinancialYear.objects.get(description=clean_data.get('financial_year'))
                         clean_data['financial_year'] = f_year
-                        product_ids = [int(val) for val in data.get('product')]
                         clean_data.pop('product')
                         rampup_value_instance = RampUpValue(**clean_data)
                         rampup_value_instance.save()
@@ -162,7 +208,7 @@ def add_rampup_value(request):
                         errors.append(ex)
         if errors:
             form = CapacityRampUpValuesForm()
-            return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': ex, 'action': 'add'})
+            return render(request, 'rampup/add_rampup_values.html', {'form': form, 'errors': errors, 'action': 'add'})
         return render(request, 'dates/success.html', {'btn_name': 'Add Another Ramp Up Value', 'view': 'rampup', 'message': 'Ramp Up Successfully Added'})
     else:
         form = CapacityRampUpValuesForm()

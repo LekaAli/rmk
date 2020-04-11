@@ -18,16 +18,42 @@
             </h3>
         </thead>
         <tbody>
-            {% if action != 'edit' %}
-            <tr>
-                <td>{{ form.year }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.rampup_type }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.will_roll_over.label }}: {{ form.will_roll_over }}</td>
-            </tr>
+            {% if action == 'add' %}
+                <tr>
+                    <td>{{ form.year }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.rampup_type }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.will_roll_over.label }}: {{ form.will_roll_over }}</td>
+                </tr>
+            {% elif action == 'edit' %}
+                <tr><td>{{ form.year }}</td></tr>
+                <tr><td>{{ form.rampup_type }}</td></tr>
+            {% elif action == 'update' %}
+                 <tr>
+                        <td style="padding-top: 5px; font-weight:bold">
+                            Ramp Up Year: {{ year }}
+                        </td>
+                 </tr>
+                {% for index, rampup in values %}
+                    <tr>
+                        <td style="padding-top: 5px; font-weight:bold">
+                            Month: {{ rampup.2 }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="financial_year">
+                                <option value="{{ rampup.1   }}">{{ rampup.1 }}</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><input type="text" name="month" required value="{{ rampup.2 }}" readonly/></td></tr>
+                    <tr><td><input type="text" name="percentage" required placeholder="Month {{ rampup.2 }} Value" value="{{ rampup.3 }}"/></td></tr>
+                    <tr><td><input type="text" name="product" required value="{{ rampup.4 }}" readonly/></td></tr>
+                {% endfor %}
             {% endif %}
             <tr>
                 <td>
