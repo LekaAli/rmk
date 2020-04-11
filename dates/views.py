@@ -238,16 +238,28 @@ def update_dates(request):
     return render(request, 'dates/dates_form.html', {'action': 'add', 'form': form})
 
 
-def already_created_dates(view_name, flag):
-    from products.models import Product
+def product_count_check(product_id_lst, type_flag='seasonality'):
+
     from rampup.models import RampUpValue
     from seasonality.models import SeasonalityValue
+    if type_flag == 'rampup':
+        product_check_results = map(lambda x: RampUpValue.objects.filter(product=x).count() > 1, product_id_lst)
+    else:
+        product_check_results = map(lambda x: SeasonalityValue.objects.filter(product=x).count() > 0, product_id_lst)
+    for product_check_result in product_check_results:
+        if product_check_result is False:
+            return False
+    return True
+
     
+def already_created_dates(view_name, flag):
+    from products.models import Product
+    products = Product.objects.values_list('id', flat=True)
     view_models_dict = {
         'dates': FinancialYear.objects.all().count() > 0,
         'inflation': FinancialYear.objects.all().count() > 0,
-        'rampup': RampUpValue.objects.all().count() >= 24,
-        'seasonality': SeasonalityValue.objects.all().count() >= 12,
+        'rampup': product_count_check(products, 'rampup'),
+        'seasonality': product_count_check(products),
         'product': Product.objects.all().count() > 0,
     }
     return view_models_dict.get(view_name, False) if flag != 'review' else False
