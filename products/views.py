@@ -157,25 +157,51 @@ def add_expense(request):
         return render(request, 'products/expense.html', {'form': form, 'action': 'add'})
 
 
+def expense_type(exp_type):
+    return exp_type not in [-1, 0]
+
+
 def edit_expense(request):
     if request.method == 'POST':
-        form = ExpenseEditForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                expense_instance = Expense.objects.get(id=data.get('description'))
-                form = ExpenseForm({
-                    'description': expense_instance.description,
-                    'is_fixed': expense_instance.is_fixed,
-                    'value': expense_instance.value
-                })
-            except Exception as ex:
-                form = ExpenseEditForm()
-                return render(request, 'products/expense.html', {'form': form, 'errors': ex, 'action': 'edit'})
-            return render(request, 'products/expense.html', {'form': form, 'action': 'update'})
+        request_data = dict(request.POST)
+        errors = list()
+        for index, expense in enumerate(request_data.get('description')):
+            expense_data = {
+                'description': expense,
+                'is_fixed': request_data.get('is_fixed')[index],
+                'value': request_data.get('value')[index],
+            }
+            form = ExpenseForm(expense_data)
+            if form.is_valid():
+                try:
+                    data = form.cleaned_data
+                    expense_instance = Expense.objects.get(description=data.get('description'))
+                    if expense_instance.value != data['value']:
+                        expense_instance.value = data['value']
+                        expense_instance.save()
+                    if expense_instance.is_fixed != expense_type(int(data['is_fixed'])):
+                        expense_instance.is_fixed = expense_type(int(data['is_fixed']))
+                        expense_instance.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if len(errors) > 0:
+            form = ExpenseEditForm()
+            expenses = Expense.objects.values_list('id', 'description', 'is_fixed', 'value')
+            return render(request, 'products/expense.html', {'form': form, 'errors': errors, 'action': 'edit', 'expenses': expenses})
+        return render(
+            request,
+            'dates/success.html',
+            {
+                'btn_name': 'Update',
+                'message': 'Successfully Updated',
+                'view': 'expense',
+                'action': 'review'
+            }
+        )
     else:
         form = ExpenseEditForm()
-    return render(request, 'products/expense.html', {'form': form, 'action': 'edit'})
+        expenses = Expense.objects.values_list('id', 'description', 'is_fixed', 'value')
+        return render(request, 'products/expense.html', {'form': form, 'action': 'edit', 'expenses': expenses})
 
 
 def update_expense(request):
@@ -222,64 +248,130 @@ def update_product(request):
 
 
 def create_cost_of_sale(request):
+    is_loaded = already_created_dates('cost_of_sale', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Updates',
+            'view': 'cost_of_sale',
+            'action': 'review',
+            'message': 'Cost Of Sale Options'
+        })
     if request.method == 'POST':
-        form = CostOfSaleForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                product = Product.objects.filter(id=data['product'])
-                if product.count() > 0:
-                    data['product'] = product[0]
-                else:
-                    form = CostOfSaleForm()
-                    return render(request, 'products/cost_of_sale.html', {'form': form, 'errors': ''})
-                cost_of_sale_instance = CostOfSale(**data)
-                cost_of_sale_instance.save()
-            except Exception as ex:
-                form = CostOfSaleForm()
-                return render(request, 'products/cost_of_sale.html', {'form': form, 'errors': ex, 'action': 'add'})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Cost Of Sale', 'message': 'Cost Of Sale Successfully Added'})
+        request_data = dict(request.POST)
+        errors = list()
+        for index, product in enumerate(request_data.get('product')):
+            product_percentage = request_data.get('percentage')[index]
+            product_data = {
+                'product': product,
+                'percentage': product_percentage
+            }
+            form = CostOfSaleForm(product_data)
+            if form.is_valid():
+                try:
+                    data = form.cleaned_data
+                    cost_of_sale_instance = CostOfSale.objects.filter(product__name=data.get('product'))
+                    if cost_of_sale_instance.count() == 0:
+                        product = Product.objects.get(name=data.get('product'))
+                        data['product'] = product
+                        data['percentage'] = int(data['percentage'])
+                        cost_of_sale_instance = CostOfSale(**data)
+                        cost_of_sale_instance.save()
+                    else:
+                        percent = cost_of_sale_instance.first()
+                        percent.percentage = data.get('percentage')
+                        percent.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if len(errors) > 0:
+            form = CostOfSaleForm()
+            return render(request, 'products/cost_of_sale.html', {'form': form, 'errors': errors, 'action': 'add'})
+        return render(
+            request,
+            'dates/success.html',
+            {
+                'btn_name': 'Update',
+                'action': 'add',
+                'view': 'cost_of_sale',
+                'message': 'Cost Of Sale Successfully Added'
+            }
+        )
     else:
         form = CostOfSaleForm()
-    return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'add'})
+        products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+        products_without_cost_of_sale = list(filter(lambda product_cost_of_sale: product_cost_of_sale[2] is None, products))
+        return render(
+            request,
+            'products/cost_of_sale.html',
+            {
+                'form': form,
+                'action': 'add',
+                'products': products_without_cost_of_sale
+            }
+        )
 
 
 def edit_cost_of_sale(request):
     if request.method == 'POST':
-        form = CostOfSaleEditForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                cost_of_sale_instance = CostOfSale.objects.get(product_id=data['product'])
-                form = CostOfSaleForm({
-                    'product': cost_of_sale_instance.product.id,
-                    'percentage': cost_of_sale_instance.percentage
+        request_data = dict(request.POST)
+        errors = list()
+        for index, product in enumerate(request_data.get('product')):
+            data = {
+                'product': product,
+                'percentage': request_data.get('percentage')[index],
+            }
+            form = CostOfSaleForm(data)
+            if form.is_valid():
+                try:
+                    form_data = form.cleaned_data
+                    cost_of_sale_instance = CostOfSale.objects.get(product__name=form_data['product'])
+                    if cost_of_sale_instance.percentage == float(form_data['percentage']):
+                        continue
+                    cost_of_sale_instance.percentage = float(form_data['percentage'])
+                    cost_of_sale_instance.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if len(errors) > 0:
+            form = CostOfSaleEditForm()
+            products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+            return render(
+                request,
+                'products/cost_of_sale.html',
+                {
+                    'form': form,
+                    'errors': errors,
+                    'action': 'edit',
+                    'products': products
                 })
-            except Exception as ex:
-                form = CostOfSaleEditForm()
-                return render(request, 'products/cost_of_sale.html', {'form': form, 'errors': ex, 'action': 'edit'})
-            return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'update'})
+        return render(
+            request,
+            'dates/success.html',
+            {
+                'btn_name': 'Update',
+                'action': 'review',
+                'view': 'cost_of_sale',
+                'message': 'Successfully Updated'
+            }
+        )
     else:
         form = CostOfSaleEditForm()
-    return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'edit'})
+        products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+        return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'edit', 'products': products})
 
 
-def update_cost_of_sale(request):
-    if request.method == 'POST':
-        form = CostOfSaleForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                cost_of_sale_instance = CostOfSale.objects.get(product_id=data['product'])
-                cost_of_sale_instance.percentage = data.get('percentage')
-                cost_of_sale_instance.save()
-            except Exception as ex:
-                form = CostOfSaleForm()
-                return render(request, 'products/cost_of_sale.html', {'form': form, 'errors': ex, 'action': 'update'})
-            return render(request, 'dates/success.html', {'btn_name': 'Update Another Cost Of Sale', 'message': 'Cost Of Sale Successfully Updated'})
-    else:
-        form = CostOfSaleForm()
-    return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'add'})
+def view_cost_of_sale(request):
+
+    form = CostOfSaleForm()
+    products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+    return render(
+        request,
+        'products/cost_of_sale.html',
+        {
+            'form': form,
+            'action': 'view',
+            'view': 'cost_of_sale',
+            'products': products
+        }
+    )
 
 
 def add_product_assignment(request):
@@ -308,7 +400,7 @@ def add_product_assignment(request):
                 form = ProductSeasonalityRampUpAssignment()
                 return render(
                     request,
-                    'products/product_assign_seasonality_rampup.html', {'form': form, 'errors': ex , 'action' : 'add'})
+                    'products/product_assign_seasonality_rampup.html', {'form': form, 'errors': ex, 'action' : 'add'})
             return render(request, 'dates/success.html', {'btn_name': 'Add Another Product Assignment', 'message': 'Product Assignment Successfully Added'})
     else:
         form = ProductSeasonalityRampUpAssignment()

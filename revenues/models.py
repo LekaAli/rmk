@@ -43,49 +43,52 @@ class Revenue(models.Model):
             return 1.0
         return val
     
-    def calculate_product_revenue(self, product_projection):
+    # def calculate_product_revenue(self, product_projection):
+    def calculate_product_revenue(self, product_rampup_instances, product_seasonality_instances):
         rampup_percentage = 1.0
         seasonality_percentage = 1.0
         flag = self.monthly_revenue_count() == 2
-        for monthly_value in product_projection.seasonality.seasonality_values.all():
+        # for monthly_value in product_projection.seasonality.seasonality_values.all():
+        for monthly_value in product_seasonality_instances:
             if monthly_value.month != int(self.month):
                 continue
             seasonality_percentage = monthly_value.month_percentage
             break
-        for monthly_value in product_projection.rampup.rampup_values.all():
+        # for monthly_value in product_projection.rampup.rampup_values.all():
+        for monthly_value in product_rampup_instances:
             if monthly_value.month != int(self.month):
                 continue
             rampup_percentage = monthly_value.month_percentage
             break
-        if product_projection.seasonality.year == self.financial_year:
-            product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
-                              self.set_default_val(rampup_percentage, flag)
+        # if product_projection.seasonality.year == self.financial_year:
+        if product_seasonality_instances[0].financial_year == self.financial_year:
+            product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * self.set_default_val(rampup_percentage, flag)
         else:
-            if product_projection.rampup.will_roll_over is True:
-                if product_projection.seasonality.will_roll_over is True:
-                    product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
-                                      self.set_default_val(rampup_percentage, flag) * \
-                                      (1 + self.financial_year.inflation_value)
-                else:
-                    seasonality_month = Seasonality.objects.filter(year=self.financial_year, seasonality_values__month=self.month).first()
-                    seasonality_percentage = seasonality_month.month_percentage
-                    product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
-                                      self.set_default_val(rampup_percentage, flag) * \
-                                      (1 + self.financial_year.inflation_value)
-            else:
-                rampup_month = RampUp.objects.filter(year=self.financial_year,
-                                                     rampup_values__month=self.month)
-                if rampup_month.count() > 0:
-                    rampup_percentage = rampup_month.first().month_percentage
-                    if product_projection.seasonality.will_roll_over is False:
-                        seasonality_month = Seasonality.objects.filter(year=self.financial_year,
-                                                                       seasonality_values__month=self.month)
-                        if seasonality_month.count() > 0:
-                            seasonality_percentage = seasonality_month.first().month_percentage
-                         
-                product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
-                                      self.set_default_val(rampup_percentage, flag) * (1 + self.financial_year.inflation_value)
-
+            # if product_projection.rampup.will_roll_over is True:
+            #     if product_projection.seasonality.will_roll_over is True:
+            #         product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
+            #                           self.set_default_val(rampup_percentage, flag) * \
+            #                           (1 + self.financial_year.inflation_value)
+            #     else:
+            #         seasonality_month = Seasonality.objects.filter(year=self.financial_year, seasonality_values__month=self.month).first()
+            #         seasonality_percentage = seasonality_month.month_percentage
+            #         product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
+            #                           self.set_default_val(rampup_percentage, flag) * \
+            #                           (1 + self.financial_year.inflation_value)
+            # else:
+            #     rampup_month = RampUp.objects.filter(year=self.financial_year,
+            #                                          rampup_values__month=self.month)
+            #     if rampup_month.count() > 0:
+            #         rampup_percentage = rampup_month.first().month_percentage
+            #         if product_projection.seasonality.will_roll_over is False:
+            #             seasonality_month = Seasonality.objects.filter(year=self.financial_year,
+            #                                                            seasonality_values__month=self.month)
+            #             if seasonality_month.count() > 0:
+            #                 seasonality_percentage = seasonality_month.first().month_percentage
+            #
+            #     product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * \
+            #                           self.set_default_val(rampup_percentage, flag) * (1 + self.financial_year.inflation_value)
+            product_revenue = float(self.product.average_revenue_per_month) * self.set_default_val(seasonality_percentage) * self.set_default_val(rampup_percentage, flag) * (1 + self.financial_year.inflation_value)
         return product_revenue
     
     def monthly_revenue_count(self):
@@ -106,14 +109,18 @@ class Revenue(models.Model):
     
     def save(self, *args, **kwargs):
         
-        product_estimations = self.product.product_link.all()
+        product_estimations = self.product.product_rampup.all()
+        
+        # product_estimations = self.product.product_link.all()
         self.inflation = self.financial_year.inflation
         revenue_years_count = self.monthly_revenue_count()
         past_years_count = Sale.objects.filter(product=self.product).values_list('period', flat=True).distinct().count()
-        if product_estimations.count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe go feta gatee.
+        # if product_estimations.count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe ga feta gatee.
+        if product_estimations.values_list('financial_year', flat=True).distinct().count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe ga feta gatee.
             product_projection_instance = self.product.product_link.first()
             if revenue_years_count in [1, 2]:
-                self.product_revenue = self.calculate_product_revenue(product_projection_instance)
+                product_seasonality_instances = self.product.product_seasonality.filter(financial_year=product_estimations[0].financial_year) # New
+                self.product_revenue = self.calculate_product_revenue(product_estimations, product_seasonality_instances)
             elif revenue_years_count == 3:
                 monthly_product_revenue = sum(Sale.objects.filter(period=2).values_list('total_sale_revenue', flat=True))
                 self.product_revenue = (self.financial_year.inflation_value + 1) * float(monthly_product_revenue)
@@ -121,12 +128,15 @@ class Revenue(models.Model):
                 past_year_revenue = Sale.objects.filter(product_id=self.product.id, period=past_years_count)
                 self.product_revenue = float(past_year_revenue.first().total_sale_revenue) * (1 + self.financial_year.inflation_value)
             
-        elif product_estimations.count() == 2:  # mengwaga e mebedi
-            product_projection_instances = self.product.product_link.all()
-            projection_instance = [instance for instance in product_projection_instances if instance.rampup.year == self.financial_year]
-            
+        # elif product_estimations.count() == 2:  # mengwaga e mebedi
+        elif product_estimations.values_list('financial_year', flat=True).distinct().count() == 2:  # mengwaga e mebedi
+            # product_projection_instances = self.product.product_link.all()
+            # perform year 2 projections using year 2 ramp up values
+            # projection_instance = [instance for instance in product_projection_instances if instance.rampup.year == self.financial_year]
+            product_rampup_instances = [instance for instance in product_estimations if instance.financial_year == self.financial_year]
+            product_seasonalty_instances = self.product.product_seasonality.filter(financial_year=self.financial_year)
             if revenue_years_count in [1, 2]:
-                self.product_revenue = self.calculate_product_revenue(projection_instance)
+                self.product_revenue = self.calculate_product_revenue(product_rampup_instances, product_seasonalty_instances)
             elif revenue_years_count == 3:
                 monthly_product_revenue = sum(Sale.objects.filter(period=2).values_list('month_sale', flat=True))
                 self.product_revenue = (self.financial_year.inflation_value + 1) * monthly_product_revenue

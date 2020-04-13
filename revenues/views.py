@@ -25,8 +25,8 @@ def generate_revenue_projection(request):
                 if int(form_data['product']) != 0:  # projection for a given product
                     product_instance = Product.objects.get(id=form_data['product'])
                 else:  # projection for all available products
-                    product_instance = Product.objects.all()
-                    product_id_lst = product_instance.values_list('id', flat=True)
+                    product_id_lst = Product.objects.all().values_list('id', flat=True)
+                    # product_id_lst = product_instance.values_list('id', flat=True)
                 assignment_instance = ProductSeasonalityRampUp.objects.filter(
                     product_id__in=product_id_lst if int(form_data['product']) == 0 else [form_data['product']]
                 )
@@ -235,7 +235,7 @@ def generate_revenue_projection(request):
                 return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
     else:
         form = GenerateRevenuePrediction()
-        response = html_to_pdf_creator()
-        return response
+        # response = html_to_pdf_creator()
+        # return response
     return render(request, 'revenues/revenue.html', {'form': form, 'action': 'generate'})
 
