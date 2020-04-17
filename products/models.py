@@ -82,7 +82,7 @@ class Sale(models.Model):
 
 
 class CostOfSale(models.Model):
-    product = models.ForeignKey(Product, related_name='product_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True, unique=True)
+    product = models.OneToOneField(Product, related_name='product_cost_of_sale', on_delete=models.CASCADE, blank=True, null=True, unique=True)
     percentage = models.FloatField(default=0, help_text="Cost of sale value should be a percentage")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
