@@ -361,7 +361,11 @@ def edit_cost_of_sale(request):
 def view_cost_of_sale(request):
 
     form = CostOfSaleForm()
-    products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+    products = list(Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage'))
+    products = [list(product) for product in products]
+    for product in products:
+        if product[2]:
+            product[2] = product[2] * 100
     return render(
         request,
         'products/cost_of_sale.html',
