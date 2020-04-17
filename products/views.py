@@ -333,6 +333,10 @@ def edit_cost_of_sale(request):
         if len(errors) > 0:
             form = CostOfSaleEditForm()
             products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+            products = [list(product) for product in products]
+            for product in products:
+                if product[2]:
+                    product[2] = product[2] * 100
             return render(
                 request,
                 'products/cost_of_sale.html',
@@ -355,6 +359,10 @@ def edit_cost_of_sale(request):
     else:
         form = CostOfSaleEditForm()
         products = Product.objects.values_list('id', 'name', 'product_cost_of_sale__percentage')
+        products = [list(product) for product in products]
+        for product in products:
+            if product[2]:
+                product[2] = product[2] * 100
         return render(request, 'products/cost_of_sale.html', {'form': form, 'action': 'edit', 'products': products})
 
 
