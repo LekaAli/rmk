@@ -24,7 +24,7 @@
      xmlns:width="http://www.w3.org/1999/xhtml">
 
   <form class= "form-row" action="{% if action != 'review' %}
-    {% if view == 'inflation' %} {% url 'dates:ManageInflation' %} {% elif view == 'rampup' %} {% url 'rampup:add_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:add_seasonality' %} {% elif view == 'expense' %} {% url 'products:add_expense' %}{% elif view == 'product' %} {% elif view == 'cost_of_sale' %} {% url 'products:create_cost_of_sale' %}{% url 'products:add_n_product' %}{% else %} {% url 'dates:CreateDates' %} {% endif %}
+    {% if view == 'inflation' %} {% url 'dates:ManageInflation' %} {% elif view == 'rampup' %} {% url 'rampup:add_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:add_seasonality' %} {% elif view == 'expense' %} {% url 'products:add_expense' %}{% elif view == 'product' %} {% url 'products:add_n_product' %} {% elif view == 'cost_of_sale' %} {% url 'products:create_cost_of_sale' %} {% elif view == 'revenue' %} {% url 'revenues:RevenueInput' %}{% else %} {% url 'dates:CreateDates' %} {% endif %}
   {% else %}
     {% if view == 'inflation' %} {% url 'dates:EditInflation' %} {% elif view == 'rampup' %} {% url 'rampup:edit_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:edit_seasonality' %} {% elif view == 'expense' %} {% url 'products:edit_expense' %}{% elif view == 'cost_of_sale' %} {% url 'products:edit_cost_of_sale' %}{% elif view == 'product' %} {% url 'products:edit_product' %}{% else %} {% url 'dates:EditDates' %} {% endif %}
   {% endif %}", method="GET", enctype="multipart/form-data">
@@ -39,7 +39,7 @@
                 <td><input type='submit' value='{{ btn_name }}' class='id_close_success_button' style="width:100%"></td>
             </tr>
             <tr>
-                <td><a href="{% if view == 'inflation' %} {% url 'dates:ViewInflation' %} {% elif view == 'cost_of_sale' %} {% url 'products:view_cost_of_sale' %}{% elif view == 'rampup' %} {% url 'rampup:view_rampups' %} {% elif view == 'seasonality' %} {% url 'seasonality:view_seasonality' %} {% elif view == 'expense' %} {% url 'products:view_expense' %}{% elif view == 'product' %} {% url 'products:view_product' %}{% else %} {% url 'dates:ViewDates' %} {% endif %}" class='id_close_success_button'>View</a></td>
+                <td><a href="{% if view == 'inflation' %} {% url 'dates:ViewInflation' %} {% elif view == 'cost_of_sale' %} {% url 'products:view_cost_of_sale' %}{% elif view == 'rampup' %} {% url 'rampup:view_rampups' %} {% elif view == 'seasonality' %} {% url 'seasonality:view_seasonality' %} {% elif view == 'expense' %} {% url 'products:view_expense' %}{% elif view == 'product' %} {% url 'products:view_product' %}{% elif view == 'revenue' %} {% url 'revenues:view_revenue' %}{% else %} {% url 'dates:ViewDates' %} {% endif %}" class='id_close_success_button'>View</a></td>
             </tr>
             <tr>
                 <td>
