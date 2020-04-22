@@ -23,7 +23,7 @@ class GenerateRevenuePrediction(forms.Form):
     product = forms.CharField(widget=forms.Select(choices=PRODUCTS), initial='-1')
     year = forms.CharField(widget=forms.Select(choices=years), initial='-1')
     month = forms.CharField(widget=forms.Select(choices=MONTHS), initial='-1')
-    tax = forms.CharField(widget=forms.TextInput)
+    tax = forms.CharField(widget=forms.TextInput, required=False)
 
     tax.widget.attrs['placeholder'] = 'Tax Percentage'
     
