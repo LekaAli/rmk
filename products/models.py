@@ -149,7 +149,7 @@ class GrossProfit(models.Model):
             product_revenue_instance = product_revenue_listing.first()
             
         if product_revenue_listing.count() >= 1:
-            self.cost_of_sale = self.product.product_cost_of_sale.first()
+            self.cost_of_sale = self.product.product_cost_of_sale
             self.cost_of_sale_value = self.cost_of_sale.percentage * float(product_revenue_instance.product_revenue)
             self.gross_profit_value = float(product_revenue_instance.product_revenue) - self.cost_of_sale_value
         else:
