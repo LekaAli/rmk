@@ -248,7 +248,6 @@ class AppEngine(object):
             cls.calc_profit_before_tax(data, month_dict)
             cls.calc_tax(data, month_dict)
             cls.calc_net_profit(data, month_dict)
-        print(data)
         return data
 
 # <pdf:pagenumber> of <pdf:pagecount>

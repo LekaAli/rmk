@@ -191,19 +191,19 @@ def generate_revenue_projection(request):
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     #  only project for products not already projected
                     data = pre_product_projection_check(product_instance, form_data)
-                    for product, month in data:
+                    for product in data:
                         try:
                             revenue_instance = Revenue(**{
-                                'product': product,
+                                'product': product_instance,
                                 'financial_year_id': int(form_data.get('year')),
-                                'month': month
+                                'month': form_data.get('month')
                             })
                             revenue_instance.save()
                             gross_profit_instance = GrossProfit(**{
-                                'product': product,
+                                'product': product_instance,
                                 'financial_year_id': int(form_data.get('year')),
-                                'month': month,
-                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
+                                'month': form_data.get('month'),
+                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product_instance).first().id
                             })
                             gross_profit_instance.save()
                             
@@ -229,7 +229,10 @@ def generate_revenue_projection(request):
                 if not isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     #  only project for products not already projected
                     data = pre_product_projection_check(product_instance, form_data)
-                    months = data[1]
+                    if data:
+                        products, months = data[0]
+                    else:
+                        months = list()
                     for month in months:
                         try:
                             revenue_instance = Revenue(**{
