@@ -3,9 +3,9 @@ from django.shortcuts import render
 
 from dates.views import already_created_dates
 from .forms import ProductForm, CostOfSaleForm, ExpenseForm, ProductSeasonalityRampUpAssignment, TaxForm, \
-    AddNProductForm, AddNExpenseForm
+    AddNProductForm, AddNExpenseForm, AddNTaxForm
 from .forms import ProductEditForm, ExpenseEditForm, CostOfSaleEditForm, TaxEditForm, ProductAssignmentEditForm
-from .models import Product, CostOfSale, Expense, Tax, ProductSeasonalityRampUp
+from .models import Product, CostOfSale, Expense, Tax, ProductSeasonalityRampUp, TaxValue
 from seasonality.models import Seasonality
 from rampup.models import RampUp
 from dates.models import FinancialYear
@@ -459,47 +459,198 @@ def update_product_assignment(request):
     return render(request, 'products/product_assign_seasonality_rampup.html', {'form': form, 'action': 'add'})
 
 
-def add_tax_value(request):
+def add_n_tax_values(request):
     if request.method == 'POST':
-        form = TaxForm(request.POST)
+        form = AddNTaxForm(request.POST)
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                financial_year = FinancialYear.objects.filter(id=data['financial_year'])
-                if financial_year.count() > 0:
-                    data['financial_year'] = financial_year[0]
-                else:
-                    form = TaxForm()
-                    return render(request, 'products/tax.html', {'form': form, 'errors': '', 'action': 'add'})
-                tax = Tax(**data)
-                tax.save()
-            except Exception as ex:
+                tax_count = range(int(data['tax_add_count']))
                 form = TaxForm()
-                return render(request, 'products/tax.html', {'form': form, 'errors': ex, 'action': 'add'})
-            return render(request, 'dates/success.html', {'btn_name': 'Add Another Tax Value', 'message': 'Tax Successfully Added'})
+            except Exception as ex:
+                form = AddNTaxForm()
+                return render(request, 'products/tax.html', {'form': form, 'errors': ex, 'action': 'n_add'})
+            return render(request, 'products/tax.html',
+                          {'form': form, 'tax_count': list(tax_count), 'action': 'add'})
     else:
-        form = TaxForm()
-    return render(request, 'products/tax.html', {'form': form, 'action': 'add'})
+        form = AddNTaxForm()
+    return render(request, 'products/tax.html', {'form': form, 'action': 'n_add'})
+    # if request.method == 'POST':
+    #     query_dict = dict(request.POST)
+    #     data = {
+    #         'description': query_dict.get('description'),
+    #         'is_fixed': query_dict.get('is_fixed'),
+    #         'value': query_dict.get('value')
+    #     }
+    #     errors = list()
+    #     for index, description in enumerate(data.get('description')):
+    #         form_data = {
+    #             'description': description,
+    #             'is_fixed': data.get('is_fixed')[index],
+    #             'value': data.get('value')[index]
+    #         }
+    #         query = QueryDict('', mutable=True)
+    #         query.update(form_data)
+    #         form = ExpenseForm(form_data)
+    #         if form.is_valid():
+    #             try:
+    #                 expense_instance = Expense(**form.cleaned_data)
+    #                 expense_instance.save()
+    #             except Exception as ex:
+    #                 errors.append(ex)
+    #     if errors:
+    #         form = ExpenseForm()
+    #         return render(request, 'products/expense.html', {'form': form, 'errors': errors, 'action': 'add'})
+    #     return render(request, 'dates/success.html',
+    #                   {'btn_name': 'Add Another Expense', 'message': 'Expense(s) Successfully Added',
+    #                    'view': 'expense'})
+    # else:
+    #     form = TaxForm()
+    #     return render(request, 'products/tax.html', {'form': form, 'action': 'add'})
+
+
+def add_tax_value(request):
+    is_loaded = already_created_dates('tax', request.GET.get('update'))
+    if is_loaded is True:
+        return render(request, 'dates/success.html', {
+            'btn_name': 'Updates',
+            'view': 'tax',
+            'action': 'review',
+            'message': 'Tax Options'
+        })
+    if request.method == 'POST':
+        query_dict = dict(request.POST)
+        data = {
+            'financial_year': query_dict.get('financial_year'),
+            'tax_percentage': query_dict.get('tax_percentage')
+        }
+        errors = list()
+        for index, financial_year in enumerate(data.get('financial_year')):
+            form_data = {
+                'financial_year': financial_year,
+                'tax_percentage': data.get('tax_percentage')[index]
+            }
+            query = QueryDict('', mutable=True)
+            query.update(form_data)
+            form = TaxForm(query)
+            if form.is_valid():
+                try:
+                    data = form.cleaned_data
+                    financial_year = FinancialYear.objects.filter(description=data['financial_year'])
+                    if financial_year.count() > 0:
+                        data['financial_year'] = financial_year.first()
+                        data['value'] = data['tax_percentage']
+                        data.pop('tax_percentage')
+                        tax = TaxValue(**data)
+                        tax.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if len(errors) > 0:
+            form = TaxForm()
+            taxes_already_allocated = TaxValue.objects.values_list('financial_year', flat=True)
+            unallocated_financial_years = FinancialYear.objects.exclude(
+                id__in=taxes_already_allocated
+            ).values_list(
+                'description', flat=True
+            )
+            return render(
+                request,
+                'products/tax.html',
+                {
+                    'form': form,
+                    'errors': errors,
+                    'action': 'add',
+                    'unallocated_financial_years': unallocated_financial_years
+                }
+            )
+        return render(
+            request,
+            'dates/success.html',
+            {
+                'btn_name': 'Add Another Tax Value', 'message':
+                'Tax Successfully Added',
+                'action': 'add',
+                'view': 'tax'
+            }
+        )
+    form = TaxForm()
+    taxes_already_allocated = TaxValue.objects.values_list('financial_year', flat=True)
+    unallocated_financial_years = FinancialYear.objects.exclude(
+        id__in=taxes_already_allocated
+    ).values_list(
+        'description', flat=True
+    )
+    return render(
+        request,
+        'products/tax.html',
+        {
+            'form': form,
+            'action': 'add',
+            'unallocated_financial_years': unallocated_financial_years
+        }
+    )
 
 
 def edit_tax_value(request):
     if request.method == 'POST':
-        form = TaxEditForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                tax_instance = Tax.objects.get(financial_year_id=data.get('financial_year'))
-                form = TaxForm({
-                    'financial_year': tax_instance.financial_year.id,
-                    'tax_percentage': tax_instance.tax_percentage
-                })
-            except Exception as ex:
-                form = TaxEditForm()
-                return render(request, 'products/tax.html', {'form': form, 'errors': ex, 'action': 'edit'})
-            return render(request, 'products/tax.html', {'form': form, 'action': 'update'})
+        query_dict = dict(request.POST)
+        data = {
+            'financial_year': query_dict.get('financial_year'),
+            'tax_percentage': query_dict.get('tax_percentage')
+        }
+        errors = list()
+        for index, financial_year in enumerate(data.get('financial_year')):
+            form_data = {
+                'financial_year': financial_year,
+                'tax_percentage': data.get('tax_percentage')[index]
+            }
+            query = QueryDict('', mutable=True)
+            query.update(form_data)
+            form = TaxForm(query)
+            if form.is_valid():
+                try:
+                    form_data = form.cleaned_data
+                    tax_instance = TaxValue.objects.get(financial_year__description=form_data.get('financial_year'))
+                    if tax_instance.value != float(form_data['tax_percentage']):
+                        tax_instance.value = float(form_data['tax_percentage'])
+                        tax_instance.save()
+                except Exception as ex:
+                    errors.append(ex)
+        if len(errors) > 0:
+            form = TaxForm()
+            allocated_financial_years = TaxValue.objects.values_list('financial_year__description', 'value')
+            return render(
+                request,
+                'products/tax.html',
+                {
+                    'form': form,
+                    'errors': errors,
+                    'action': 'edit',
+                    'allocated_financial_years': allocated_financial_years
+                }
+            )
+        return render(
+            request,
+            'dates/success.html',
+            {
+                'form': form,
+                'action': 'update',
+                'view': 'tax',
+                'btn_name': 'Update',
+                'message': 'Successfully Added Tax Values'
+            })
     else:
-        form = TaxEditForm()
-    return render(request, 'products/tax.html', {'form': form, 'action': 'edit'})
+        form = TaxForm()
+        allocated_financial_years = TaxValue.objects.values_list('financial_year__description', 'value')
+    return render(
+        request,
+        'products/tax.html',
+        {
+            'form': form,
+            'action': 'edit',
+            'allocated_financial_years': allocated_financial_years
+        }
+    )
 
 
 def update_tax_value(request):
@@ -508,13 +659,28 @@ def update_tax_value(request):
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                tax_instance = Tax.objects.get(financial_year_id=int(data.get('financial_year')))
-                tax_instance.tax_percentage = data.get('tax_percentage')
+                tax_instance = TaxValue.objects.get(financial_year_id=int(data.get('financial_year')))
+                tax_instance.value = data.get('tax_percentage')
                 tax_instance.save()
             except Exception as ex:
                 form = TaxForm()
                 return render(request, 'products/tax.html', {'form': form, 'errors': ex, 'action': 'update'})
-            return render(request, 'dates/success.html', {'btn_name': 'Update Another Tax Value', 'message': 'Tax Successfully Updated'})
+            return render(
+                request,
+                'dates/success.html',
+                {
+                    'btn_name': 'Update Another Tax Value',
+                    'message': 'Tax Successfully Updated',
+                    'action': 'review',
+                    'view': 'tax'
+                }
+            )
     else:
         form = TaxForm()
     return render(request, 'products/tax.html', {'form': form, 'action': 'add'})
+
+
+def view_tax_value(request):
+    form = TaxForm()
+    taxes = TaxValue.objects.values_list('financial_year', 'financial_year__description', 'value')
+    return render(request, '', {'form': form, 'taxes': taxes})

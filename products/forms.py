@@ -127,6 +127,11 @@ class TaxForm(forms.Form):
     tax_percentage.widget.attrs['placeholder'] = 'Tax Percentage Value'
     
     
+class AddNTaxForm(forms.Form):
+    tax_add_count = forms.IntegerField()
+    tax_add_count.widget.attrs['placeholder'] = 'Add How Many Tax Value'
+    
+    
 class TaxEditForm(forms.Form):
     YEARS = [(-1, '---Select Financial Year---')]
     try:

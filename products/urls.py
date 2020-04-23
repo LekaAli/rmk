@@ -22,5 +22,7 @@ urlpatterns = [
     path('products/add_tax_management/', views.add_tax_value, name='add_tax_management'),
     path('products/edit_tax_management/', views.edit_tax_value, name='edit_tax_management'),
     path('products/update_tax_management/', views.update_tax_value, name='update_tax_management'),
+    path('products/view_tax/', views.view_tax_value, name='view_tax'),
+    path('products/add_n_taxes/', views.add_n_tax_values, name='add_n_taxes'),
 
 ]

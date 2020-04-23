@@ -281,6 +281,18 @@ class ProfitBeforeTax(models.Model):
         return 'Total Profit Before Tax: %s' % self.profit_before_tax
 
 
+class TaxValue(models.Model):
+    financial_year = models.ForeignKey(FinancialYear, related_name='tax_value_f_year', on_delete=models.CASCADE, blank=False, null=True)
+    value = models.FloatField(default=28.00)
+    
+    class Meta:
+        verbose_name = 'Tax Value'
+        verbose_name_plural = 'Tax Values'
+        
+    def __str__(self):
+        return '%s' % self.value
+    
+    
 class Tax(models.Model):
     MONTHS = (
         (1, 'January'),
@@ -298,7 +310,7 @@ class Tax(models.Model):
     )
     financial_year = models.ForeignKey(FinancialYear, related_name='tax_f_year', on_delete=models.CASCADE, blank=False, null=True)
     month = models.PositiveIntegerField(choices=MONTHS, blank=True, null=True)
-    tax_percentage = models.FloatField(default=1.00)
+    tax_percentage = models.ForeignKey(TaxValue, on_delete=models.CASCADE, blank=True, related_name='tax_percent_value',null=True)
     profit_loss_value = models.DecimalField(default=0.00, decimal_places=2, max_digits=15)
     total_tax_value = models.DecimalField(default=0.00, decimal_places=2, max_digits=15)
     created = models.DateTimeField(auto_now_add=True)
@@ -324,17 +336,17 @@ class Tax(models.Model):
             if previous_taxes.count() > 0:
                 previous_tax = previous_taxes.first()
                 if previous_tax.profit_loss_value == 0:
-                    self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage) / float(100)
+                    self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
                 else:
                     # cover loss for previous years
                     profit_after_loss_deduction = total_profit_before_tax_value - previous_tax.profit_loss_value
                     if profit_after_loss_deduction > 0:
                         self.profit_loss_value = 0
-                        self.total_tax_value = profit_after_loss_deduction * float(self.tax_percentage) / float(100)
+                        self.total_tax_value = profit_after_loss_deduction * float(self.tax_percentage.value) / float(100)
                     else:
                         self.profit_loss_value = abs(profit_after_loss_deduction)
                         self.total_tax_value = 0
-            self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage) / float(100)
+            self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
         super(Tax, self).save(*args, **kwargs)
 
     def __str__(self):

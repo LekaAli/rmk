@@ -1,5 +1,6 @@
 from django.contrib import admin
-from products.models import Product, Sale, GrossProfit, Expense, ProfitBeforeTax, Tax, NetProfit, CostOfSale, ProductSeasonalityRampUp
+from products.models import Product, Sale, GrossProfit, Expense, ProfitBeforeTax, Tax, NetProfit, CostOfSale
+from products.models import ProductSeasonalityRampUp, TaxValue
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -65,6 +66,12 @@ class ProductSeasonalityRampUpAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'product', 'seasonality', 'rampup']
 
 
+class TaxValueAdmin(admin.ModelAdmin):
+    save_on_top = True
+    list_display = ['id', 'financial_year', 'value']
+    list_display_links = ['id', 'financial_year', 'value']
+    
+    
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Sale, SaleAdmin)
 admin.site.register(GrossProfit, GrossProfitAdmin)
@@ -74,3 +81,4 @@ admin.site.register(Tax, TaxAdmin)
 admin.site.register(NetProfit, NetProfitAdmin)
 admin.site.register(CostOfSale, CostOfSaleAdmin)
 admin.site.register(ProductSeasonalityRampUp, ProductSeasonalityRampUpAdmin)
+admin.site.register(TaxValue, TaxValueAdmin)

@@ -2,6 +2,8 @@ from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView
+
+from products.models import TaxValue
 from .models import FinancialYear
 from .import forms
 from django.urls import reverse
@@ -261,6 +263,7 @@ def already_created_dates(view_name, flag):
         'rampup': product_count_check(products, 'rampup'),
         'seasonality': product_count_check(products),
         'product': Product.objects.all().count() > 0,
+        'tax': FinancialYear.objects.all().count() == TaxValue.objects.all().count(),
         'cost_of_sale': len([product for product in Product.objects.values_list('product_cost_of_sale__percentage', flat=True) if product is None]) == 0,
     }
     return view_models_dict.get(view_name, False) if flag != 'review' else False

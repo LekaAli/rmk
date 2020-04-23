@@ -3,10 +3,9 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
-  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'products:edit_tax_management' %} {% elif action == 'update' %} {% url 'products:update_tax_management' %} {% endif %}", method="POST", enctype="multipart/form-data">
+  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'products:edit_tax_management' %} {% elif action == 'add' %} {% url 'products:add_tax_management' %}{% elif action == 'update' %} {% url 'products:update_tax_management' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
 
     <table>
@@ -14,21 +13,32 @@
             <h3>
                 {% if action == 'add' %} Add Tax
                 {% elif action == 'edit' %} Edit Tax
+                {% elif action == 'n_add' %} Tax Add Count
                 {% else %} Update Tax {% endif %}
             </h3>
         </thead>
         <tbody>
-            <tr>
-                <td>{{ form.financial_year }}</td>
-            </tr>
-            {% if action != 'edit' %}
-            <tr>
-                <td>{{ form.tax_percentage }}</td>
-            </tr>
+            {% if action == 'add' %}
+                {% for year_name in unallocated_financial_years %}
+                    <tr><td><input type="text" name="financial_year" value="{{ year_name }}" readonly /></td></tr>
+                    <tr>
+                        <td><input type="text" name="tax_percentage" placeholder="{{ year_name }} tax value"/></td>
+                    </tr>
+                {% endfor %}
+            {% elif action == 'edit' %}
+                {% for tax in allocated_financial_years %}
+                    <tr>
+                        <td style="padding-top: 5px; font-weight:bold">
+                            Tax Year: {{ tax.0 }}
+                        </td>
+                    </tr>
+                    <tr><td><input type="text" name="financial_year" value="{{ tax.0 }}" readonly /></td></tr>
+                    <tr><td><input type="text" name="tax_percentage" placeholder="{{ tax.0 }} tax value" value="{{ tax.1 }}"/></td></tr>
+                {% endfor %}
             {% endif %}
             <tr>
                 <td>
-                    <input type ='submit' value = '{% if action == "add" %} Add {% elif action == "edit" %} Edit {% else %} Update {% endif %}' id='id_add_product_cost_of_sale_button'>
+                    <input type ='submit' value = '{% if action == "add" %} Add {% elif action == "edit" %} Edit {% elif action == "n_add" %} Create {% else %} Update {% endif %}' id='id_add_product_cost_of_sale_button'>
                 </td>
             </tr>
             {% if action == 'add' %}
@@ -37,7 +47,7 @@
                             <a href="{% url 'products:edit_tax_management' %}" >Edit Tax</a>
                         </td>
                     </tr>
-                    {% elif action == 'edit' %}
+            {% elif action == 'edit' %}
                     <tr>
                         <td>
                             <a href="{% url 'products:add_tax_management' %}" >Add Tax</a>
