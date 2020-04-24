@@ -5,7 +5,7 @@
 {% block content %}
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue">
 
-  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'products:edit_tax_management' %} {% elif action == 'add' %} {% url 'products:add_tax_management' %}{% elif action == 'update' %} {% url 'products:update_tax_management' %} {% endif %}", method="POST", enctype="multipart/form-data">
+  <form class= "form-horizontal" action="{% if action == 'edit' %} {% url 'products:edit_tax_management' %} {% elif action == 'add' %} {% url 'products:add_tax_management' %}{% elif action == 'update' %} {% url 'products:update_tax_management' %}{% elif action == 'view' %} {% url 'login' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
 
     <table>
@@ -14,6 +14,7 @@
                 {% if action == 'add' %} Add Tax
                 {% elif action == 'edit' %} Edit Tax
                 {% elif action == 'n_add' %} Tax Add Count
+                {% elif action == 'view' %} View Tax
                 {% else %} Update Tax {% endif %}
             </h3>
         </thead>
@@ -25,7 +26,7 @@
                         <td><input type="text" name="tax_percentage" placeholder="{{ year_name }} tax value"/></td>
                     </tr>
                 {% endfor %}
-            {% elif action == 'edit' %}
+            {% elif action != 'add' %}
                 {% for tax in allocated_financial_years %}
                     <tr>
                         <td style="padding-top: 5px; font-weight:bold">
@@ -33,12 +34,12 @@
                         </td>
                     </tr>
                     <tr><td><input type="text" name="financial_year" value="{{ tax.0 }}" readonly /></td></tr>
-                    <tr><td><input type="text" name="tax_percentage" placeholder="{{ tax.0 }} tax value" value="{{ tax.1 }}"/></td></tr>
+                    <tr><td><input type="text" name="tax_percentage" placeholder="{{ tax.0 }} tax value" value="{{ tax.1 }}" {% if action == 'view' %} readonly {% endif %}/></td></tr>
                 {% endfor %}
             {% endif %}
             <tr>
                 <td>
-                    <input type ='submit' value = '{% if action == "add" %} Add {% elif action == "edit" %} Edit {% elif action == "n_add" %} Create {% else %} Update {% endif %}' id='id_add_product_cost_of_sale_button'>
+                    <input type ='submit' value = '{% if action == "add" %} Add {% elif action == "edit" %} Edit {% elif action == "view" %} Close {% else %} Update {% endif %}' id='id_add_product_cost_of_sale_button'>
                 </td>
             </tr>
             {% if action == 'add' %}

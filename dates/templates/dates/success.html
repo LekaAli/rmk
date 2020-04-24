@@ -39,7 +39,7 @@
                 <td><input type='submit' value='{{ btn_name }}' class='id_close_success_button' style="width:100%"></td>
             </tr>
             <tr>
-                <td><a href="{% if view == 'inflation' %} {% url 'dates:ViewInflation' %} {% elif view == 'cost_of_sale' %} {% url 'products:view_cost_of_sale' %}{% elif view == 'rampup' %} {% url 'rampup:view_rampups' %} {% elif view == 'seasonality' %} {% url 'seasonality:view_seasonality' %} {% elif view == 'expense' %} {% url 'products:view_expense' %}{% elif view == 'product' %} {% url 'products:view_product' %}{% elif view == 'revenue' %} {% url 'revenues:view_revenue' %}{% else %} {% url 'dates:ViewDates' %} {% endif %}" class='id_close_success_button'>View</a></td>
+                <td><a href="{% if view == 'inflation' %} {% url 'dates:ViewInflation' %}{% elif view == 'tax' %} {% url 'products:view_tax' %} {% elif view == 'cost_of_sale' %} {% url 'products:view_cost_of_sale' %}{% elif view == 'rampup' %} {% url 'rampup:view_rampups' %} {% elif view == 'seasonality' %} {% url 'seasonality:view_seasonality' %} {% elif view == 'expense' %} {% url 'products:view_expense' %}{% elif view == 'product' %} {% url 'products:view_product' %}{% elif view == 'revenue' %} {% url 'revenues:view_revenue' %}{% else %} {% url 'dates:ViewDates' %} {% endif %}" class='id_close_success_button'>View</a></td>
             </tr>
             <tr>
                 <td>

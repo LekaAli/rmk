@@ -634,7 +634,7 @@ def edit_tax_value(request):
             'dates/success.html',
             {
                 'form': form,
-                'action': 'update',
+                'action': 'review',
                 'view': 'tax',
                 'btn_name': 'Update',
                 'message': 'Successfully Added Tax Values'
@@ -682,5 +682,5 @@ def update_tax_value(request):
 
 def view_tax_value(request):
     form = TaxForm()
-    taxes = TaxValue.objects.values_list('financial_year', 'financial_year__description', 'value')
-    return render(request, '', {'form': form, 'taxes': taxes})
+    taxes = TaxValue.objects.values_list('financial_year__description', 'value')
+    return render(request, 'products/tax.html', {'form': form, 'allocated_financial_years': taxes, 'action': 'view', 'view': 'tax'})
