@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
-from products.models import Product, ProductSeasonalityRampUp, CostOfSale, GrossProfit, ProfitBeforeTax, Tax, NetProfit
+from products.models import Product, ProductSeasonalityRampUp, CostOfSale, GrossProfit, ProfitBeforeTax, Tax, NetProfit, \
+    TaxValue
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS
 from dates.models import FinancialYear
@@ -123,7 +124,7 @@ def generate_revenue_projection(request):
                     return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
                 if not form_data.get('month'):
                     return render(request, 'revenues/revenue.html', {'form': form, 'errors': ''})
-                
+                tax_value_instance = TaxValue.objects.filter(financial_year_id=int(form_data.get('year')))
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     #  only project for products not already projected
                     data = pre_product_projection_check(product_instance, form_data)
@@ -179,7 +180,7 @@ def generate_revenue_projection(request):
                             tax_instance = Tax(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month,
-                                'tax_percentage': form_data.get('tax', 15.0)
+                                'tax_percentage': tax_value_instance.first()
                             })
                             tax_instance.save()
                         for month in months:
@@ -218,7 +219,7 @@ def generate_revenue_projection(request):
                         tax_instance = Tax(**{
                             'financial_year_id': int(form_data.get('year')),
                             'month': form_data.get('month'),
-                            'tax_percentage': form_data.get('tax', 1.0)
+                            'tax_percentage': tax_value_instance.first()
                         })
                         tax_instance.save()
                         net_profit_instance = NetProfit(**{
@@ -261,7 +262,7 @@ def generate_revenue_projection(request):
                             tax_instance = Tax(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month,
-                                'tax_percentage': form_data.get('tax', 1.0)
+                                'tax_percentage': tax_value_instance.first()
                             })
                             tax_instance.save()
                         for month in MONTHS[2:]:
@@ -297,7 +298,7 @@ def generate_revenue_projection(request):
                             tax_instance = Tax(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month,
-                                'tax_percentage': form_data.get('tax', 1.0)
+                                'tax_percentage': tax_value_instance.first()
                             })
                             tax_instance.save()
                             net_profit_instance = NetProfit(**{

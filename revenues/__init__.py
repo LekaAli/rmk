@@ -86,10 +86,10 @@ class AppEngine(object):
             year_taxes_lst = list(yearly_taxes_iter)
             sorted_monthly_taxes = sorted(year_taxes_lst, key=lambda tax_instance: tax_instance[2])
             grouped_monthly_taxes = groupby(sorted_monthly_taxes, key=lambda tax_instance: tax_instance[2])
-            data['tax'].update({year: dict()})
+            data['tax'].update({'Year %s' % year: dict()})
             for month, monthly_taxes_iter in grouped_monthly_taxes:
                 month_tax = list(monthly_taxes_iter)[0]
-                data['tax'][year].update({
+                data['tax']['Year %s' % year].update({
                     month_dict.get(month)[:3]: month_tax[5]
                 })
         
@@ -108,10 +108,10 @@ class AppEngine(object):
             year_net_profits_lst = list(yearly_net_profit_iter)
             sorted_monthly_net_profits = sorted(year_net_profits_lst, key=lambda net_profit_instance: net_profit_instance[2])
             grouped_monthly_net_profits = groupby(sorted_monthly_net_profits, key=lambda net_profit_instance: net_profit_instance[2])
-            data['net_profit'].update({year: dict()})
+            data['net_profit'].update({'Year %s' % year: dict()})
             for month, monthly_net_profit_iter in grouped_monthly_net_profits:
                 month_net_profit = list(monthly_net_profit_iter)[0]
-                data['net_profit'][year].update({
+                data['net_profit']['Year %s' % year].update({
                     month_dict.get(month)[:3]: month_net_profit[3]
                 })
 
