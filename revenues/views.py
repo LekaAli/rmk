@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
 from revenues.models import Revenue
 from revenues.forms import GenerateRevenuePrediction
-from products.models import Product, ProductSeasonalityRampUp, CostOfSale, GrossProfit, ProfitBeforeTax, Tax, NetProfit, \
+from products.models import Product, CostOfSale, GrossProfit, ProfitBeforeTax, Tax, NetProfit, \
     TaxValue
 from django.db.models.query import QuerySet
 from rmkplatform.constants import MONTHS

@@ -61,6 +61,9 @@ class CostOfSaleEditForm(forms.Form):
 
 
 class AddNExpenseForm(forms.Form):
+    expense_type = forms.CharField(
+        widget=forms.Select(
+            choices=[(-1, '---Expense Type---'), (0, 'Operating'), (1, 'Administration'), (2, 'Payroll'), (3, 'Marketing')]), initial='-1', required=True)
     expense_count = forms.CharField(widget=forms.TextInput)
     
     expense_count.widget.attrs['placeholder'] = 'How Many Expense(s)'
@@ -68,6 +71,9 @@ class AddNExpenseForm(forms.Form):
     
 class ExpenseForm(forms.Form):
     description = forms.CharField(widget=forms.TextInput)
+    expense_type = forms.CharField(
+        widget=forms.Select(choices=[(0, 'Operating'), (1, 'Administration'), (2, 'Payroll'),
+                     (3, 'Marketing')]), required=True)
     is_fixed = forms.CharField(widget=forms.Select(choices=[(0, '---Select Expense Type---'), (1, 'Fixed'), (0, 'Not Fixed')]), initial='0', required=True)
     value = forms.DecimalField()
 

@@ -25,6 +25,9 @@
                 <td> Description: {{ expense.description }}</td>
             </tr>
             <tr>
+                <td> Expense Type: {% if expense.expense_type == 0 %} Operating Expense {% elif expense.expense_type == 1 %} Administration Expense {% elif expense.expense_type == 2 %} Payroll Expense {% elif expense.expense_type == 3 %} Marketing Expense {% endif %}</td>
+            </tr>
+            <tr>
                 <td> Fixed Expense: {{ expense.is_fixed }}</td>
             </tr>
             <tr>

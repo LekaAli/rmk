@@ -46,21 +46,6 @@ class Product(models.Model):
         return reverse('businessplan:RevenueInput')
 
 
-class ProductSeasonalityRampUp(models.Model):
-    product = models.ForeignKey(Product, related_name='product_link', on_delete=models.CASCADE, blank=True, null=True)
-    seasonality = models.ForeignKey('seasonality.Seasonality', related_name='seasonality', on_delete=models.CASCADE, blank=True, null=True)
-    rampup = models.ForeignKey(RampUp, related_name='rampup', on_delete=models.CASCADE, blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    modified = models.DateTimeField(auto_now=True, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Product Seasonality Ramp Up Link'
-        verbose_name_plural = 'Product Seasonality Ramp Up Links'
-
-    def __str__(self):
-        return '%s' % self.product
-
-
 class Sale(models.Model):
     product = models.ForeignKey(Product, related_name='product_sale', on_delete=models.CASCADE, blank=True, null=True)
     month = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -166,7 +151,9 @@ class GrossProfit(models.Model):
 
 
 class Expense(models.Model):
+    EXPENSE_TYPE = [(0, 'Operating'), (1, 'Administration'), (2, 'Payroll'), (3, 'Marketing')]
     description = models.CharField(max_length=120, blank=True, null=True)
+    expense_type = models.PositiveSmallIntegerField(choices=EXPENSE_TYPE, blank=True, null=True)
     is_fixed = models.BooleanField()
     value = models.DecimalField(decimal_places=2, max_digits=15)
     created = models.DateTimeField(auto_now_add=True)
@@ -399,3 +386,32 @@ class NetProfit(models.Model):
 
     def __str__(self):
         return 'Net Profit: %s' % self.net_profit
+    
+    
+class DefaultValue(models.Model):
+    
+    RAMPUP = 0
+    SEASONALITY = 1
+    INFLATION = 2
+    TAX = 3
+    APP_CHOICES = (
+        (RAMPUP, 'RAMP UP'),
+        (SEASONALITY, 'SEASONALITY'),
+        (INFLATION, 'INFLATION'),
+        (TAX, 'TAX'),
+    )
+    PERIOD_CHOICES = (
+        (1, 'MONTH'),
+        (2, 'YEAR')
+    )
+    app_name = models.PositiveSmallIntegerField(choices=APP_CHOICES)
+    period = models.PositiveSmallIntegerField(choices=PERIOD_CHOICES)
+    value = models.FloatField()
+    
+    class Meta:
+        verbose_name = 'Default Value'
+        verbose_name_plural = 'Default Values'
+        
+    def save(self, *args, **kwargs):
+        super(DefaultValue, self).save(*args, **kwargs)
+

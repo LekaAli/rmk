@@ -7,7 +7,6 @@
 
   <form class= "form-horizontal" action="{% if action == 'add' %} {% url 'products:add_n_expenses' %} {% elif action == 'review' %} {% url 'products:edit_expense' %} {% elif action == 'update' %} {% url 'products:update_expense' %} {% endif %}", method="POST", enctype="multipart/form-data">
     {% csrf_token %}
-
     <table>
         <thead>
             <h3>
@@ -29,6 +28,20 @@
                 </tr>
                 <tr>
                     <td>
+                        <select name="expense_type">
+                            <option value="-1">---Expense Type---</option>
+                            {% for type in expense_types %}
+                                {% if type.0 == expense.4 %}
+                                    <option value="{{ type.0 }}" selected>{{ type.1 }}</option>
+                                {% else %}
+                                    <option value="{{ type.0 }}">{{ type.1 }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         <select name="is_fixed">
                             <option value="-1">---Select Expense Type---</option>
                             {% if expense.2 is True %}
@@ -45,7 +58,7 @@
                 </tr>
             {% endfor %}
         {% elif action == 'add' %}
-
+            <input type="hidden" name="expense_type" value="{{ expense_type }}">
             {% for expense in expense_count %}
                 <tr>
                     <td style="padding-top: 5px; font-weight:bold">
