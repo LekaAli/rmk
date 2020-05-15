@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, QueryDict
 from django.views.generic.edit import CreateView
 
 from products.models import TaxValue
@@ -17,19 +17,17 @@ class CreateDates1(CreateView):
 
 def create_linked_financial_years(f_year_instance, year_count=5):
     
+    from datetime import date, timedelta
     if year_count not in ['', '1']:
         year_count = int(year_count)
         year_start_date = f_year_instance.end_date
+        FinancialYear.objects.exclude(description='Year 1').delete()
         for year_count in range(2, year_count + 1):
             if isinstance(year_start_date, str):
-                from datetime import date, timedelta
                 date_chunks = [int(d_part) for d_part in year_start_date.split('-')]
                 year_start_date = date(*date_chunks)
             start_date = year_start_date + timedelta(days=1)
             desc = ''.join(['Year ', '%s' % year_count])
-            fin_year = FinancialYear.objects.filter(description=desc)
-            if fin_year:
-                FinancialYear.objects.exclude(description='Year 1').delete()
             f_year = FinancialYear(**{'description': desc, 'start_date': start_date})
             f_year.save()
             year_start_date = f_year.end_date
@@ -187,42 +185,67 @@ def view_inflation(request):
     return render(request, 'dates/view_dates.html', context={'data': enumerate(years), 'view': 'inflation'})
 
 
-def edit_dates(request):
-    year = FinancialYear.objects.all().order_by('id').values_list('id', 'description')
-    if request.method == 'POST':
-        form = forms.EditDates(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                financial_year_instance = FinancialYear.objects.get(id=data['description'])
-                form = forms.DatesForm({
-                    'description': financial_year_instance.description,
-                    'start_date': financial_year_instance.start_date,
-                    'end_date': financial_year_instance.end_date,
-                    'inflation': financial_year_instance.inflation
-                    })
-                return render(
-                    request,
-                    'dates/dates_form.html',
-                    {'form': form, 'action': 'update', 'years': year, 'selected': financial_year_instance.id}
-                )
-            except Exception as ex:
-                form = forms.EditDates()
-                return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
-    form = forms.EditDates()
-    return render(request, 'dates/dates_form.html', {'action': 'edit', 'form': form, 'years': year})
+# def edit_dates(request):
+#     year = FinancialYear.objects.all().order_by('id').values_list('id', 'description', 'start_date', 'end_date')
+#     if request.method == 'POST':
+#         form = forms.DatesForm(request.POST)
+#         if form.is_valid():
+#             try:
+#                 data = form.cleaned_data
+#                 financial_year_instance = FinancialYear.objects.get(id=data['description'])
+#                 form = forms.DatesForm({
+#                     'description': financial_year_instance.description,
+#                     'start_date': financial_year_instance.start_date,
+#                     'end_date': financial_year_instance.end_date,
+#                     'inflation': financial_year_instance.inflation
+#                     })
+#                 return render(
+#                     request,
+#                     'dates/dates_form.html',
+#                     {'form': form, 'action': 'update', 'years': year, 'selected': financial_year_instance.id}
+#                 )
+#             except Exception as ex:
+#                 form = forms.EditDates()
+#                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
+#     financial_year_instance = FinancialYear.objects.get(description='Year 1')
+#     form = forms.DatesForm({
+#         'description': financial_year_instance.description,
+#         'start_date': financial_year_instance.start_date,
+#         'end_date': financial_year_instance.end_date,
+#         'inflation': financial_year_instance.inflation
+#     })
+#     return render(request, 'dates/dates_form.html', {'action': 'update', 'form': form, 'years': year})
 
 
 def update_dates(request):
     if request.method == 'POST':
-        form = forms.UpdateForm(request.POST)
+        request_data = dict(request.POST)
+        data = {
+            'description': request_data.get('description')[0],
+            'start_date': request_data.get('start_date')[0],
+            'end_date': request_data.get('end_date')[0],
+        }
+        query = QueryDict('', mutable=True)
+        query.update(data)
+        form = forms.UpdateForm(query)
         if form.is_valid():
             try:
                 data = form.cleaned_data
-                financial_year_instance = FinancialYear.objects.get(id=data['description'])
-                financial_year_instance.start_date = data['start_date']
-                financial_year_instance.end_date = data['end_date']
-                financial_year_instance.save()
+                financial_year_instance = FinancialYear.objects.get(description=data['description'])
+                year_count = FinancialYear.objects.all().count()
+                is_changed = False
+                if financial_year_instance.start_date != data['start_date'] or financial_year_instance.end_date != data['end_date']:
+                    financial_year_instance.start_date = data['start_date']
+                    financial_year_instance.end_date = data['end_date']
+                    is_changed = True
+
+                if request_data.get('change_year_count'):
+                    year_count = request_data.get('year_count', year_count)
+                    year_count = year_count[0] if isinstance(year_count, list) else year_count
+                    is_changed = True
+                if is_changed:
+                    financial_year_instance.save()
+                    create_linked_financial_years(financial_year_instance, year_count)
                 return render(
                     request,
                     'dates/success.html',
@@ -234,10 +257,15 @@ def update_dates(request):
                     }
                 )
             except Exception as ex:
-                form = forms.EditDates()
+                form = forms.UpdateForm()
                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
-    form = forms.UpdateForm()
-    return render(request, 'dates/dates_form.html', {'action': 'add', 'form': form})
+    year = FinancialYear.objects.get(description='Year 1')
+    form = forms.UpdateForm({
+        'description': year.description,
+        'start_date': year.start_date,
+        'end_date': year.end_date
+    })
+    return render(request, 'dates/dates_form.html', {'action': 'update', 'form': form})
 
 
 def product_count_check(product_id_lst, type_flag='seasonality'):

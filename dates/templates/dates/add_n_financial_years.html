@@ -21,7 +21,7 @@
             </tr>
             {% if action != 'update' %}
             <tr>
-                <td><a href='{% if action == "edit" %} {% url "dates:CreateDates" %} {% elif action == "update" %} {% url "dates:UpdateDates" %} {%else%} {% url "dates:EditDates" %} {% endif%}'>
+                <td><a href='{% if action == "edit" %} {% url "dates:CreateDates" %} {%else%} {% url "dates:UpdateDates" %} {% endif%}'>
                     {% if action == "edit" %} Add Financial Year
                     {% elif action == "update" %} Add Financial Year
                     {%else%} Edit Financial Year {% endif%}

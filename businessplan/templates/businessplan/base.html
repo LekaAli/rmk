@@ -156,4 +156,17 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 </body>
+<script>
+
+    $('#year_count_cb').click(function(evt){
+            if($('#year_count_cb')[0].checked){
+                $('#year_count_txt')[0].style.display = 'block';
+                console.log('Show');
+            }
+            else{
+                $('#year_count_txt')[0].style.display = 'none';
+                console.log('Hide');
+            }
+        });
+</script>
 </html>

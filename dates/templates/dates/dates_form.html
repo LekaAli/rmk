@@ -5,29 +5,19 @@
 {% block content %}
 <div class="panel-dody" style="margin-top: 20%; height: 40%; width: 30%; margin-left: 35%; padding: 2%; border-radius: 2%; border: 5px solid blue; border-top: 10px solid blue" >
 
-  <form class= "form-row" action='{% if action == "edit" %} {% url "dates:EditDates" %} {% elif action == "update" %} {% url "dates:UpdateDates" %} {%else%} {% url "dates:AddDates" %} {% endif%}', method="POST", enctype="multipart/form-data">
+  <form class= "form-row" action='{% if action == "update" %} {% url "dates:UpdateDates" %} {%else%} {% url "dates:AddDates" %} {% endif%}', method="POST", enctype="multipart/form-data">
     {% csrf_token %}
-      <input type="hidden" name="year_count" value="{{ year_count }}" />
+      {% if action == "add" %}
+        <input type="hidden" name="year_count" value="{{ year_count }}" />
+      {% endif %}
     <table>
         <thead>
-            <h3 id='id_header'>{% if action == "edit" %} Edit Financial Year {% elif action == "update" %} Update Financial Year {% else %} Add Financial Year {% endif %}</h3>
+            <h3 id='id_header'>{% if action == "update" %} Update Financial Year {% else %} Add Financial Year {% endif %}</h3>
         </thead>
         <tbody>
                 <tr>
                     <td>
-                        {% if action == "add" %}
-                            {{ form.description }}
-                        {% else %}
-                        <select name="description">
-                            {% for year in years %}
-                                {% if selected == year.0 %}
-                                    <option value="{{ year.0 }}" selected>{{ year.1 }}</option>
-                                {% else %}
-                                    <option value="{{ year.0 }}">{{ year.1 }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                        {% endif %}
+                        Description:<input type="text" name="description" value="Year 1" readonly>
                     </td>
                 </tr>
                 {% if action != "edit" %}
@@ -38,12 +28,24 @@
                         <td>End Date: {{ form.end_date }}</td>
                     </tr>
                 {% endif %}
+                {% if action == "update" %}
+                    <tr>
+                        <td>
+                            Change Number Of Financial Years?: <input type="checkbox" name="change_year_count" id="year_count_cb">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" name="year_count" placeholder="Number of Years" id="year_count_txt" style="display:none;">
+                        </td>
+                    </tr>
+                {% endif %}
             <tr>
                 <td><input type ='submit' value='{% if action == "edit" %} Edit Year {% elif action == "update" %} Update Year {%else%} Add Year {% endif%}' id='id_submit_button'></td>
             </tr>
             {% if action != 'update' %}
             <tr>
-                <td><a href='{% if action == "edit" %} {% url "dates:CreateDates" %} {% elif action == "update" %} {% url "dates:UpdateDates" %} {%else%} {% url "dates:EditDates" %} {% endif%}'>
+                <td><a href='{% if action == "edit" %} {% url "dates:CreateDates" %} {% elif action == "update" %} {% url "dates:UpdateDates" %} {% endif%}'>
                     {% if action == "edit" %} Add Financial Year
                     {% elif action == "update" %} Add Financial Year
                     {%else%} Edit Financial Year {% endif%}
@@ -54,5 +56,9 @@
     </table>
           
   </form>
+
 </div>
+<script>
+
+    </script>
 {% endblock %}

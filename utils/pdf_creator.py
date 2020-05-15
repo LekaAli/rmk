@@ -21,6 +21,7 @@ def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 		data = {}
 		if engine.app_engine.AppEngine:
 			data = engine.app_engine.AppEngine.generate_report_data()
+			
 		html = template.render({
 			'view_option': '',
 			'title': 'Revenue Predictions',
