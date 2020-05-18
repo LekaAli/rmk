@@ -9,7 +9,7 @@
     {% csrf_token %}
     <table>
         <thead>
-            <h3 id='id_header'>Add Inflation Values</h3>
+            <h3 id='id_header'>{% if action == 'update' %} Update Inflation Values {% else %} Add Inflation Values {% endif %}</h3>
         </thead>
         <tbody>
             {% if action == 'edit' %}
@@ -23,22 +23,16 @@
                     </td>
                 </tr>
             {% elif action == 'update' %}
-                <tr>
-                    <td>
-                        <select name="description">
-                            {% for year in years %}
-                                {% if selected == year.0 %}
-                                    <option value="{{ year.0 }}" selected>{{ year.1 }}</option>
-                                {% else 5]
-                                    <option value="{{ year.0 }}">{{ year.1 }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>{{ form.inflation }}</td>
-                </tr>
+                {% for year in years %}
+                    <tr>
+                        <td>
+                            <input type="text" readonly name="description" value="{{ year.1 }}" placeholder="Description">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" name="inflation" value="{{ year.2 }}" placeholder="{{ year.1 }} Inflation"></td>
+                    </tr>
+                {% endfor %}
             {% else %}
                 {% for year in years %}
                     <tr>
@@ -48,7 +42,7 @@
                 {% endfor %}
             {% endif %}
             <tr>
-                <td colspan="2"><input type ='submit' value='Add' id='id_submit_button'></td>
+                <td colspan="2"><input type ='submit' value={% if action == 'update' %}Update{% else %} Add {% endif %} id='id_submit_button'></td>
             </tr>
         </tbody>
     </table>

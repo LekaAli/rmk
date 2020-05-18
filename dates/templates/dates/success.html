@@ -26,7 +26,7 @@
   <form class= "form-row" action="{% if action != 'review' %}
     {% if view == 'inflation' %} {% url 'dates:ManageInflation' %} {% elif view == 'rampup' %} {% url 'rampup:add_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:add_seasonality' %} {% elif view == 'expense' %} {% url 'products:add_expense' %}{% elif view == 'product' %} {% url 'products:add_n_product' %} {% elif view == 'cost_of_sale' %} {% url 'products:create_cost_of_sale' %} {% elif view == 'revenue' %} {% url 'revenues:RevenueInput' %}{% else %} {% url 'dates:CreateDates' %} {% endif %}
   {% else %}
-    {% if view == 'inflation' %} {% url 'dates:EditInflation' %} {% elif view == 'rampup' %} {% url 'rampup:edit_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:edit_seasonality' %} {% elif view == 'expense' %} {% url 'products:edit_expense' %}{% elif view == 'cost_of_sale' %} {% url 'products:edit_cost_of_sale' %}{% elif view == 'product' %} {% url 'products:edit_product' %}{% elif view == 'tax' %} {% url 'products:edit_tax_management' %}{% else %} {% url 'dates:UpdateDates' %} {% endif %}
+    {% if view == 'inflation' %} {% url 'dates:UpdateInflation' %} {% elif view == 'rampup' %} {% url 'rampup:edit_rampup' %} {% elif view == 'seasonality' %} {% url 'seasonality:edit_seasonality' %} {% elif view == 'expense' %} {% url 'products:edit_expense' %}{% elif view == 'cost_of_sale' %} {% url 'products:edit_cost_of_sale' %}{% elif view == 'product' %} {% url 'products:edit_product' %}{% elif view == 'tax' %} {% url 'products:edit_tax_management' %}{% else %} {% url 'dates:UpdateDates' %} {% endif %}
   {% endif %}", method="GET", enctype="multipart/form-data">
     {% csrf_token %}
       <input type="hidden" value="{{ action }}" name="update">

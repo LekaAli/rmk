@@ -94,62 +94,64 @@ def manage_inflation_values(request):
         form = forms.DatesForm()
     return render(request, 'dates/manage_inflation.html', {'form': form, 'years': financial_years_count})
 
-
-def edit_inflation(request):
-    years = FinancialYear.objects.all().order_by('id').values_list('id', 'description')
+ 
+def update_inflation(request):
+    years = FinancialYear.objects.all().order_by('id').values_list('id', 'description', 'inflation')
     if request.method == 'POST':
+        request_data = dict(request.POST)
+        form_data = {
+            'description': request_data.get('description'),
+            'inflation': request_data.get('inflation'),
+        }
         errors = list()
-        try:
-            form = forms.EditDates(request.POST)
+        for index, year in enumerate(form_data.get('description')):
+            data = {
+                'description': year,
+                'inflation': form_data['inflation'][index],
+            }
+            query = QueryDict('', mutable=True)
+            query.update(data)
+            form = forms.InflationUpdateForm(query)
             if form.is_valid():
-                data = form.cleaned_data
-                year = FinancialYear.objects.get(id=data['description'])
-                year_data = {
-                    'description': year.description,
-                    'start_date': year.start_date,
-                    'end_date': year.end_date,
-                    'inflation': year.inflation,
-                }
-                form = forms.DatesForm(year_data)
-                return render(request, 'dates/manage_inflation.html', {'form': form, 'view': 'inflation', 'action': 'update', 'years': years, 'selected': year.id})
-        except Exception as ex:
-            errors.append(ex)
+                try:
+                    data = form.cleaned_data
+                    financial_year_instance = FinancialYear.objects.get(description=data['description'])
+                    financial_year_instance.inflation = data['inflation']
+                    financial_year_instance.save()
+                except Exception as ex:
+                    errors.append(ex)
         if len(errors) > 0:
-            form = forms.EditDates()
-            return render(request, 'dates/manage_inflation.html', {'form': form, 'view': 'inflation', 'action': 'edit'})
-    form = forms.EditDates()
+            form = forms.DatesForm()
+            return render(
+                request, 'dates/manage_inflation.html',
+                {
+                    'form': form,
+                    'view': 'inflation',
+                    'action': 'update',
+                    'years': years
+                }
+            )
+        return render(
+            request,
+            'dates/success.html',
+            {
+                'btn_name': 'Update',
+                'message': 'Financial Year Options',
+                'view': 'inflation',
+                'action': 'review',
+            }
+        )
+    form = forms.DatesForm()
     return render(
         request,
         'dates/manage_inflation.html',
-        {'form': form, 'view': 'inflation', 'action': 'edit', 'years': years}
+        {
+            'form': form,
+            'view': 'inflation',
+            'action': 'update',
+            'years': years
+        }
     )
-    
-    
-def update_inflation(request):
-    years = FinancialYear.objects.all().order_by('id').values_list('id', 'description')
-    if request.method == 'POST':
-        form = forms.InflationUpdateForm(request.POST)
-        if form.is_valid():
-            try:
-                data = form.cleaned_data
-                financial_year_instance = FinancialYear.objects.get(id=data['description'])
-                financial_year_instance.inflation = data['inflation']
-                financial_year_instance.save()
-                return render(
-                    request,
-                    'dates/success.html',
-                    {
-                        'btn_name': 'Update',
-                        'message': 'Financial Year Options',
-                        'view': 'inflation',
-                        'action': 'review',
-                    }
-                )
-            except Exception as ex:
-                form = forms.DatesForm()
-                return render(request, 'dates/manage_inflation.html', {'form': form, 'view': 'inflation', 'action': 'update', 'years': years})
-    form = forms.DatesForm()
-    return render(request, 'dates/manage_inflation.html', {'form': form, 'view': 'inflation', 'action': 'update', 'years': years})
 
 
 def advanced_create_dates(request):
@@ -183,38 +185,6 @@ def view_dates(request):
 def view_inflation(request):
     years = FinancialYear.objects.all().order_by('id')
     return render(request, 'dates/view_dates.html', context={'data': enumerate(years), 'view': 'inflation'})
-
-
-# def edit_dates(request):
-#     year = FinancialYear.objects.all().order_by('id').values_list('id', 'description', 'start_date', 'end_date')
-#     if request.method == 'POST':
-#         form = forms.DatesForm(request.POST)
-#         if form.is_valid():
-#             try:
-#                 data = form.cleaned_data
-#                 financial_year_instance = FinancialYear.objects.get(id=data['description'])
-#                 form = forms.DatesForm({
-#                     'description': financial_year_instance.description,
-#                     'start_date': financial_year_instance.start_date,
-#                     'end_date': financial_year_instance.end_date,
-#                     'inflation': financial_year_instance.inflation
-#                     })
-#                 return render(
-#                     request,
-#                     'dates/dates_form.html',
-#                     {'form': form, 'action': 'update', 'years': year, 'selected': financial_year_instance.id}
-#                 )
-#             except Exception as ex:
-#                 form = forms.EditDates()
-#                 return render(request, 'dates/dates_form.html', {'form': form, 'errors': ex})
-#     financial_year_instance = FinancialYear.objects.get(description='Year 1')
-#     form = forms.DatesForm({
-#         'description': financial_year_instance.description,
-#         'start_date': financial_year_instance.start_date,
-#         'end_date': financial_year_instance.end_date,
-#         'inflation': financial_year_instance.inflation
-#     })
-#     return render(request, 'dates/dates_form.html', {'action': 'update', 'form': form, 'years': year})
 
 
 def update_dates(request):
