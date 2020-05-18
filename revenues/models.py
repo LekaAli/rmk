@@ -110,14 +110,11 @@ class Revenue(models.Model):
     def save(self, *args, **kwargs):
         
         product_estimations = self.product.product_rampup.all()
-        
-        # product_estimations = self.product.product_link.all()
         self.inflation = self.financial_year.inflation
         revenue_years_count = self.monthly_revenue_count()
         past_years_count = Sale.objects.filter(product=self.product).values_list('period', flat=True).distinct().count()
         # if product_estimations.count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe ga feta gatee.
         if product_estimations.values_list('financial_year', flat=True).distinct().count() == 1:  # Kgonagalo ya gore ngwaga o šomišwe ga feta gatee.
-            product_projection_instance = self.product.product_link.first()
             if revenue_years_count in [1, 2]:
                 product_seasonality_instances = self.product.product_seasonality.filter(financial_year=product_estimations[0].financial_year) # New
                 self.product_revenue = self.calculate_product_revenue(product_estimations, product_seasonality_instances)
@@ -130,7 +127,6 @@ class Revenue(models.Model):
             
         # elif product_estimations.count() == 2:  # mengwaga e mebedi
         elif product_estimations.values_list('financial_year', flat=True).distinct().count() == 2:  # mengwaga e mebedi
-            # product_projection_instances = self.product.product_link.all()
             # perform year 2 projections using year 2 ramp up values
             # projection_instance = [instance for instance in product_projection_instances if instance.rampup.year == self.financial_year]
             product_rampup_instances = [instance for instance in product_estimations if instance.financial_year == self.financial_year]

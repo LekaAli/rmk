@@ -45,7 +45,7 @@ def pre_product_projection_check(product_instances, projection_data):
                     financial_year_id=int(projection_data['year']),
                     month=month
                 )
-                if not revenue_instance:
+                if not revenue_instance:  # filter all products without revenue instance(s)
                     products.append(product_instance)
                     months.append(month)
             if len(products) > 0 and len(months) > 0:
