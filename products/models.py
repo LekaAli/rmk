@@ -196,10 +196,27 @@ class ProfitBeforeTax(models.Model):
         verbose_name = 'Profit Before Tax'
         verbose_name_plural = 'Profit Before Taxes'
     
+    @staticmethod
+    def expense_in_categories(expense_category_dict, expense_instance, val):
+        category_dict = dict(expense_instance.EXPENSE_TYPE)
+        expense_category = category_dict.get(expense_instance.expense_type)
+        if expense_category in expense_category_dict.keys():
+            expense_category_dict.get(expense_category).update(
+                {
+                    expense_instance.description: val
+                }
+            )
+        else:
+            expense_category_dict[expense_category] = {
+                expense_instance.description: val
+            }
+        return expense_category_dict
+    
     def calculate_net_profit_before_tax(self, revenue_values):
         revenue_value = sum(revenue_values.values_list('product_revenue', flat=True))
         expenses = Expense.objects.all()
         expense_dict = dict()
+        expense_category_dict = dict()
         if revenue_value > 0:
             inflation = self.financial_year.inflation / float(100)
             fixed_expenses = 0.0
@@ -213,6 +230,7 @@ class ProfitBeforeTax(models.Model):
                             expense.description: expense_val
                         }
                     )
+                    self.expense_in_categories(expense_category_dict, expense, expense_val)
                     continue
                 expense_val = (float(expense.value) / float(100) * float(revenue_value))
                 not_fixed_expenses = not_fixed_expenses + expense_val
@@ -221,8 +239,9 @@ class ProfitBeforeTax(models.Model):
                         expense.description: expense_val
                     }
                 )
+                self.expense_in_categories(expense_category_dict, expense, expense_val)
             expense_dict['expense_total'] = fixed_expenses + not_fixed_expenses
-            self.expense = expense_dict
+            self.expense = expense_category_dict
             gross_profit_values = GrossProfit.objects.filter(
                 financial_year=self.financial_year.id,
                 month=self.month).values_list(
@@ -240,14 +259,17 @@ class ProfitBeforeTax(models.Model):
                             expense.description: expense_val
                         }
                     )
+                    self.expense_in_categories(expense_category_dict, expense, expense_val)
                     continue
                 expense_dict.update(
                     {
                         expense.description: expense_val
                     }
                 )
+                self.expense_in_categories(expense_category_dict, expense, expense_val)
             expense_dict['expense_total'] = 0.0
-            self.expense = expense_dict
+            # self.expense = expense_dict
+            self.expense = expense_category_dict
        
     def save(self, *args, **kwargs):
     

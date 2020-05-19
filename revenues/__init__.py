@@ -30,6 +30,7 @@ class AppEngine(object):
             sorted_profit_before_tax,
             key=lambda profit_before_tax: profit_before_tax[1]
         )
+        grouped_expense_dict = dict()
         for year_name, profit_before_tax_yearly_iter in grouped_profit_before_tax:
             profit_before_tax_grouped_yearly_lst = list(profit_before_tax_yearly_iter)
             profit_before_tax_sorted_monthly_lst = sorted(
@@ -57,16 +58,16 @@ class AppEngine(object):
                         month_dict.get(month)[:3]: profit_before_tax_monthly_lst[4]
                     }
                 )
-            expense_names = Expense.objects.values_list('description', flat=True)
-            grouped_expense_dict = dict()
             grouped_expense_dict[year_name] = dict()
-            for expense_name in expense_names:
-                grouped_expense_dict[year_name].update({expense_name: dict()})
-                for month, expense_dict in data['expenses'][year_name].items():
-                    for name, amount in expense_dict.items():
-                        if expense_name == name:
-                            grouped_expense_dict[year_name][expense_name].update({month: amount})
-                            break
+            for month, expense_dict in data['expenses'][year_name].items():
+                for expense_category_name, expense_value_dict in expense_dict.items():
+                    if expense_category_name not in grouped_expense_dict[year_name].keys():
+                        grouped_expense_dict[year_name].update({expense_category_name: dict()})
+                    for e_name, e_amount in expense_value_dict.items():
+                        if e_name not in grouped_expense_dict[year_name][expense_category_name].keys():
+                            grouped_expense_dict[year_name][expense_category_name][e_name] = {month: e_amount}
+                        else:
+                            grouped_expense_dict[year_name][expense_category_name][e_name].update({month: e_amount})
             data['expenses'] = grouped_expense_dict
     
     @classmethod
@@ -248,7 +249,6 @@ class AppEngine(object):
             cls.calc_profit_before_tax(data, month_dict)
             cls.calc_tax(data, month_dict)
             cls.calc_net_profit(data, month_dict)
-        print(data)
         return data
 
 # <pdf:pagenumber> of <pdf:pagecount>
