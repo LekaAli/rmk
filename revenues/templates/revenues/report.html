@@ -176,14 +176,14 @@
                 {% endfor %}<!-- GROSS PROFIT END HERE -->
 
                 {% for expense_year, yearly_expenses_dict in report_data.expenses.items %}
-                    {% for year, monthly_expense_total_dict in report_data.expense_total.items %}
+                    {% for year, monthly_expense_total_dict in report_data.monthly_expense_total.items %}
                         {% if expense_year == year %}
                             <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;border-top: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                 <td colspan="2" style="text-align:left; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">Expenses</td>
                             </tr>
                             {% for category_name, monthly_expense_dict in monthly_expense_total_dict.items %}
                                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;border-top: 2px solid #A9A9A9;padding-top: 5px; margin-top: 10px">
-                                    <td colspan="3" style="text-align:left; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">Expense Type: {{ category_name }}</td>
+                                    <td colspan="3" style="text-align:left; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">Expense: {{ category_name }}</td>
                                 </tr>
                                 {% for e_category, e_dict in yearly_expenses_dict.items %}
                                     {% if e_category == category_name %}
@@ -192,6 +192,19 @@
                                                 <td colspan="2" style="text-align:left; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">{{ e_name }}</td>
                                                 {% for e_month_name, e_month_val in e_monthly_dict.items %}
                                                     <td style="text-align:center; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">{{ e_month_val|floatformat:2 }}</td>
+                                                {% endfor %}
+                                                {% for y_f_name, y_yearly_total_dict in report_data.yearly_expense_total.items %}
+                                                    {% for cat_name, expense_dict in y_yearly_total_dict.items %}
+                                                        {% for expense_name, amount in expense_dict.items %}
+                                                            {% if y_f_name == year %}
+                                                                {% if cat_name == category_name %}
+                                                                    {% if expense_name == e_name %}
+                                                                        <td style="text-align:center; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">{{ amount|floatformat:2 }}</td>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endfor %}
                                                 {% endfor %}
                                             </tr>
                                         {% endfor %}
@@ -202,12 +215,24 @@
                                     {% for month, amount in monthly_expense_dict.items %}
                                         <td style="text-align:center; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">{{ amount|floatformat:2 }}</td>
                                     {% endfor %}
-                                    <td></td>
+                                    {% for f_name, year_dict in report_data.yearly_expense_total.items %}
+                                        {% for category, e_dict in year_dict.items %}
+                                            {% if f_name == year %}
+                                                {% if category == category_name %}
+                                                    {% for ex_name, ex_amount in e_dict.items %}
+                                                        {% if ex_name == 'total' %}
+                                                            <td style="text-align:center; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">{{ ex_amount|floatformat:2 }}</td>
+                                                        {% endif %}
+                                                    {% endfor %}
+
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
                                 </tr>
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
-
                 {% endfor %}<!-- EXPENSES-->
 
                 {% for profit_before_tax_year, yearly_profit_before_tax_dict in report_data.profit_before_tax.items %}

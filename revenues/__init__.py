@@ -41,7 +41,8 @@ class AppEngine(object):
             )
             data['expenses'].update({year_name: dict()})
             data['profit_before_tax'].update({year_name: dict()})
-            data['expense_total'].update({year_name: dict()})
+            data['monthly_expense_total'].update({year_name: dict()})
+            data['yearly_expense_total'].update({year_name: dict()})
             for month, profit_before_tax_monthly_iter in profit_before_tax_sorted_monthly_iter:
                 profit_before_tax_monthly_lst = list(profit_before_tax_monthly_iter)[0]
                 expense_dict = literal_eval(profit_before_tax_monthly_lst[3])
@@ -60,15 +61,22 @@ class AppEngine(object):
                 for expense_category_name, expense_value_dict in expense_dict.items():
                     if expense_category_name not in grouped_expense_dict[year_name].keys():
                         grouped_expense_dict[year_name].update({expense_category_name: dict()})
-                        data['expense_total'][year_name].update({expense_category_name: dict()})
+                        data['monthly_expense_total'][year_name].update({expense_category_name: dict()})
+                        data['yearly_expense_total'][year_name].update({expense_category_name: dict()})
                     monthly_total = 0.0
                     for e_name, e_amount in expense_value_dict.items():
                         monthly_total = monthly_total + e_amount
+                        if e_name in data['yearly_expense_total'][year_name][expense_category_name].keys():
+                            data['yearly_expense_total'][year_name][expense_category_name][e_name] += e_amount
+                        else:
+                            data['yearly_expense_total'][year_name][expense_category_name][e_name] = e_amount
                         if e_name not in grouped_expense_dict[year_name][expense_category_name].keys():
                             grouped_expense_dict[year_name][expense_category_name][e_name] = {month: e_amount}
                         else:
                             grouped_expense_dict[year_name][expense_category_name][e_name].update({month: e_amount})
-                    data['expense_total'][year_name][expense_category_name].update({month: monthly_total})
+                    data['monthly_expense_total'][year_name][expense_category_name].update({month: monthly_total})
+            for category, amount_dict in data['yearly_expense_total'][year_name].items():
+                data['yearly_expense_total'][year_name][category]['total'] = sum(amount_dict.values())
             data['expenses'] = grouped_expense_dict
     
     @classmethod
@@ -156,7 +164,8 @@ class AppEngine(object):
             'monthly_cost_of_sale_total': dict(),
             'gross_profit_total': dict(),
             'expenses': dict(),
-            'expense_total': dict(),
+            'monthly_expense_total': dict(),
+            'yearly_expense_total': dict(),
             'profit_before_tax': dict(),
             'tax': dict(),
             'net_profit': dict()
