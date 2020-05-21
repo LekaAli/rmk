@@ -50,9 +50,6 @@ class AppEngine(object):
                         month_dict.get(month)[:3]: expense_dict
                     }
                 )
-                data['expense_total'][year_name].update({
-                    month_dict.get(month)[:3]: expense_dict.get('expense_total')
-                })
                 data['profit_before_tax'][year_name].update(
                     {
                         month_dict.get(month)[:3]: profit_before_tax_monthly_lst[4]
@@ -63,11 +60,15 @@ class AppEngine(object):
                 for expense_category_name, expense_value_dict in expense_dict.items():
                     if expense_category_name not in grouped_expense_dict[year_name].keys():
                         grouped_expense_dict[year_name].update({expense_category_name: dict()})
+                        data['expense_total'][year_name].update({expense_category_name: dict()})
+                    monthly_total = 0.0
                     for e_name, e_amount in expense_value_dict.items():
+                        monthly_total = monthly_total + e_amount
                         if e_name not in grouped_expense_dict[year_name][expense_category_name].keys():
                             grouped_expense_dict[year_name][expense_category_name][e_name] = {month: e_amount}
                         else:
                             grouped_expense_dict[year_name][expense_category_name][e_name].update({month: e_amount})
+                    data['expense_total'][year_name][expense_category_name].update({month: monthly_total})
             data['expenses'] = grouped_expense_dict
     
     @classmethod
