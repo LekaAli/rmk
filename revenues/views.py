@@ -131,7 +131,6 @@ def generate_revenue_projection(request):
                     for product_month_data in data:
                         product, months = product_month_data
                         product = list(set(product))[0]
-                    # for product in list(set(products)):
                         current_revenues = Revenue.objects.filter(product=product).values_list('month', 'product_revenue')
                         #Ge ngwaga o le 0 goba 24 Revenue, tswelapele ka go dira di culculation tsa di revenue tsa kgwedi
                         if 0 <= current_revenues.count() < 24:
