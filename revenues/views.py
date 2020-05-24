@@ -128,11 +128,10 @@ def generate_revenue_projection(request):
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) == 0:
                     #  only project for products not already projected
                     data = pre_product_projection_check(product_instance, form_data)
-                    if data:
-                        products, months = data[0]
-                    else:
-                        products = list()
-                    for product in list(set(products)):
+                    for product_month_data in data:
+                        product, months = product_month_data
+                        product = list(set(product))[0]
+                    # for product in list(set(products)):
                         current_revenues = Revenue.objects.filter(product=product).values_list('month', 'product_revenue')
                         #Ge ngwaga o le 0 goba 24 Revenue, tswelapele ka go dira di culculation tsa di revenue tsa kgwedi
                         if 0 <= current_revenues.count() < 24:
