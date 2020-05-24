@@ -46,11 +46,17 @@ class AppEngine(object):
             expense_months_dict = dict([(m, list(d)) for m, d in profit_before_tax_sorted_monthly_iter])
             for m_k, m_v in month_dict.items():
                 p_b_tax_val = 0.0
-                e_val = {}
                 if m_k in expense_months_dict.keys():
                     vals = expense_months_dict[m_k][0]
                     e_val = literal_eval(vals[3])
                     p_b_tax_val = vals[4]
+                else:
+                    p_b_tax_instance = ProfitBeforeTax.objects.first()
+                    d = literal_eval(p_b_tax_instance.expense)
+                    for k, v in d.items():
+                        for k1, v1 in v.items():
+                            d[k][k1] = 0.0
+                    e_val = d
                 data['expenses'][year_name].update(
                     {
                         m_v: e_val
