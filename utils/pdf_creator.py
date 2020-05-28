@@ -11,6 +11,65 @@ class EngineSelector(object):
 		self.app_engine = import_module('%s' % app_name)
 
 
+class YearlyTotal(object):
+	def __init__(self, data):
+		self.data = data
+		self.year_totals = dict()
+	
+	def tax_year_totals(self):
+		self.year_totals['tax'] = {}
+		for year, month_tot_dict in self.data.get('tax').items():
+			self.year_totals['tax'].update({year: sum(month_tot_dict.values())})
+	
+	def net_profit_year_total(self):
+		self.year_totals['net_profit'] = {}
+		for year, month_tot_dict in self.data.get('net_profit').items():
+			self.year_totals['net_profit'].update({year: sum(month_tot_dict.values())})
+	
+	def gross_profit_year_total(self):
+		self.year_totals['gross_profit'] = {}
+		for year, month_tot_dict in self.data.get('gross_profit_total').items():
+			self.year_totals['gross_profit'].update({year: sum(month_tot_dict.values())})
+	
+	def cost_of_sale_year_total(self):
+		self.year_totals['cost_of_sale'] = {}
+		for year, month_product_tot_dict in self.data.get('cost_of_sale').items():
+			self.year_totals['cost_of_sale'][year] = {}
+			for month, product_tot_dict in month_product_tot_dict.items():
+				for product, total in product_tot_dict.items():
+					if product in self.year_totals['cost_of_sale'][year].keys():
+						self.year_totals['cost_of_sale'][year][product] += total
+					else:
+						self.year_totals['cost_of_sale'][year][product] = total
+	
+	def profit_before_tax_year_total(self):
+		self.year_totals['profit_before_tax'] = {}
+		for year, month_tot_dict in self.data.get('profit_before_tax').items():
+			self.year_totals['profit_before_tax'].update({year: sum(month_tot_dict.values())})
+	
+	def expense_year_total(self):
+		self.year_totals['expense'] = {}
+		for year, expense_kind_tot_dict in self.data.get('yearly_expense_total').items():
+			self.year_totals['expense'][year] = {}
+			for e_kind, expense_tot_dict in expense_kind_tot_dict.items():
+				self.year_totals['expense'][year][e_kind] = {}
+				for e_name, e_tot in expense_tot_dict.items():
+					if e_name != 'total':
+						self.year_totals['expense'][year][e_kind][e_name] = e_tot
+	
+	def revenue_year_total(self):
+		self.year_totals['revenue'] = self.data.get('yearly_revenues')
+	
+	def generate_yearly_data(self):
+		self.tax_year_totals()
+		self.net_profit_year_total()
+		self.gross_profit_year_total()
+		self.cost_of_sale_year_total()
+		self.profit_before_tax_year_total()
+		self.expense_year_total()
+		self.revenue_year_total()
+		
+		
 def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 	try:
 		# Load and return a template for the given name
@@ -21,7 +80,11 @@ def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 		data = {}
 		if engine.app_engine.AppEngine:
 			data = engine.app_engine.AppEngine.generate_report_data()
-			
+			year_total = YearlyTotal(data)
+			year_total.generate_yearly_data()
+			data.update({
+				'all_yearly_totals': year_total.year_totals
+			})
 		html = template.render({
 			'view_option': '',
 			'title': 'Revenue Predictions',
