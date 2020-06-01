@@ -92,7 +92,7 @@ class AppEngine(object):
             for category, amount_dict in data['yearly_expense_total'][year_name].items():
                 if category != 'empty':
                     data['yearly_expense_total'][year_name][category]['total'] = sum(amount_dict.values())
-            data['expenses'] = grouped_expense_dict
+        data['expenses'] = grouped_expense_dict
     
     @classmethod
     def calc_tax(cls, data, month_dict):

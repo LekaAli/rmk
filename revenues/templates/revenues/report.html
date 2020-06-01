@@ -19,9 +19,15 @@
         left: 45pt;
             width: 512pt;
             top: 90pt;
-            height: 680pt;
+            height: 670pt;
             -pdf-keep-with-next: true;
         }
+    }
+    .page-break{
+        page-break-after: auto;
+    }
+    .no-break {
+        page-break-inside: avoid;
     }
     </style>
 </head>
@@ -70,7 +76,7 @@
         </table>
     </div>
 </div>
-    <table repeat="1" >
+    <table>
         <thead></thead>
         <tbody>
         {% if report_data %}
@@ -83,7 +89,7 @@
                 <!-- Product Revenue Information Begins Here-->
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         <td colspan="14" style="text-align:left; color: #696969">
-                        <h1>{{ year_name }} Projections</h1>
+                        <h1>{{ year_name }} Monthly Projections</h1>
                         </td>
                     </tr>
 
@@ -135,6 +141,7 @@
                 {% for cost_of_sale_year, yearly_cost_of_sale in report_data.cost_of_sale.items %}
                     {% if year_name == cost_of_sale_year %}
                         <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;border-top: 3px solid #696969;padding-top: 5px; margin-top: 10px";>
+                            <div class="no-break">
                             <td colspan="2" style="text-align:left;border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">Cost of sale Total</td>
                             {% for year, monthly_total_dict in report_data.monthly_cost_of_sale_total.items %}
                                 {% if cost_of_sale_year == year %}
@@ -143,8 +150,10 @@
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
+                            </div>
                         </tr>
                         <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            <div class="no-break">
                             {% for product_dict in yearly_cost_of_sale.values %}
                                 {% if forloop.first %}
                                     <td  colspan="2" style="text-align:left">
@@ -159,6 +168,7 @@
                                     {% endfor %}
                                 </td>
                             {% endfor %}
+                            </div>
                         </tr>
 
                     {% endif %}
@@ -166,6 +176,7 @@
                 {% for gross_profit_year, yearly_gross_profit_total in report_data.gross_profit_total.items %}
                     {% if year_name == gross_profit_year %}
                         <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;border-top: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                            <div class="no-break">
                             {% for month, amount in yearly_gross_profit_total.items %}
                                 {% if forloop.first %}
                                     <td  colspan="2" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold; ">Gross Profit</td>
@@ -176,6 +187,7 @@
                                     </div>
                                 </td>
                             {% endfor %}
+                            </div>
                         </tr>
                     {% endif %}
                 {% endfor %}<!-- GROSS PROFIT END HERE -->
@@ -183,6 +195,7 @@
                 {% for expense_year, yearly_expenses_dict in report_data.expenses.items %}
                     {% for year, monthly_expense_total_dict in report_data.monthly_expense_total.items %}
                         {% if expense_year == year %}
+                            <div class="no-break">
                             <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;border-top: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                 <td colspan="2" style="text-align:left; border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">Expenses</td>
                             </tr>
@@ -215,6 +228,7 @@
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
+                            </div>
                         {% endif %}
                     {% endfor %}
                 {% endfor %}<!-- EXPENSES-->
@@ -248,147 +262,161 @@
                 {% for net_profit_year, yearly_net_profit_dict in report_data.net_profit.items %}
                     {% if net_profit_year == year_name %}
                     <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px;border-top: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <div class="no-break">
                         {% for value in yearly_net_profit_dict.values %}
                             {% if forloop.first %}
                                 <td colspan="2" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">Net Profit</td>
                             {% endif %}
                             <td style="text-align:center; font-weight: normal">{{ value|floatformat:2 }}</td>
                         {% endfor %}
+                        </div>
                     </tr>
                     {% endif %}
                 {% endfor %}
-            <!-- OTHER REPORT PARTS MUST BE PUT HERE -->
-            {% endfor %}
+                <div class="page-break">
 
-            <!-- YEARLY TOTALS START HERE -->
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:center; color: #696969">
-                            <h1>Yearly Projection Totals</h1>
-                        </td>
-                    </tr>
-                {% for item_name, product_tot_dict in report_data.all_yearly_totals.revenue.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                        <h1>Revenue: {{item_name}}</h1>
-                        </td>
-                    </tr>
-                    {% for product_name, year_total in product_tot_dict.items %}
-                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                            <td colspan="2" style="text-align:left; font-weight: normal">
-                                {{ product_name }}
-                            </td>
-                            <td colspan="4" style="text-align:center;font-weight:bold">
-                                <div>R {{ year_total| floatformat:2 }}</div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% endfor %}
-                {% for item_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                            <h1>Cost Of Sale: {{item_name}}</h1>
-                        </td>
-                    </tr>
-                    {% for product_name, year_total in product_tot_dict.items %}
-                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                            <td colspan="2" style="text-align:left; font-weight: normal">
-                                {{ product_name }}
-                            </td>
-                            <td colspan="4" style="text-align:center;font-weight:bold">
-                                <div>R {{ year_total| floatformat:2 }}</div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% endfor %}
-                {% for year, tot_val in report_data.all_yearly_totals.gross_profit.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                            <h1>Gross Profit: {{year}}</h1>
-                        </td>
-                    </tr>
-                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                        <td colspan="2" style="text-align:left; font-weight: normal">
-                            Total:
-                        </td>
-                        <td colspan="4" style="text-align:center;font-weight:bold">
-                            <div>R {{ tot_val| floatformat:2 }}</div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                {% for year_name, kind_expense_tot_dict in report_data.all_yearly_totals.expense.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                            <h1>Expenses: {{year_name}}</h1>
-                        </td>
-                        {% for kind, expense_total_dict in kind_expense_tot_dict.items %}
-                            <tr>
-                                <td colspan="14" style="text-align:left; color: #696969">
-                                    <h1>Expense Type: {{ kind }}</h1>
-                                </td>
-                            </tr>
-                            {% for expense_name, expense_total in expense_total_dict.items %}
-                                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                                    <td colspan="2" style="text-align:left; font-weight: normal">
-                                        {{ expense_name }}
-                                    </td>
-                                    <td colspan="4" style="text-align:center;font-weight:bold">
-                                        <div>R {{ expense_total| floatformat:2 }}</div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                {% for year_name, tot_val in report_data.all_yearly_totals.profit_before_tax.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                        <h1>Profit Before Tax: {{year_name}}</h1>
-                        </td>
-                    </tr>
-                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                        <td colspan="2" style="text-align:left; font-weight: normal">
-                            Total:
-                        </td>
-                        <td colspan="4" style="text-align:center;font-weight:bold">
-                            <div>R {{ tot_val| floatformat:2 }}</div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                {% for year_name, tot_val in report_data.all_yearly_totals.tax.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                            <h1>Tax: {{year_name}}</h1>
-                        </td>
-                    </tr>
-                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                        <td colspan="2" style="text-align:left; font-weight: normal">
-                            Total:
-                        </td>
-                        <td colspan="4" style="text-align:center;font-weight:bold">
-                            <div>R {{ tot_val| floatformat:2 }}</div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                {% for year_name, tot_val in report_data.all_yearly_totals.net_profit.items %}
-                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="14" style="text-align:left; color: #696969">
-                            <h1>Net Profit: {{year_name}}</h1>
-                        </td>
-                    </tr>
-                    <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                        <td colspan="2" style="text-align:left; font-weight: normal">
-                            Total:
-                        </td>
-                        <td colspan="4" style="text-align:center;font-weight:bold">
-                            <div>R {{ tot_val| floatformat:2 }}</div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            <!-- YEARLY TOTALS END HERE -->
+                </div>
+            {% endfor %}
        {% else %}
             <div>No Report Data</div>
         {% endif %}
         </tbody>
     </table>
+    <table>
+        <thead></thead>
+        <tbody>
+            <!-- YEARLY TOTALS START HERE -->
+                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="14" style="text-align:left; color: #696969">
+                            <h1>Yearly Projections</h1>
+                        </td>
+                    </tr>
+                {% for year_name, product_tot_dict in report_data.all_yearly_totals.revenue.items %}
+                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="14" style="text-align:left; color: #696969">
+                        <h1>Revenue: {{year_name}}</h1>
+                        </td>
+                    </tr>
+                    {% for product_name, year_total in product_tot_dict.items %}
+                        <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                            <td colspan="2" style="text-align:left; font-weight: normal">
+                                {{ product_name }}
+                            </td>
+                            <td colspan="4" style="text-align:center;font-weight:bold">
+                                <div>R {{ year_total| floatformat:2 }}</div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <!-- COS -->
+                    {% for cos_year_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
+                        {% if year_name == cos_year_name %}
+                            <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                <td colspan="14" style="text-align:left; color: #696969">
+                                    <h1>Cost Of Sale: {{year_name}}</h1>
+                                </td>
+                            </tr>
+                            {% for product_name, year_total in product_tot_dict.items %}
+                                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                    <td colspan="2" style="text-align:left; font-weight: normal">
+                                        {{ product_name }}
+                                    </td>
+                                    <td colspan="4" style="text-align:center;font-weight:bold">
+                                        <div>R {{ year_total| floatformat:2 }}</div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    <!-- COS -->
+                    <!-- GP -->
+                        {% for gp_year_name, tot_val in report_data.all_yearly_totals.gross_profit.items %}
+                            {% if year_name == gp_year_name %}
+                                <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                    <td colspan="14" style="text-align:left; color: #696969">
+                                        <h1>Gross Profit: {{year_name}}</h1>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                    <td colspan="2" style="text-align:left; font-weight: normal">
+                                        Total:
+                                    </td>
+                                    <td colspan="4" style="text-align:center;font-weight:bold">
+                                        <div>R {{ tot_val| floatformat:2 }}</div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    <!-- GP -->
+                    <!-- EXP -->
+                        {% for exp_year_name, kind_expense_tot_dict in report_data.all_yearly_totals.expense.items %}
+                            {% if year_name == exp_year_name %}
+                                <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                    <td colspan="14" style="text-align:left; color: #696969">
+                                        <h1>Expenses: {{year_name}}</h1>
+                                    </td>
+                                    {% for kind, expense_total_dict in kind_expense_tot_dict.items %}
+                                        <tr>
+                                            <td colspan="14" style="text-align:left; color: #696969;padding-top: 5px;border-bottom: 2px solid #A9A9A9;">
+                                                <h1>Expense Type: {{ kind }}</h1>
+                                            </td>
+                                        </tr>
+                                        {% for expense_name, expense_total in expense_total_dict.items %}
+                                            <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                                <td colspan="2" style="text-align:left; font-weight: bold">
+                                                    {{ expense_name }}
+                                                </td>
+                                                <td colspan="4" style="text-align:center;font-weight:bold">
+                                                    <div>R {{ expense_total| floatformat:2 }}</div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    <!-- EXP -->
+                    <!-- TAX -->
+                        {% for tax_year_name, tot_val in report_data.all_yearly_totals.profit_before_tax.items %}
+                            {% if year_name == tax_year_name %}
+                                <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                    <td colspan="14" style="text-align:left; color: #696969">
+                                    <h1>Profit Before Tax: {{year_name}}</h1>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                    <td colspan="2" style="text-align:left; font-weight: normal">
+                                        Total:
+                                    </td>
+                                    <td colspan="4" style="text-align:center;font-weight:bold">
+                                        <div>R {{ tot_val| floatformat:2 }}</div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    <!-- TAX -->
+                    <!-- NET -->
+                        {% for net_year_name, tot_val in report_data.all_yearly_totals.net_profit.items %}
+                            {% if year_name == net_year_name %}
+                                <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                                    <td colspan="14" style="text-align:left; color: #696969">
+                                        <h1>Net Profit: {{year_name}}</h1>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
+                                    <td colspan="2" style="text-align:left; font-weight: normal">
+                                        Total:
+                                    </td>
+                                    <td colspan="4" style="text-align:center;font-weight:bold">
+                                        <div>R {{ tot_val| floatformat:2 }}</div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    <!-- NET -->
+                {% endfor %}
+            <!-- YEARLY TOTALS END HERE -->
+        </tbody>
+    </table>
+
 </body>
 </html>
