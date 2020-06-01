@@ -122,14 +122,14 @@
                         {% endfor %}
                     </tr>
                     <!-- Monthly revenue total Ends Here -->
-                    {% for product_name, product_revenue_lst in product_revenue_dict.items %}
+                    {% for product_name, month_revenue_dict in product_revenue_dict.items %}
                         <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
                             <td colspan="2" style="text-align:left; font-weight: normal">
                                 {{ product_name }}
                             </td>
-                        {% for revenue_item in product_revenue_lst %}
+                        {% for month_val in month_revenue_dict.values %}
                             <td style="text-align:center">
-                                <div>{{ revenue_item.4| floatformat:2 }}</div>
+                                <div>{{ month_val| floatformat:2 }}</div>
                             </td>
                         {% endfor %}
                         </tr>
@@ -292,9 +292,14 @@
                         </td>
                     </tr>
                 {% for year_name, product_tot_dict in report_data.all_yearly_totals.revenue.items %}
+                    <tr style="border-bottom: 1px solid #696969;padding-top: 5px;">
+                        <td colspan="14" style="text-align:left; color: #696969;padding-top: 5px">
+                            <h2>Yearly Projections: {{ year_name }}</h2>
+                        </td>
+                    </tr>
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         <td colspan="14" style="text-align:left; color: #696969">
-                        <h1>Revenue: {{year_name}}</h1>
+                        <h2>Revenue</h2>
                         </td>
                     </tr>
                     {% for product_name, year_total in product_tot_dict.items %}
@@ -312,7 +317,7 @@
                         {% if year_name == cos_year_name %}
                             <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                 <td colspan="14" style="text-align:left; color: #696969">
-                                    <h1>Cost Of Sale: {{year_name}}</h1>
+                                    <h2>Cost Of Sale</h2>
                                 </td>
                             </tr>
                             {% for product_name, year_total in product_tot_dict.items %}
@@ -333,7 +338,7 @@
                             {% if year_name == gp_year_name %}
                                 <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                     <td colspan="14" style="text-align:left; color: #696969">
-                                        <h1>Gross Profit: {{year_name}}</h1>
+                                        <h2>Gross Profit</h2>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
@@ -352,12 +357,12 @@
                             {% if year_name == exp_year_name %}
                                 <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                     <td colspan="14" style="text-align:left; color: #696969">
-                                        <h1>Expenses: {{year_name}}</h1>
+                                        <h2>Expenses</h2>
                                     </td>
                                     {% for kind, expense_total_dict in kind_expense_tot_dict.items %}
                                         <tr>
                                             <td colspan="14" style="text-align:left; color: #696969;padding-top: 5px;border-bottom: 2px solid #A9A9A9;">
-                                                <h1>Expense Type: {{ kind }}</h1>
+                                                <h1>{{ kind }}</h1>
                                             </td>
                                         </tr>
                                         {% for expense_name, expense_total in expense_total_dict.items %}
@@ -380,7 +385,7 @@
                             {% if year_name == tax_year_name %}
                                 <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                     <td colspan="14" style="text-align:left; color: #696969">
-                                    <h1>Profit Before Tax: {{year_name}}</h1>
+                                    <h2>Profit Before Tax</h2>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
@@ -399,7 +404,7 @@
                             {% if year_name == net_year_name %}
                                 <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                                     <td colspan="14" style="text-align:left; color: #696969">
-                                        <h1>Net Profit: {{year_name}}</h1>
+                                        <h2>Net Profit</h2>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">

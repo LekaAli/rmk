@@ -68,8 +68,27 @@ class YearlyTotal(object):
 		self.profit_before_tax_year_total()
 		self.expense_year_total()
 		self.revenue_year_total()
+		self.generate_monthly_revenue()
 		
+	def generate_monthly_revenue(self):
+		self.year_totals['monthly_revenues'] = {}
+		for year, product_month_tot_dict in self.data.get('monthly_revenues').items():
+			self.year_totals['monthly_revenues'][year] = {}
+			for product, month_tot_dict in product_month_tot_dict.items():
+				self.year_totals['monthly_revenues'][year][product] = {}
+				for tot_lst in month_tot_dict:
+					month = tot_lst[3]
+					val = tot_lst[4]
+					self.year_totals['monthly_revenues'][year][product].update({month: val})
+				d = {}
+				months = list(self.year_totals['monthly_revenues'][year][product].keys())
+				dd = self.year_totals['monthly_revenues'][year][product]
+				months.sort()
+				for month in months:
+					d[month] = dd.get(month)
+				self.year_totals['monthly_revenues'][year][product] = d
 		
+
 def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 	try:
 		# Load and return a template for the given name
@@ -85,6 +104,7 @@ def html_to_pdf_creator(app_name='revenues', html_template='report.html'):
 			data.update({
 				'all_yearly_totals': year_total.year_totals
 			})
+			data['monthly_revenues'] = year_total.year_totals.get('monthly_revenues')
 		html = template.render({
 			'view_option': '',
 			'title': 'Revenue Predictions',
