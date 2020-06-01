@@ -41,7 +41,10 @@ class YearlyTotal(object):
 						self.year_totals['cost_of_sale'][year][product] += total
 					else:
 						self.year_totals['cost_of_sale'][year][product] = total
-	
+		for year, product_tot_dict in self.year_totals.get('cost_of_sale').items():
+			tot = sum(product_tot_dict.values())
+			product_tot_dict.update({'total': tot})
+
 	def profit_before_tax_year_total(self):
 		self.year_totals['profit_before_tax'] = {}
 		for year, month_tot_dict in self.data.get('profit_before_tax').items():
@@ -56,9 +59,15 @@ class YearlyTotal(object):
 				for e_name, e_tot in expense_tot_dict.items():
 					if e_name != 'total':
 						self.year_totals['expense'][year][e_kind][e_name] = e_tot
+		for year, kind_expense_tot_dict in self.year_totals.get('expense').items():
+			for kind, expense_tot_dict in kind_expense_tot_dict.items():
+				tot = sum(expense_tot_dict.values())
+				expense_tot_dict.update({'total': tot})
 	
 	def revenue_year_total(self):
 		self.year_totals['revenue'] = self.data.get('yearly_revenues')
+		for year, values_dict in self.year_totals['revenue'].items():
+			self.year_totals['revenue'][year].update({'total': sum(values_dict.values())})
 	
 	def generate_yearly_data(self):
 		self.tax_year_totals()
