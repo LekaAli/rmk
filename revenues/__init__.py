@@ -16,7 +16,8 @@ class AppEngine(object):
     
     @classmethod
     def calc_profit_before_tax(cls, data, month_dict):
-        from products.models import ProfitBeforeTax, Expense
+        from products.models import ProfitBeforeTax
+        from revenues.views import financial_year_months_extraction
         profit_before_taxes = ProfitBeforeTax.objects.values_list(
             'id',
             'financial_year__description',
@@ -44,7 +45,9 @@ class AppEngine(object):
             data['monthly_expense_total'].update({year_name: dict()})
             data['yearly_expense_total'].update({year_name: dict()})
             expense_months_dict = dict([(m, list(d)) for m, d in profit_before_tax_sorted_monthly_iter])
-            for m_k, m_v in month_dict.items():
+            month_dicts = month_dict.get(year_name)
+            month_dicts = dict(month_dicts)
+            for m_k, m_v in month_dicts.items():
                 p_b_tax_val = 0.0
                 if m_k in expense_months_dict.keys():
                     vals = expense_months_dict[m_k][0]
@@ -113,14 +116,16 @@ class AppEngine(object):
             grouped_monthly_taxes = groupby(sorted_monthly_taxes, key=lambda tax_instance: tax_instance[2])
             data['tax'].update({'%s' % year: dict()})
             monthly_taxes = dict([(k, list(v)) for k, v in grouped_monthly_taxes])
-            for k, v in month_dict.items():
+            month_dicts = month_dict.get(year)
+            month_dicts = dict(month_dicts)
+            for k, v in month_dicts.items():
                 if k in monthly_taxes.keys():
                     data['tax']['%s' % year].update({
-                        month_dict.get(k): monthly_taxes[k][0][5]
+                        month_dicts.get(k): monthly_taxes[k][0][5]
                     })
                 else:
                     data['tax']['%s' % year].update({
-                        month_dict.get(k): 0.0
+                        month_dicts.get(k): 0.0
                     })
         
     @classmethod
@@ -140,22 +145,36 @@ class AppEngine(object):
             grouped_monthly_net_profits = groupby(sorted_monthly_net_profits, key=lambda net_profit_instance: net_profit_instance[2])
             data['net_profit'].update({'%s' % year: dict()})
             month_net_profit_dict = dict([(k, list(v)) for k, v in grouped_monthly_net_profits])
-            for k, v in month_dict.items():
+            month_dicts = month_dict.get(year)
+            month_dicts = dict(month_dicts)
+            for k, v in month_dicts.items():
                 if k in month_net_profit_dict.keys():
                     data['net_profit']['%s' % year].update({
-                        month_dict.get(k): month_net_profit_dict[k][0][3]
+                        month_dicts.get(k): month_net_profit_dict[k][0][3]
                     })
                 else:
                     data['net_profit']['%s' % year].update({
-                        month_dict.get(k): 0.0
+                        month_dicts.get(k): 0.0
                     })
+
+    @classmethod
+    def month_4_first_2_years(cls):
+        from revenues.views import financial_year_months_extraction
+        month_dict = dict()
+        from dates.models import FinancialYear
+        f_year_instance = FinancialYear.objects.filter(description__in=['Year 1', 'Year 2'])
+        for year in f_year_instance:
+            months_lst = financial_year_months_extraction(year.id)
+            month_dict.update({
+                '%s' % year.description: months_lst
+            })
+        return month_dict
 
     @classmethod
     def generate_report_data(cls):
         
         from revenues.models import Revenue, Sale
         from products.models import GrossProfit
-        month_dict = {key: value for key, value in sorted(Revenue.MONTHS, key=lambda x: x[0])}
         products = list(Sale.objects.values_list('product', flat=True).distinct())
         revenues = Revenue.objects.filter(product_id__in=products).order_by('id')
         gross_profits = GrossProfit.objects.filter(product_id__in=products).order_by('id')
@@ -195,6 +214,7 @@ class AppEngine(object):
             'tax': dict(),
             'net_profit': dict()
         }
+        yearly_month_dict = cls.month_4_first_2_years()
         for year_name, year_gross_profit_cost_of_sale_iter in grouped_gross_profit_cost_of_sale:
             year_gross_profit_cost_of_sale = list(year_gross_profit_cost_of_sale_iter)
             sorted_year_gross_profit_cost_of_sale = sorted(
@@ -208,9 +228,10 @@ class AppEngine(object):
             data['cost_of_sale_total'].update({year_name: dict()})
             data['cost_of_sale'].update({year_name: dict()})
             data['gross_profit_total'].update({year_name: dict()})
-            month_dict = {val[0]: val[1][:3] for val in MONTHS[2:]}
             gross_profit_dict = dict([(k, list(v)) for k, v in grouped_year_gross_profit_cost_of_sale])
             p_name = ''
+            month_dict = yearly_month_dict.get(year_name)
+            month_dict = dict(month_dict)
             for k, v in month_dict.items():
                 if k not in gross_profit_dict.keys():
                     data['gross_profit_total'][year_name].update({
@@ -245,6 +266,7 @@ class AppEngine(object):
         m_dict = dict([(k, v[:3]) for k, v in MONTHS[2:]])
         revenue_cos_dict = dict()
         for year_name, year_revenue_iter in grouped_by_year:
+            month_dict = yearly_month_dict.get(year_name)
             year_revenue_lst = list(year_revenue_iter)
             data['monthly_revenues'].update({year_name: year_revenue_lst})
             sorted_by_month = sorted(
@@ -259,6 +281,7 @@ class AppEngine(object):
                 revenue_cos_dict.update({
                     k: list(v)
                 })
+            m_dict = dict(month_dict)
             for m_k, m_v in m_dict.items():
                 if m_k in revenue_cos_dict.keys():
                     month_revenue_total = {
@@ -283,7 +306,7 @@ class AppEngine(object):
             )
             data['months'].update(
                 {
-                    year_name: [month[:3] for month in data['monthly_revenue_total'].get(year_name).keys()]
+                    year_name: [month for month in data['monthly_revenue_total'].get(year_name).keys()]
                 }
             )
         for year_name, year_revenues in data['monthly_revenues'].items():
@@ -292,16 +315,19 @@ class AppEngine(object):
                 sorted_by_products, key=lambda product_revenue_instance: product_revenue_instance[1]
             )
             products_dict = dict()
-            month_dict = {val[0]: val[1][:3] for val in MONTHS[2:]}
+            # month_dict = {val[0]: val[1][:3] for val in MONTHS[2:]}
+            month_dict = yearly_month_dict.get(year_name)
+            month_dict = dict(month_dict)
             for product_name, product_revenue_iter in grouped_by_products:
                 month_vals_lst = list(product_revenue_iter)
                 months = [k[3] for k in month_vals_lst]
                 for k, v in month_dict.items():
                     if k not in months:
-                        product = 0, product_name, year_name, k, 0.0
+                        product = 0, product_name, year_name, v, 0.0
                         month_vals_lst.append(product)
                     continue
-                products_dict[product_name] = month_vals_lst
+                month_vals_lst = list(map(lambda x: (month_dict.get(x[3]), x[4]), month_vals_lst))
+                products_dict[product_name] = dict(month_vals_lst)
             data['monthly_revenues'][year_name] = products_dict
             data['yearly_revenues'].update({year_name: dict()})
             for product_name, product_revenue in products_dict.items():
@@ -309,14 +335,14 @@ class AppEngine(object):
                     {
                         product_name: sum(
                             list(
-                                map(lambda x: float(x[4]), product_revenue)
+                                map(lambda x: float(x), product_revenue.values())
                             )
                         )
                     }
                 )
-            cls.calc_profit_before_tax(data, month_dict)
-            cls.calc_tax(data, month_dict)
-            cls.calc_net_profit(data, month_dict)
+            cls.calc_profit_before_tax(data, yearly_month_dict)
+            cls.calc_tax(data, yearly_month_dict)
+            cls.calc_net_profit(data, yearly_month_dict)
         return data
 
 # <pdf:pagenumber> of <pdf:pagecount>

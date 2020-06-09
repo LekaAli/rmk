@@ -85,14 +85,11 @@ class YearlyTotal(object):
 			self.year_totals['monthly_revenues'][year] = {}
 			for product, month_tot_dict in product_month_tot_dict.items():
 				self.year_totals['monthly_revenues'][year][product] = {}
-				for tot_lst in month_tot_dict:
-					month = tot_lst[3]
-					val = tot_lst[4]
+				for month, val in month_tot_dict.items():
 					self.year_totals['monthly_revenues'][year][product].update({month: val})
 				d = {}
 				months = list(self.year_totals['monthly_revenues'][year][product].keys())
 				dd = self.year_totals['monthly_revenues'][year][product]
-				months.sort()
 				for month in months:
 					d[month] = dd.get(month)
 				self.year_totals['monthly_revenues'][year][product] = d

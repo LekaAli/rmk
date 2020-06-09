@@ -23,6 +23,7 @@ def pre_product_projection_check(product_instances, projection_data):
     months = list()
     data = list()
     year_months = financial_year_months_extraction(projection_data['year'])
+    year_months = dict(year_months)
     for product_instance in product_instances:
         if projection_data['month'] not in ['0', 0]:
             revenue_instance = Revenue.objects.filter(
@@ -39,7 +40,7 @@ def pre_product_projection_check(product_instances, projection_data):
             months = list()
             continue
         else:
-            for month in year_months:
+            for month, month_name in year_months.items():
                 revenue_instance = Revenue.objects.filter(
                     product=product_instance,
                     financial_year_id=int(projection_data['year']),
@@ -56,6 +57,7 @@ def pre_product_projection_check(product_instances, projection_data):
 
 
 def financial_year_months_extraction(financial_year):
+    month_dict = dict(MONTHS)
     f_year_instance = FinancialYear.objects.get(id=int(financial_year))
     start_date = f_year_instance.start_date
     end_date = f_year_instance.end_date
@@ -64,18 +66,19 @@ def financial_year_months_extraction(financial_year):
     start_month = start_date.month
     for year in range(start_year, end_date.year + 1):
         for month in range(start_month, 13):
+            month_name = '%s %s' % (month_dict.get(month)[:3], '%s' % str(year)[2:])
             if year == end_date.year:
                 if month == end_date.month:
-                    months.append(month)
+                    months.append((month, month_name))
                     break
-                months.append(month)
+                months.append((month, month_name))
             else:
                 if month == 12:
-                    months.append(month)
+                    months.append((month, month_name))
                     start_month = 1
                     break
                 else:
-                    months.append(month)
+                    months.append((month, month_name))
     return months
 
 
@@ -167,7 +170,8 @@ def generate_revenue_projection(request):
                             gross_profit_instance.save()
                     if len(data) > 0:
                         months = financial_year_months_extraction(form_data['year'])
-                        for month in months:
+                        months = dict(months)
+                        for month in months.keys():
                             profit_before_tax_instance = ProfitBeforeTax(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month
