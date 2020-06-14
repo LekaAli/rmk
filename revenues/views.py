@@ -139,6 +139,9 @@ def generate_revenue_projection(request):
                         if 0 <= current_revenues.count() < 24:
                             for month in months:
                                 try:
+                                    # Calculation for revenue should be within the projection month for Year 1
+                                    #
+                                    #
                                     revenue_instance = Revenue(**{
                                         'product': product,
                                         'financial_year_id': int(form_data.get('year')),

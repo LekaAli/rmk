@@ -252,8 +252,8 @@ class ProfitBeforeTax(models.Model):
         else:
             self.profit_before_tax = 0.0
             for expense in expenses:
+                expense_val = 0.0
                 if expense.is_fixed is True:
-                    expense_val = 0.0
                     expense_dict.update(
                         {
                             expense.description: expense_val
@@ -338,7 +338,7 @@ class Tax(models.Model):
 
         if total_profit_before_tax_value <= 0:
             self.total_tax_value = 0
-            self.profit_loss_value = abs(total_profit_before_tax_value)
+            self.profit_loss_value += abs(total_profit_before_tax_value)
         else:
             # calculate tax
             previous_taxes = Tax.objects.all()
@@ -348,13 +348,13 @@ class Tax(models.Model):
                     self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
                 else:
                     # cover loss for previous years
-                    profit_after_loss_deduction = total_profit_before_tax_value - previous_tax.profit_loss_value
-                    if profit_after_loss_deduction > 0:
-                        self.profit_loss_value = 0
-                        self.total_tax_value = profit_after_loss_deduction * float(self.tax_percentage.value) / float(100)
+                    profit_after_loss_deduction = previous_tax.profit_loss_value - total_profit_before_tax_value
+                    if profit_after_loss_deduction >= 0:
+                        self.profit_loss_value = profit_after_loss_deduction
+                        self.total_tax_value = 0  # profit_after_loss_deduction * float(self.tax_percentage.value) / float(100)
                     else:
-                        self.profit_loss_value = abs(profit_after_loss_deduction)
-                        self.total_tax_value = 0
+                        self.profit_loss_value = 0  # abs(profit_after_loss_deduction)
+                        self.total_tax_value = abs(profit_after_loss_deduction)  # 0
             self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
         super(Tax, self).save(*args, **kwargs)
 
