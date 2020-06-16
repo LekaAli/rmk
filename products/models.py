@@ -338,24 +338,29 @@ class Tax(models.Model):
 
         if total_profit_before_tax_value <= 0:
             self.total_tax_value = 0
-            self.profit_loss_value += abs(total_profit_before_tax_value)
+            latest_tax_instance = Tax.objects.all().last()
+            if latest_tax_instance:
+                self.profit_loss_value = float(latest_tax_instance.profit_loss_value) + abs(total_profit_before_tax_value)
+            else:
+                self.profit_loss_value = abs(total_profit_before_tax_value)
         else:
             # calculate tax
             previous_taxes = Tax.objects.all()
             if previous_taxes.count() > 0:
-                previous_tax = previous_taxes.first()
+                previous_tax = previous_taxes.last()
                 if previous_tax.profit_loss_value == 0:
                     self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
                 else:
                     # cover loss for previous years
-                    profit_after_loss_deduction = previous_tax.profit_loss_value - total_profit_before_tax_value
+                    profit_after_loss_deduction = float(previous_tax.profit_loss_value) - total_profit_before_tax_value
                     if profit_after_loss_deduction >= 0:
                         self.profit_loss_value = profit_after_loss_deduction
                         self.total_tax_value = 0  # profit_after_loss_deduction * float(self.tax_percentage.value) / float(100)
                     else:
                         self.profit_loss_value = 0  # abs(profit_after_loss_deduction)
-                        self.total_tax_value = abs(profit_after_loss_deduction)  # 0
-            self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
+                        self.total_tax_value = abs(profit_after_loss_deduction) * float(self.tax_percentage.value) / float(100)  # 0
+            else:
+                self.total_tax_value = total_profit_before_tax_value * float(self.tax_percentage.value) / float(100)
         super(Tax, self).save(*args, **kwargs)
 
     def __str__(self):

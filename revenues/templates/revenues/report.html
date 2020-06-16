@@ -295,15 +295,18 @@
                         </td>
                     </tr>
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+
                         <td colspan="3" style="text-align:left; color: #696969">
                             <h1>Revenue</h1>
                         </td>
-                        {% for product_name, tot_val in product_tot_dict.items %}
-                            {% if product_name == 'total' %}
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
-                                </td>
-                            {% endif %}
+                        {% for year_name, product_tot_dict in report_data.all_yearly_totals.revenue.items %}
+                            {% for product_name, tot_val in product_tot_dict.items %}
+                                {% if product_name == 'total' %}
+                                    <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
+                                        <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
                     </tr>
                     {% for product_name, year_total in product_tot_dict.items %}

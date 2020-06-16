@@ -72,12 +72,12 @@ class Revenue(models.Model):
             return 2
         else:
             year_value = past_monthly_revenue_count - 24
-            return 3 if year_value == 1 else self.calc_year_value(year_value)
+            return 3 if year_value == 0 else self.calc_year_value(year_value)
     
     @staticmethod
     def calc_year_value(value):
         
-        return 4 + abs(value - 2)
+        return 4 + abs(value - 1)
 
     def is_projection_month(self):
         from .views import financial_year_months_extraction

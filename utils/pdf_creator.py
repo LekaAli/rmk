@@ -42,7 +42,7 @@ class YearlyTotal(object):
 					else:
 						self.year_totals['cost_of_sale'][year][product] = total
 		for year, product_tot_dict in self.year_totals.get('cost_of_sale').items():
-			tot = sum(product_tot_dict.values())
+			tot = sum([float(tot) for tot in product_tot_dict.values()])
 			product_tot_dict.update({'total': tot})
 
 	def profit_before_tax_year_total(self):
