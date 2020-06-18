@@ -493,7 +493,6 @@
         <pdf:nextpage/>
     </div>
     <table>
-        <thead></thead>
         <tbody>
             <!-- YEARLY TOTALS START HERE -->
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
@@ -503,19 +502,24 @@
                     </tr>
 
                     <tr style="border-bottom: 1px solid #696969;padding-top: 5px;">
-                        <td colspan="14" style="text-align:left; color: #696969;padding-top: 5px">
-                            <h2>Yearly Projections</h2>
+                        <td colspan="3" style="text-align:left; color: #696969;padding-top: 5px">
+                            <h2>Years</h2>
                         </td>
+                        {% for year_name in report_data.all_yearly_totals.revenue.keys %}
+                            <td colspan="3" style="text-align:center; color: #696969;padding-top: 5px">
+                                <h2>{{ year_name }}</h2>
+                            </td>
+                        {% endfor %}
                     </tr>
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                        <td colspan="3" style="text-align:left; color: #696969">
-                            <h1>Revenue</h1>
+                        <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
+                            Revenue
                         </td>
                         {% for year_name, product_tot_dict in report_data.all_yearly_totals.revenue.items %}
                             {% for product_name, tot_val in product_tot_dict.items %}
                                 {% if product_name == 'total' %}`
-                                    <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                        <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                    <td colspan="3" style="text-align:left;font-weight:bold;color: #696969;">
+                                        R {{ tot_val| floatformat:2 }}
                                     </td>
                                 {% endif %}
                             {% endfor %}
@@ -524,25 +528,29 @@
                     <tr>
                         {% for year_name, product_tot_dict in report_data.all_yearly_totals.revenue.items %}
                             {% if forloop.first %}
-                                <td colspan="3" style="text-align:left; font-weight: normal">
-                                    {% for product_name in product_tot_dict.keys %}
-                                        {% if product_name != 'total' %}
-                                            {{ product_name }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </td>
-                                <td colspan="3" style="text-align:left; font-weight: normal">
+                                    <td colspan="6" style="text-align:left; font-weight: normal;padding-top: 5px;">
                                     {% for product_name, product_total in product_tot_dict.items %}
                                         {% if product_name != 'total' %}
-                                            {{ product_total| floatformat:2 }}
+
+                                                <table>
+                                                    <tr>
+                                                        <td>{{ product_name }}</td>
+                                                        <td> R {{ product_total| floatformat:2 }}</td>
+                                                    </tr>
+                                                </table>
+
                                         {% endif %}
                                     {% endfor %}
-                                </td>
+                                    </td>
                             {% else %}
-                                <td colspan="3" style="text-align:left; font-weight: normal">
+                                <td colspan="3" style="text-align:left; font-weight: normal;padding-top: 5px;">
                                     {% for product_name, product_total in product_tot_dict.items %}
                                         {% if product_name != 'total' %}
-                                                    {{ product_total| floatformat:2 }}
+                                            <table>
+                                                <tr>
+                                                    <td> R {{ product_total| floatformat:2 }}</td>
+                                                </tr>
+                                            </table>
                                         {% endif %}
                                     {% endfor %}
                                 </td>
@@ -550,66 +558,68 @@
                         {% endfor %}
                     </tr>
                     <!-- COS -->
-                    {% for cos_year_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
-                        {% if year_name == cos_year_name %}
-                            <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
-                                <td colspan="3" style="text-align:left; color: #696969">
-                                    <h1>Cost Of Sale</h1>
-                                </td>
-                                {% for cos_year_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
-                                    {% for product_name, tot_val in product_tot_dict.items %}
-                                        {% if product_name == 'total' %}
-                                            <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                                <h1>R {{ tot_val| floatformat:2 }}</h1>
-                                            </td>
+                    <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
+                        <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
+                            Cost of sale
+                        </td>
+                        {% for year_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
+                            {% for product_name, tot_val in product_tot_dict.items %}
+                                {% if product_name == 'total' %}`
+                                    <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                        R {{ tot_val| floatformat:2 }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for year_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
+                            {% if forloop.first %}
+                                <td colspan="6" style="text-align:left; font-weight: normal;padding-top: 5px;">
+                                    {% for product_name, product_total in product_tot_dict.items %}
+                                        {% if product_name %}
+                                            {% if product_name != 'total' %}
+                                                <table>
+                                                    <tr>
+                                                        <td>{{ product_name }}</td>
+                                                        <td> R {{ product_total| floatformat:2 }}</td>
+                                                    </tr>
+                                                </table>
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
-                                {% endfor %}
-                            </tr>
-                            <tr>
-                                {% for cos_year_name, product_tot_dict in report_data.all_yearly_totals.cost_of_sale.items %}
-                                    {% if forloop.first %}
-                                        <td colspan="3" style="text-align:left; font-weight: normal">
-                                            {% for product_name in product_tot_dict.keys %}
-                                                {% if product_name != 'total' and product_name != '' %}
-                                                    {{ product_name }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                        <td colspan="3" style="text-align:left; font-weight: normal">
-                                            {% for product_name, product_total in product_tot_dict.items %}
-                                                {% if product_name != 'total' and product_name != '' %}
-                                                    {{ product_total| floatformat:2 }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                    {% else %}
-                                        <td colspan="3" style="text-align:left; font-weight: normal">
-                                            {% for product_name, product_total in product_tot_dict.items %}
-                                                {% if product_name != 'total' and product_name != '' %}
-                                                    {{ product_total| floatformat:2 }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
+                                </td>
+                            {% else %}
+                                <td colspan="3" style="text-align:left; font-weight: normal;padding-top: 5px;">
+                                    {% for product_name, product_total in product_tot_dict.items %}
+                                        {% if product_name %}
+                                            {% if product_name != 'total' %}
+                                                <table>
+                                                    <tr>
+                                                        <td> R {{ product_total| floatformat:2 }}</td>
+                                                    </tr>
+                                                </table>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
                     <!-- COS -->
                     <!-- GP -->
                         <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                             {% for gp_year_name, tot_val in report_data.all_yearly_totals.gross_profit.items %}
                                 {% if forloop.first %}
-                                    <td colspan=3 style="text-align:left; color: #696969">
-                                        <h1>Gross Profit</h1>
+                                    <td colspan=3 style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
+                                        Gross Profit
                                     </td>
-                                    <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                        <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                    <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                        R {{ tot_val| floatformat:2 }}
                                     </td>
                                 {% else %}
-                                    <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                        <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                    <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                        R {{ tot_val| floatformat:2 }}
                                     </td>
                                 {% endif %}
                             {% endfor %}
@@ -625,7 +635,7 @@
                         {% if forloop.first %}
                             {% for kind, expense_total_dict in kind_expense_tot_dict.items %}
                                 <tr style="border-bottom: 2px solid #A9A9A9;padding-top: 5px">
-                                    <td colspan="3" style="text-align:left; color: #696969;padding-top: 5px;border-bottom: 2px solid #A9A9A9;">
+                                    <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
                                         {{ kind }}
                                     </td>
                                     {% for exp_year_name, kind_expense_tot_dict in report_data.all_yearly_totals.expense.items %}
@@ -633,7 +643,7 @@
                                             {% if kind == e_kind %}
                                                 {% for e_name, tot_val in e_total_dict.items %}
                                                     {% if e_name == 'total' %}
-                                                        <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
+                                                        <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
                                                             R {{ tot_val| floatformat:2 }}
                                                         </td>
                                                     {% endif %}
@@ -645,7 +655,7 @@
                                     {% for e_name in expense_total_dict.keys %}
                                         {% if e_name != 'total' %}
                                             <tr>
-                                                <td colspan="4" style="text-align:left;font-weight:bold;color: #696969;">
+                                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
                                                     {{ e_name }}
                                                 </td>
                                                 {% for ex_year_name, kind_expense_tot_dict in report_data.all_yearly_totals.expense.items %}
@@ -653,8 +663,8 @@
                                                         {% if ex_kind == kind %}
                                                             {% for ex_name, tot_val in expense_total_dict.items %}
                                                                 {% if ex_name == e_name %}
-                                                                    <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                                                        {{ tot_val| floatformat:2 }}
+                                                                    <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                                                        R {{ tot_val| floatformat:2 }}
                                                                     </td>
                                                                 {% endif %}
                                                             {% endfor %}
@@ -672,15 +682,15 @@
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         {% for tax_year_name, tot_val in report_data.all_yearly_totals.profit_before_tax.items %}
                             {% if forloop.first %}
-                                <td colspan="3" style="text-align:left; color: #696969">
-                                <h1>Profit Before Tax</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
+                                    Profit Before Tax
                                 </td>
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                    R {{ tot_val| floatformat:2 }}
                                 </td>
                             {% else %}
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                    R {{ tot_val| floatformat:2 }}
                                 </td>
                             {% endif %}
                         {% endfor %}
@@ -690,15 +700,15 @@
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         {% for tax_year_name, tot_val in report_data.all_yearly_totals.tax.items %}
                             {% if forloop.first %}
-                                <td colspan="3" style="text-align:left; color: #696969">
-                                    <h1>Tax</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
+                                    Tax
                                 </td>
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                    R {{ tot_val| floatformat:2 }}
                                 </td>
                             {% else %}
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                    R {{ tot_val| floatformat:2 }}
                                 </td>
                             {% endif %}
                         {% endfor %}
@@ -708,15 +718,15 @@
                     <tr style="border-bottom: 3px solid #696969;padding-top: 5px; margin-top: 10px">
                         {% for net_year_name, tot_val in report_data.all_yearly_totals.net_profit.items %}
                             {% if forloop.first %}
-                                <td colspan="3" style="text-align:left; color: #696969">
-                                    <h1>Net Profit</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:bold">
+                                    Net Profit
                                 </td>
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                    R {{ tot_val| floatformat:2 }}
                                 </td>
                             {% else %}
-                                <td colspan="4" style="text-align:center;font-weight:bold;color: #696969;">
-                                    <h1>R {{ tot_val| floatformat:2 }}</h1>
+                                <td colspan="3" style="border-bottom: 2px solid #A9A9A9;padding-top: 5px; font-weight:normal">
+                                    R {{ tot_val| floatformat:2 }}
                                 </td>
                             {% endif %}
                         {% endfor %}
