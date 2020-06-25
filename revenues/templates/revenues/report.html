@@ -281,9 +281,11 @@
         {% endif %}
         </tbody>
     </table>
-    <div>
-        <pdf:nextpage/>
-    </div>
+    {% if 'Year 2' in report_data.monthly_revenues.keys %}
+        <div>
+            <pdf:nextpage/>
+        </div>
+    {% endif %}
     <table>
         <thead></thead>
         <tbody>
@@ -489,9 +491,11 @@
         {% endif %}
         </tbody>
     </table>
-    <div>
-        <pdf:nextpage/>
-    </div>
+    {% if report_data.monthly_revenues.items %}
+        <div>
+            <pdf:nextpage/>
+        </div>
+    {% endif %}
     <table>
         <tbody>
             <!-- YEARLY TOTALS START HERE -->

@@ -173,22 +173,42 @@ def generate_revenue_projection(request):
                             gross_profit_instance.save()
                     if len(data) > 0:
                         months = financial_year_months_extraction(form_data['year'])
-                        months = dict(months)
-                        for month in months.keys():
+                        f_year = FinancialYear.objects.get(id=int(form_data['year']))
+                        if f_year.description in ['Year 1', 'Year 2']:
+                            months = dict(months)
+                            for month in months.keys():
+                                profit_before_tax_instance = ProfitBeforeTax(**{
+                                    'financial_year_id': int(form_data.get('year')),
+                                    'month': month
+                                })
+                                profit_before_tax_instance.save()
+
+                            for month in months:
+                                tax_instance = Tax(**{
+                                    'financial_year_id': int(form_data.get('year')),
+                                    'month': month,
+                                    'tax_percentage': tax_value_instance.first()
+                                })
+                                tax_instance.save()
+                            for month in months:
+                                net_profit_instance = NetProfit(**{
+                                    'financial_year_id': int(form_data.get('year')),
+                                    'month': month
+                                })
+                                net_profit_instance.save()
+                        else:
+                            month = months[-1][0]
                             profit_before_tax_instance = ProfitBeforeTax(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month
                             })
                             profit_before_tax_instance.save()
-                        
-                        for month in months:
                             tax_instance = Tax(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month,
                                 'tax_percentage': tax_value_instance.first()
                             })
                             tax_instance.save()
-                        for month in months:
                             net_profit_instance = NetProfit(**{
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': month
@@ -197,19 +217,21 @@ def generate_revenue_projection(request):
                 if isinstance(product_instance, QuerySet) and int(form_data.get('month')) != 0:
                     #  only project for products not already projected
                     data = pre_product_projection_check(product_instance, form_data)
-                    for product in data:
+                    for product_month_data in data:
+                        product, months = product_month_data
+                        product = list(set(product))[0]
                         try:
                             revenue_instance = Revenue(**{
-                                'product': product_instance,
+                                'product': product,
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': form_data.get('month')
                             })
                             revenue_instance.save()
                             gross_profit_instance = GrossProfit(**{
-                                'product': product_instance,
+                                'product': product,
                                 'financial_year_id': int(form_data.get('year')),
                                 'month': form_data.get('month'),
-                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product_instance).first().id
+                                'cost_of_sale_id': cost_of_sale_instance.filter(product=product).first().id
                             })
                             gross_profit_instance.save()
                             

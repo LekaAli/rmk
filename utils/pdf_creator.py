@@ -19,7 +19,7 @@ class YearlyTotal(object):
 	def tax_year_totals(self):
 		self.year_totals['tax'] = {}
 		for year, month_tot_dict in self.data.get('tax').items():
-			self.year_totals['tax'].update({year: sum(month_tot_dict.values())})
+			self.year_totals['tax'].update({year: sum(list(map(lambda d: float(d), month_tot_dict.values())))})
 	
 	def net_profit_year_total(self):
 		self.year_totals['net_profit'] = {}
@@ -37,6 +37,8 @@ class YearlyTotal(object):
 			self.year_totals['cost_of_sale'][year] = {}
 			for month, product_tot_dict in month_product_tot_dict.items():
 				for product, total in product_tot_dict.items():
+					if product == '':
+						continue
 					if product in self.year_totals['cost_of_sale'][year].keys():
 						self.year_totals['cost_of_sale'][year][product] += total
 					else:
